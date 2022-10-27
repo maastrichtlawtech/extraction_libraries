@@ -1,0 +1,4 @@
+# For rechtspraak extractor
+xmltodict
+requests
+bs4
