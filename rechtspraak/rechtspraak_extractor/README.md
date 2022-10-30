@@ -1,6 +1,9 @@
 ## Rechtspraak extractor
 This library contains two functions to get rechtspraak data and metadata from the API.
 
+## Version
+Python 3.9
+
 ## Contributors
 
 <!-- readme: contributors,gijsvd -start -->
@@ -15,7 +18,7 @@ This library contains two functions to get rechtspraak data and metadata from th
     </td>
     <td align="center">
         <a href="https://github.com/Cloud956">
-            <img src="https://avatars.githubusercontent.com/u/24865274?v=4" width="100;" alt="pranavnbapat"/>
+            <img src="https://avatars.githubusercontent.com/u/24865274?v=4" width="100;" alt="Cloud956"/>
             <br />
             <sub><b>Piotr Lewandowski</b></sub>
         </a>
@@ -42,21 +45,24 @@ This library contains two functions to get rechtspraak data and metadata from th
 <code>pip install rechtspraak_extractor</code>
 
 ## What are the functions?
+<li><b>Rechtspraak Extractor</b>
 <ol>
-    <li>get_rechtspraak</li>
+    <li><code>get_rechtspraak</code></li>
     Gets all the ECLIs and saves them in the CSV file or in-memory.
     <br>It gets, ECLI, title, summary, updated date, link.
-    <li>get_rechtspraak_metadata</li>
+    <li><code>get_rechtspraak_metadata</code></li>
     Gets the metadata of the ECLIs created by above function and saves them in the new CSV file or in-memory.
     <br>Link attribute that we get from the above function contains the links of ECLI metadata.
     <br>It gets instantie, datum uitspraak, datum publicatie, zaaknummer, rechtsgebieden, bijzondere kenmerken, 
     inhoudsindicatie, and vindplaatsen
-</ol>
+</ol> </li>
+<li><b>ECHR - Work in progress </b></li>
+<li><b>Cellar - Work in progress </b></li>
 
 ## What are the parameters?
 <ol>
     <li><strong>get_rechtspraak(max_ecli=100, sd='2022-05-01'), ed='2022-10-01', save_file='y')</strong></li>
-    <strong>Parameters:</strong>    
+    <strong>Parameters:</strong>
     <ul>
         <li><strong>max_ecli: int, optional</strong></li>
         Maximum amount of ECLIs to retrieve
@@ -68,7 +74,7 @@ This library contains two functions to get rechtspraak data and metadata from th
         <li><strong>save_file: ['y', 'n'], default 'y'</strong></li>
         Save data as a CSV file in data folder
     </ul>
-    <li>get_rechtspraak_metadata</li>
+    <li><code>get_rechtspraak_metadata</code></li>
     <ul>
         <li><strong>save_file: ['y', 'n'], default 'y'</strong></li>
         <li><strong>dataframe: dataframe, optional</strong></li>
@@ -77,6 +83,7 @@ This library contains two functions to get rechtspraak data and metadata from th
         CSV file containing ECLIs to retrieve metadata. Cannot be combined with dataframe
     </ul>
 </ol>
+
 
 ## Examples
 <code>
@@ -91,29 +98,23 @@ df_metadata = rex.get_rechtspraak_metadata(save_file='n', dataframe=df)
 
 
 ## License
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache 2.0](https://img.shields.io/github/license/maastrichtlawtech/extraction_libraries)](https://opensource.org/licenses/Apache-2.0)
 
-Previously under the [Creative Commons Attribution-NonCommercial 4.0 International](https://creativecommons.org/licenses/by-nc/4.0/legalcode.en)), as of 13/02/2022 this work is licensed under a [MIT License](https://opensource.org/licenses/MIT).
+Previously under the [MIT License](https://opensource.org/licenses/MIT), as of 28/10/2022 this work is licensed under a [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0).
 ```
-MIT License
+Apache License, Version 2.0
 
 Copyright (c) 2022 Maastricht Law & Tech Lab
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    
+    http://www.apache.org/licenses/LICENSE-2.0
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 ```
