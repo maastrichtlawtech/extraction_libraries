@@ -12,7 +12,7 @@ from datetime import date, datetime
 
 # sys.path.append(dirname(dirname(dirname(dirname(abspath(__file__))))))
 
-from rechtspraak_functions import *
+from rechtspraak_extractor.rechtspraak_functions import *
 
 
 # Define base URL
@@ -114,7 +114,7 @@ def get_rechtspraak(max_ecli=100, sd='2022-08-01', ed=None, save_file='y'):
 
         if json_object:
             # Get current time
-            current_time = datetime.now().strftime("%H:%M:%S")
+            current_time = datetime.now().strftime("%H-%M-%S")
 
             # Build file name
             file_name = 'rechtspraak_' + starting_date + '_' + ending_date + '_' + current_time

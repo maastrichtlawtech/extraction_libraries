@@ -7,45 +7,24 @@ This library contains two functions to get rechtspraak data and metadata from th
 <table>
 <tr>
     <td align="center">
-        <a href="https://github.com/BogDAAAMN">
-            <img src="https://avatars.githubusercontent.com/u/22895284?v=4" width="100;" alt="BogDAAAMN"/>
+        <a href="https://github.com/pranavnbapat">
+            <img src="https://avatars.githubusercontent.com/u/7271334?v=4" width="100;" alt="pranavnbapat"/>
             <br />
-            <sub><b>Bogdan Covrig</b></sub>
+            <sub><b>Pranav Bapat</b></sub>
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/maxin-e">
-            <img src="https://avatars.githubusercontent.com/u/15159137?v=4" width="100;" alt="maxin-e"/>
+        <a href="https://github.com/Cloud956">
+            <img src="https://avatars.githubusercontent.com/u/24865274?v=4" width="100;" alt="pranavnbapat"/>
             <br />
-            <sub><b>maxin-e</b></sub>
+            <sub><b>Piotr Lewandowski</b></sub>
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/pedrohserrano">
-            <img src="https://avatars.githubusercontent.com/u/12054964?v=4" width="100;" alt="pedrohserrano"/>
+        <a href="https://github.com/shashankmc">
+            <img src="https://avatars.githubusercontent.com/u/3445114?v=4" width="100;" alt="shashankmc"/>
             <br />
-            <sub><b>Pedro V</b></sub>
-        </a>
-    </td>
-    <td align="center">
-        <a href="https://github.com/MarionMeyers">
-            <img src="https://avatars.githubusercontent.com/u/23552499?v=4" width="100;" alt="MarionMeyers"/>
-            <br />
-            <sub><b>MarionMeyers</b></sub>
-        </a>
-    </td>
-    <td align="center">
-        <a href="https://github.com/kodymoodley">
-            <img src="https://avatars.githubusercontent.com/u/13569029?v=4" width="100;" alt="kodymoodley"/>
-            <br />
-            <sub><b>Kody Moodley</b></sub>
-        </a>
-    </td>
-    <td align="center">
-        <a href="https://github.com/jaspersnel">
-            <img src="https://avatars.githubusercontent.com/u/7067980?v=4" width="100;" alt="jaspersnel"/>
-            <br />
-            <sub><b>Jasper Snel</b></sub>
+            <sub><b>shashankmc</b></sub>
         </a>
     </td>
     <td align="center">
@@ -54,7 +33,8 @@ This library contains two functions to get rechtspraak data and metadata from th
             <br />
             <sub><b>gijsvd</b></sub>
         </a>
-    </td></tr>
+    </td>
+</tr>
 </table>
 <!-- readme: contributors,gijsvd -end -->
 
@@ -65,7 +45,7 @@ This library contains two functions to get rechtspraak data and metadata from th
 <ol>
     <li>get_rechtspraak</li>
     Gets all the ECLIs and saves them in the CSV file or in-memory.
-    <br>It gets, ECLI, Title, Summary, Updated date, Link.
+    <br>It gets, ECLI, title, summary, updated date, link.
     <li>get_rechtspraak_metadata</li>
     Gets the metadata of the ECLIs created by above function and saves them in the new CSV file or in-memory.
     <br>Link attribute that we get from the above function contains the links of ECLI metadata.
@@ -75,21 +55,26 @@ This library contains two functions to get rechtspraak data and metadata from th
 
 ## What are the parameters?
 <ol>
-    <li>get_rechtspraak</li>
+    <li><strong>get_rechtspraak(max_ecli=100, sd='2022-05-01'), ed='2022-10-01', save_file='y')</strong></li>
+    <strong>Parameters:</strong>    
     <ul>
-        <li>max_ecli: Maximum amount of ECLIs you would like to retrieve </li>
-        If not provided, default value of 100 is taken.
-        <li>sd: The start publication date (yyyy-mm-dd) </li>
-        If not provided, default value of 2022-08-01 is taken.
-        <li>ed: The end publication date (yyyy-mm-dd) </li>
-        If not provided, current date is taken.
-        <li>save_file ['y', 'n']:: Save data as a CSV file</li>
-        If not provided, it is saved inside data folder by default.
+        <li><strong>max_ecli: int, optional</strong></li>
+        Maximum amount of ECLIs to retrieve
+        <br>Default: 100
+        <li><strong>sd: date, optional, default '2022-08-01'</strong></li>
+        The start publication date (yyyy-mm-dd)
+        <li><strong>ed: date, optional, default current date</strong></li>
+        The end publication date (yyyy-mm-dd)
+        <li><strong>save_file: ['y', 'n'], default 'y'</strong></li>
+        Save data as a CSV file in data folder
     </ul>
     <li>get_rechtspraak_metadata</li>
     <ul>
-        <li>save_file ['y', 'n']: Save data as a CSV file</li>
-        If not provided, it is saved inside data folder by default.
+        <li><strong>save_file: ['y', 'n'], default 'y'</strong></li>
+        <li><strong>dataframe: dataframe, optional</strong></li>
+        Dataframe containing ECLIs to retrieve metadata. Cannot be combined with filename
+        <li><strong>filename: string, optional</strong></li>
+        CSV file containing ECLIs to retrieve metadata. Cannot be combined with dataframe
     </ul>
 </ol>
 
@@ -97,9 +82,11 @@ This library contains two functions to get rechtspraak data and metadata from th
 <code>
 import rechtspraak_extractor as rex<br><br>
 rex.get_rechtspraak(max_ecli=1000, sd='2022-08-01', save_file='y')<br><br>
-rex.get_rechtspraak_metadata(save_file='y')<br><br>
-If you want in-memory data, and not in a CSV file, assign it to a variable and that variable will contain the dataframe<br>
+rex.get_rechtspraak_metadata(save_file='y', filename='rechtspraak.csv')<br><br>
+If you want in-memory data, and not in a CSV file, assign it to a variable and that variable will contain the dataframe
+<br>
 df = rex.get_rechtspraak_metadata(save_file='n')
+df_metadata = rex.get_rechtspraak_metadata(save_file='n', dataframe=df)
 </code>
 
 

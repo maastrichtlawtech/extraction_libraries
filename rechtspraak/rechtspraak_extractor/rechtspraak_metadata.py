@@ -5,13 +5,11 @@
 import pathlib
 
 from bs4 import BeautifulSoup
-import os
-import urllib
-import multiprocessing
+import os, urllib, multiprocessing
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 
-from rechtspraak_functions import *
+from rechtspraak_extractor.rechtspraak_functions import *
 
 # Define base url
 RECHTSPRAAK_METADATA_API_BASE_URL = "https://uitspraken.rechtspraak.nl/InzienDocument?id="
@@ -274,7 +272,7 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
 
         if save_file == 'y':
             if filename is None or filename == '':
-                filename = "custom_rechtspraak_" + datetime.now().strftime("%H:%M:%S") + ".csv"
+                filename = "custom_rechtspraak_" + datetime.now().strftime("%H-%M-%S") + ".csv"
             # Create directory if not exists
             Path('data').mkdir(parents=True, exist_ok=True)
 
