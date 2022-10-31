@@ -4,6 +4,8 @@ data
 rechtspraak/rechtspraak_extractor/tests/data
 dist
 build
+
 rechtspraak/build
 rechtspraak/dist
 rechtspraak/.pypirc
+rechtspraak/rechtspraak_extractor.egg-info
