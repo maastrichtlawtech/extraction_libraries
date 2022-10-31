@@ -10,8 +10,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 
-from rechtspraak_functions import *
-# from rechtspraak_extractor.rechtspraak_functions import *
+from rechtspraak_extractor.rechtspraak_functions import *
 
 # Define base url
 RECHTSPRAAK_METADATA_API_BASE_URL = "https://uitspraken.rechtspraak.nl/InzienDocument?id="

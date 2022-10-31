@@ -87,13 +87,13 @@ Python 3.9
 
 ## Examples
 <code>
-import rechtspraak_extractor as rex<br><br>
-rex.get_rechtspraak(max_ecli=1000, sd='2022-08-01', save_file='y')<br><br>
-rex.get_rechtspraak_metadata(save_file='y', filename='rechtspraak.csv')<br><br>
-If you want in-memory data, and not in a CSV file, assign it to a variable and that variable will contain the dataframe
-<br>
-df = rex.get_rechtspraak_metadata(save_file='n')
-df_metadata = rex.get_rechtspraak_metadata(save_file='n', dataframe=df)
+    import rechtspraak_extractor as rex<br><br>
+    rex.get_rechtspraak(max_ecli=1000, sd='2022-08-01', save_file='y')<br><br>
+    rex.get_rechtspraak_metadata(save_file='y', filename='rechtspraak.csv')<br><br>
+    If you want in-memory data, and not in a CSV file, assign it to a variable and that variable will contain the dataframe
+    <br>
+    df = rex.get_rechtspraak_metadata(save_file='n')
+    df_metadata = rex.get_rechtspraak_metadata(save_file='n', dataframe=df)
 </code>
 
 
