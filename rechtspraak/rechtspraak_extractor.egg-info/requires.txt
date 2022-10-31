@@ -1,0 +1,5 @@
+bs4
+lxml==4.6.3
+requests==2.26.0
+xmltodict==0.13.0
+python_dotenv==0.15.0

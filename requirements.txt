@@ -2,3 +2,4 @@
 xmltodict
 requests
 bs4
+lxml

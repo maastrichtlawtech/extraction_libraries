@@ -7,7 +7,6 @@
 
 import json
 import xmltodict
-import os
 from datetime import date, datetime
 from rechtspraak_functions import *
 

@@ -1,0 +1,10 @@
+setup.py
+rechtspraak_extractor/__init__.py
+rechtspraak_extractor/rechtspraak.py
+rechtspraak_extractor/rechtspraak_functions.py
+rechtspraak_extractor/rechtspraak_metadata.py
+rechtspraak_extractor.egg-info/PKG-INFO
+rechtspraak_extractor.egg-info/SOURCES.txt
+rechtspraak_extractor.egg-info/dependency_links.txt
+rechtspraak_extractor.egg-info/requires.txt
+rechtspraak_extractor.egg-info/top_level.txt

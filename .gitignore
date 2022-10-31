@@ -1,3 +1,9 @@
 venv
 .idea
 data
+rechtspraak/rechtspraak_extractor/tests/data
+dist
+build
+rechtspraak/build
+rechtspraak/dist
+rechtspraak/.pypirc
