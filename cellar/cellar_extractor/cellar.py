@@ -1,18 +1,17 @@
 import json
 import os
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
 
 from cellar_queries import get_all_eclis, get_raw_cellar_metadata
 from json_to_csv import json_to_csv_main, json_to_csv_returning
-
+from cellar_extra_extract import extra_cellar
 
 def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_format='csv'):
-    current_time = datetime.now().strftime("%H-%M-%S")
     if not ed:
         ed = date.today().strftime("%Y-%m-%d")
 
-    file_name = 'cellar_' + sd + '_' + ed + '_' + current_time
+    file_name = 'cellar_' + sd + '_' + ed
     print('\n--- PREPARATION ---\n')
     print(f'Starting from specified start date: {sd}')
     print(f'Up until the specified end date {ed}')
@@ -40,4 +39,16 @@ def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_forma
             return df
         else:
             return all_eclis
+    print("\n--- DONE ---")
+def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01",threads=10):
+    data=get_cellar(ed=ed,save_file=save_file,max_ecli=max_ecli,sd=sd,file_format='csv')
+    print("\n--- START OF EXTRA EXTRACTION ---")
+    if data:
+        return extra_cellar(data=data,threads=threads)
+    else:
+        if not ed:
+            ed = date.today().strftime("%Y-%m-%d")
+        file_name = 'cellar_' + sd + '_' + ed
+        file_path = os.path.join('data', file_name + '.csv')
+        extra_cellar(filepath=file_path,threads=threads)
     print("\n--- DONE ---")
