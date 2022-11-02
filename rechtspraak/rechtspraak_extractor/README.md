@@ -17,13 +17,6 @@ Python 3.9
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/Cloud956">
-            <img src="https://avatars.githubusercontent.com/u/24865274?v=4" width="100;" alt="Cloud956"/>
-            <br />
-            <sub><b>Piotr Lewandowski</b></sub>
-        </a>
-    </td>
-    <td align="center">
         <a href="https://github.com/shashankmc">
             <img src="https://avatars.githubusercontent.com/u/3445114?v=4" width="100;" alt="shashankmc"/>
             <br />
@@ -86,15 +79,23 @@ Python 3.9
 
 
 ## Examples
-<code>
-    import rechtspraak_extractor as rex<br><br>
-    rex.get_rechtspraak(max_ecli=1000, sd='2022-08-01', save_file='y')<br><br>
-    rex.get_rechtspraak_metadata(save_file='y', filename='rechtspraak.csv')<br><br>
-    If you want in-memory data, and not in a CSV file, assign it to a variable and that variable will contain the dataframe
-    <br>
-    df = rex.get_rechtspraak_metadata(save_file='n')
-    df_metadata = rex.get_rechtspraak_metadata(save_file='n', dataframe=df)
-</code>
+```
+import rechtspraak_extractor as rex
+
+rex.get_rechtspraak(max_ecli=1000, sd='2022-08-01', save_file='y')
+rex.get_rechtspraak_metadata(save_file='y', filename='rechtspraak.csv')
+
+If you want in-memory data and not in a CSV file, assign it to a variable
+
+# Will not get any metadata
+df = rex.get_rechtspraak_metadata(save_file='n')
+
+# Get the metadata of the passed dataframe 'df'
+df_metadata = rex.get_rechtspraak_metadata(save_file='n', dataframe=df)
+
+# Will get the metadata of all the files in the data folder
+df_metadata = rex.get_rechtspraak_metadata(save_file='y')
+```
 
 
 ## License
