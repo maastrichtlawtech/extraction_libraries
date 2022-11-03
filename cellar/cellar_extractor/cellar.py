@@ -43,7 +43,7 @@ def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_forma
 def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01",threads=10):
     data=get_cellar(ed=ed,save_file=save_file,max_ecli=max_ecli,sd=sd,file_format='csv')
     print("\n--- START OF EXTRA EXTRACTION ---")
-    if data:
+    if data is not None:
         return extra_cellar(data=data,threads=threads)
     else:
         if not ed:
