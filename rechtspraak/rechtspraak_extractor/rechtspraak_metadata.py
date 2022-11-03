@@ -152,11 +152,8 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
         if file_check.is_file():
             print("File found. Checking if metadata already exists")
             # Check if metadata already exists
-            if platform.system() == 'Windows':
-                file_check = Path(filename.split('/')[-1][:len(filename.split('/')[-1]) - 4] + "_metadata.csv")
-            else:
-                file_check = Path("data/" + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4]
-                                  + "_metadata.csv")
+            file_check = Path("data/" + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4]
+                              + "_metadata.csv")
             if file_check.is_file():
                 print("Metadata for " + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4] +
                       ".csv already exists.")
@@ -192,10 +189,7 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                                                'bijzondere_kenmerken', 'inhoudsindicatie', 'vindplaatsen'])
 
                 # Check if file already exists
-                if platform.system() == 'Windows':
-                    file_check = Path(f.split('/')[-1][:len(f.split('/')[-1]) - 4] + "_metadata.csv")
-                else:
-                    file_check = Path("data/" + f.split('/')[-1][:len(f.split('/')[-1]) - 4] + "_metadata.csv")
+                file_check = Path("data/" + f.split('/')[-1][:len(f.split('/')[-1]) - 4] + "_metadata.csv")
                 if file_check.is_file():
                     print("Metadata for " + f.split('/')[-1][:len(f.split('/')[-1]) - 4] + ".csv already exists.")
                     continue
@@ -232,12 +226,8 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 # Create directory if not exists
                 Path('data').mkdir(parents=True, exist_ok=True)
 
-                if platform.system() == 'Windows':
-                    rsm_df.to_csv(f.split('/')[-1][:len(f.split('/')[-1]) - 4] + "_metadata.csv",
-                                  index=False, encoding='utf-8')
-                else:
-                    rsm_df.to_csv("data/" + f.split('/')[-1][:len(f.split('/')[-1]) - 4] + "_metadata.csv",
-                                  index=False, encoding='utf-8')
+                rsm_df.to_csv("data/" + f.split('/')[-1][:len(f.split('/')[-1]) - 4] + "_metadata.csv",
+                              index=False, encoding='utf8')
                 print("CSV file " + f.split('/')[-1][:len(f.split('/')[-1]) - 4] + "_metadata.csv" +
                       " successfully created.\n")
 
@@ -290,12 +280,8 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
             # Create directory if not exists
             Path('data').mkdir(parents=True, exist_ok=True)
 
-            if platform.system() == 'Windows':
-                rsm_df.to_csv(filename.split('/')[-1][:len(filename.split('/')[-1]) - 4] + "_metadata.csv",
-                          index=False, encoding='utf-8')
-            else:
-                rsm_df.to_csv("data/" + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4] + "_metadata.csv",
-                              index=False, encoding='utf-8')
+            rsm_df.to_csv("data/" + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4] + "_metadata.csv",
+                          index=False, encoding='utf8')
             print("CSV file " + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4] + "_metadata.csv" +
                   " successfully created.\n")
 

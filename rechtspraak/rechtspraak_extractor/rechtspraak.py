@@ -70,7 +70,7 @@ def save_csv(json_object, file_name, save_file):
 
         # Save CSV file
         # file_path = os.path.join('data', file_name + '.csv')
-        df.to_csv('data/' + file_name + '.csv', index=False, encoding='utf-8')
+        df.to_csv('data/' + file_name + '.csv', index=False, encoding='utf8')
         print("Data saved to CSV file successfully.")
     else:
         rs_ecli_df.extend(ecli_id)

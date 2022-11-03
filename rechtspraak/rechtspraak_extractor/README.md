@@ -49,12 +49,10 @@ Python 3.9
     <br>It gets instantie, datum uitspraak, datum publicatie, zaaknummer, rechtsgebieden, bijzondere kenmerken, 
     inhoudsindicatie, and vindplaatsen
 </ol> </li>
-<li><b>ECHR - Work in progress </b></li>
-<li><b>Cellar - Work in progress </b></li>
 
 ## What are the parameters?
 <ol>
-    <li><strong>get_rechtspraak(max_ecli=100, sd='2022-05-01'), ed='2022-10-01', save_file='y')</strong></li>
+    <li><strong>get_rechtspraak(max_ecli=100, sd='2022-05-01', ed='2022-10-01', save_file='y')</strong></li>
     <strong>Parameters:</strong>
     <ul>
         <li><strong>max_ecli: int, optional</strong></li>
@@ -65,11 +63,14 @@ Python 3.9
         <li><strong>ed: date, optional, default current date</strong></li>
         The end publication date (yyyy-mm-dd)
         <li><strong>save_file: ['y', 'n'], default 'y'</strong></li>
-        Save data as a CSV file in data folder
+        y - Save data as a CSV file in data folder
+        <br>n - Save data as a dataframe in-memory
     </ul>
     <li><code>get_rechtspraak_metadata</code></li>
     <ul>
         <li><strong>save_file: ['y', 'n'], default 'y'</strong></li>
+        y - Save data as a CSV file in data folder
+        <br>n - Save data as a dataframe in-memory
         <li><strong>dataframe: dataframe, optional</strong></li>
         Dataframe containing ECLIs to retrieve metadata. Cannot be combined with filename
         <li><strong>filename: string, optional</strong></li>
@@ -82,19 +83,42 @@ Python 3.9
 ```
 import rechtspraak_extractor as rex
 
-rex.get_rechtspraak(max_ecli=1000, sd='2022-08-01', save_file='y')
+-----------------------------------------------------------------------------------------------------------------------
+
+# For rechtspraak
+
+# To get the rechtspraak data in a dataframe:
+df = rex.get_rechtspraak(max_ecli=100, sd='2022-08-01', save_file='n')  # Gets 100 ECLIs from 1st August 2022
+
+# To save rechtspraak data as a CSV file:
+rex.get_rechtspraak(max_ecli=100, sd='2022-08-01', save_file='y') 
+
+-----------------------------------------------------------------------------------------------------------------------
+
+# For rechtspraak metadata
+
+# To get metadata as a dataframe from rechtspraak data (as a dataframe):
+df_metadata = rex.get_rechtspraak_metadata(save_file='n', dataframe=df)
+
+# To get metadata as a dataframe from rechtspraak file (as a dataframe):
+df_metadata = rex.get_rechtspraak_metadata(save_file='n', filename='rechtspraak.csv')
+
+# To get metadata as a dataframe from rechtspraak data (saved as CSV file):
+rex.get_rechtspraak_metadata(save_file='y', dataframe=df)
+
+# To get metadata and save as a CSV file:
 rex.get_rechtspraak_metadata(save_file='y', filename='rechtspraak.csv')
 
-If you want in-memory data and not in a CSV file, assign it to a variable
+-----------------------------------------------------------------------------------------------------------------------
+
+# filename='rechtspraak.csv' - filename.csv is a file from the data folder created by get_rechtspraak method
+# dataframe=df - df is a dataframe created by get_rechtspraak method
 
 # Will not get any metadata
 df = rex.get_rechtspraak_metadata(save_file='n')
 
-# Get the metadata of the passed dataframe 'df'
-df_metadata = rex.get_rechtspraak_metadata(save_file='n', dataframe=df)
-
 # Will get the metadata of all the files in the data folder
-df_metadata = rex.get_rechtspraak_metadata(save_file='y')
+rex.get_rechtspraak_metadata(save_file='y')
 ```
 
 
