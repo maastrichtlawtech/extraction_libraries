@@ -3,9 +3,9 @@ import os
 from datetime import date
 from pathlib import Path
 
-from cellar_queries import get_all_eclis, get_raw_cellar_metadata
-from json_to_csv import json_to_csv_main, json_to_csv_returning
-from cellar_extra_extract import extra_cellar
+from cellar_extractor.cellar_queries import get_all_eclis, get_raw_cellar_metadata
+from cellar_extractor.json_to_csv import json_to_csv_main, json_to_csv_returning
+from cellar_extractor.cellar_extra_extract import extra_cellar
 
 def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_format='csv'):
     if not ed:

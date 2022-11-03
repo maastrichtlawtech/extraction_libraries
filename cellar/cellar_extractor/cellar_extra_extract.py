@@ -1,5 +1,5 @@
-from json_to_csv import read_csv
-from fulltext_saving import add_sections
+from cellar_extractor.json_to_csv import read_csv
+from cellar_extractor.fulltext_saving import add_sections
 
 def extra_cellar(data=None,filepath=None, threads=10):
     if not data:

@@ -1,7 +1,6 @@
-
 import pandas as pd
 import threading
-from eurlex_scraping import get_summary_from_html, get_summary_html, get_keywords_from_html, get_entire_page, \
+from cellar_extractor.eurlex_scraping import get_summary_from_html, get_summary_html, get_keywords_from_html, get_entire_page, \
     get_full_text_from_html, get_subject, get_codes, get_eurovoc,get_html_text_by_celex_id
 import json
 """
