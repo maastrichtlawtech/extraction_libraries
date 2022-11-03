@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 import platform
+import shutil
 
 from rechtspraak_extractor.rechtspraak_functions import *
 
@@ -46,7 +47,7 @@ def get_cores():
 
 
 def extract_data_from_html(filename):
-    soup = BeautifulSoup(open(filename), "html.parser")
+    soup = BeautifulSoup(open("temp_rs_data/" + filename), "html.parser")
     return soup
 
 
@@ -61,9 +62,9 @@ def get_data_from_api(ecli_id):
                 # Create HTML file
                 # html_file = ecli_id + ".html"
                 html_file = ecli_id.replace(":", "-") + ".html"
-                urllib.request.urlretrieve(url, html_file)
+                urllib.request.urlretrieve(url, "temp_rs_data/" + html_file)
 
-                # Extract data frp, HTML
+                # Extract data from HTML
                 html_object = extract_data_from_html(html_file)
 
                 soup = BeautifulSoup(str(html_object), features='lxml')
@@ -103,8 +104,9 @@ def get_data_from_api(ecli_id):
                     bijzondere_kenmerken, inhoudsindicatie, vindplaatsen
 
                 # BS4 creates an HTML file to get the data. Remove the file after use
-                if os.path.exists(html_file):
-                    os.remove(html_file)
+                if os.path.exists("temp_rs_data/" + html_file):
+                    os.remove("temp_rs_data/" + html_file)
+                urllib.request.urlcleanup()
 
             except urllib.error.URLError as e:
                 print(e)
@@ -189,9 +191,9 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                                                'bijzondere_kenmerken', 'inhoudsindicatie', 'vindplaatsen'])
 
                 # Check if file already exists
-                file_check = Path("data/" + f.split('/')[-1][:len(f.split('/')[-1]) - 4] + "_metadata.csv")
+                file_check = Path("data/" + f.split('\\')[-1][:len(f.split('\\')[-1]) - 4] + "_metadata.csv")
                 if file_check.is_file():
-                    print("Metadata for " + f.split('/')[-1][:len(f.split('/')[-1]) - 4] + ".csv already exists.")
+                    print("Metadata for " + f.split('\\')[-1][:len(f.split('\\')[-1]) - 4] + ".csv already exists.")
                     continue
 
                 df = pd.read_csv(f)
@@ -203,10 +205,14 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 # Get all ECLIs in a list
                 ecli_list = list(df.loc[:, 'id'])
 
+                # Create a temporary directory to save files
+                Path('temp_rs_data').mkdir(parents=True, exist_ok=True)
                 with ThreadPoolExecutor(max_workers=max_workers) as executor:
                     for ecli in ecli_list:
                         threads.append(executor.submit(get_data_from_api, ecli))
 
+                # Delete temporary directory
+                shutil.rmtree('temp_rs_data')
                 # executor.shutdown()  # Shutdown the executor
 
                 # Save CSV file
@@ -226,9 +232,9 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 # Create directory if not exists
                 Path('data').mkdir(parents=True, exist_ok=True)
 
-                rsm_df.to_csv("data/" + f.split('/')[-1][:len(f.split('/')[-1]) - 4] + "_metadata.csv",
+                rsm_df.to_csv("data/" + f.split('\\')[-1][:len(f.split('\\')[-1]) - 4] + "_metadata.csv",
                               index=False, encoding='utf8')
-                print("CSV file " + f.split('/')[-1][:len(f.split('/')[-1]) - 4] + "_metadata.csv" +
+                print("CSV file " + f.split('\\')[-1][:len(f.split('\\')[-1]) - 4] + "_metadata.csv" +
                       " successfully created.\n")
 
                 # Clear the lists for the next file
@@ -256,9 +262,15 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
         # Get all ECLIs in a list
         ecli_list = list(rs_data.loc[:, 'id'])
 
+        # Create a temporary directory to save files
+        Path('temp_rs_data').mkdir(parents=True, exist_ok=True)
+
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             for ecli in ecli_list:
                 threads.append(executor.submit(get_data_from_api, ecli))
+
+        # Delete temporary directory
+        shutil.rmtree('temp_rs_data')
 
         # global ecli_df, uitspraak_df, instantie_df, datum_uitspraak_df, datum_publicatie_df, zaaknummer_df, \
         #     rechtsgebieden_df, bijzondere_kenmerken_df, inhoudsindicatie_df, vindplaatsen_df
