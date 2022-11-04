@@ -18,7 +18,8 @@ def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_forma
     print(f'Up until the specified end date {ed}')
     eclis = get_all_eclis(starting_date=sd, ending_date=ed)
     print(f"Found {len(eclis)} ECLIs")
-    eclis = eclis[:max_ecli]
+    if len(eclis) > max_ecli:
+        eclis = eclis[:max_ecli]
 
     all_eclis = {}
     concurrent_docs = 100
