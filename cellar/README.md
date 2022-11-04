@@ -50,7 +50,7 @@ Python 3.9
     <li><code>get_cellar</code></li>
     Gets all the ECLI data from the eurlex sparql endpoint and saves them in the CSV or JSON format, in-memory or as a saved file.
     <br>
-    <li><code>get_rechtspraak_metadata</code></li>
+    <li><code>get_cellar_extra</code></li>
     Gets all the ECLI data from the eurlex sparql endpoint, and on top of that scrapes the eurlex websites to acquire 
     the full text, keywords, case law directory code and eurovoc identifiers. The full text is returned as a JSON file,
     rest of data as a CSV. Can be in-memory or as saved files.
