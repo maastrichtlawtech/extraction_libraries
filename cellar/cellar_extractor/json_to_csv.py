@@ -32,13 +32,17 @@ COLS = sorted(COLS)
 """
 Method used after the json to csv conversion, to save the file in the processed directory.
 """
-def create_csv(filepath, encoding="UTF8", data=None, filename="undefined.csv"):
+
+
+def create_csv(filepath, encoding="UTF8", data=None):
     if data != "":
         csv_file = open(filepath, 'w', encoding=encoding)
         csv_writer = csv.writer(csv_file)
         csv_writer.writerow(COLS)
         csv_writer.writerows(data)
         csv_file.close()
+
+
 """
 Method used to transform the json file received from cellar_extraction to a csv file.
 Cellar specific, sets specific columns with names defined at the beginning of file as COLS.
@@ -60,7 +64,7 @@ def json_to_csv(json_data):
             value = re.sub(r" +", ' ', str(value))
             # Remove brackets
             value = re.sub(r"\[", "", str(value))
-            value = re.sub(r"\]", "", str(value))
+            value = re.sub(r"]", "", str(value))
             # Remove unwanted quotation marks
             value = re.sub(r"'", "", str(value))
             # value = re.sub("\"", "", str(value))
@@ -80,6 +84,7 @@ def json_to_csv(json_data):
         final_data.append(data)
     return final_data
 
+
 def read_csv(file_path):
     try:
         data = pd.read_csv(file_path, sep=",", encoding='utf-8')
@@ -87,8 +92,10 @@ def read_csv(file_path):
     except Exception:
         print("Something went wrong when trying to open the csv file!")
         sys.exit(2)
+
+
 def create_csv_returning(data):
-    filepath=StringIO()
+    filepath = StringIO()
     if data != "":
         csv_writer = csv.writer(filepath)
         csv_writer.writerow(COLS)
@@ -96,6 +103,8 @@ def create_csv_returning(data):
         filepath.seek(0)
     df = read_csv(filepath)
     return df
+
+
 def json_to_csv_returning(json_data):
     if json_data:
         final_data = json_to_csv(json_data)
@@ -109,11 +118,11 @@ def json_to_csv_returning(json_data):
         return False
 
 
-def json_to_csv_main(json_data,filename,filepath):
+def json_to_csv_main(json_data, filepath):
     if json_data:
         final_data = json_to_csv(json_data)
         if final_data:
-            create_csv(filepath=filepath, encoding="UTF8", data=final_data, filename=filename)
+            create_csv(filepath=filepath, encoding="UTF8", data=final_data)
         else:
             print("Error creating CSV file. Data is empty.")
             return False

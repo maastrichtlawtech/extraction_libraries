@@ -7,6 +7,7 @@ from cellar_extractor.cellar_queries import get_all_eclis, get_raw_cellar_metada
 from cellar_extractor.json_to_csv import json_to_csv_main, json_to_csv_returning
 from cellar_extractor.cellar_extra_extract import extra_cellar
 
+
 def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_format='csv'):
     if not ed:
         ed = date.today().strftime("%Y-%m-%d")
@@ -40,15 +41,17 @@ def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_forma
         else:
             return all_eclis
     print("\n--- DONE ---")
-def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01",threads=10):
-    data=get_cellar(ed=ed,save_file=save_file,max_ecli=max_ecli,sd=sd,file_format='csv')
+
+
+def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", threads=10):
+    data = get_cellar(ed=ed, save_file=save_file, max_ecli=max_ecli, sd=sd, file_format='csv')
     print("\n--- START OF EXTRA EXTRACTION ---")
     if data is not None:
-        return extra_cellar(data=data,threads=threads)
+        return extra_cellar(data=data, threads=threads)
     else:
         if not ed:
             ed = date.today().strftime("%Y-%m-%d")
         file_name = 'cellar_' + sd + '_' + ed
         file_path = os.path.join('data', file_name + '.csv')
-        extra_cellar(filepath=file_path,threads=threads)
+        extra_cellar(filepath=file_path, threads=threads)
     print("\n--- DONE ---")

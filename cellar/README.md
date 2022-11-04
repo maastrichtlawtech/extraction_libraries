@@ -97,14 +97,19 @@ Python 3.9
 
 
 ## Examples
-<code>
-import cellar_extractor as cell<br><br>
-cell.get_cellar(save_file='y', max_ecli=200, sd='2022-01-01', file_format='csv')<br><br>
-cell.get_cellar_extra(max_ecli='100, sd='2022-01-01', threads=15)<br><br>
-Below are examples for in-memory saving:<br><br>
-df = cell.get_cellar(save_file='n', file_format='csv', sd='2022-01-01', max_ecli=1000)<br><br>
-df,json = cell.get_cellar_extra(save_file='n', max_ecli=1000, sd='2022-01-01', threads=15)<br><br>
-</code>
+```
+import cellar_extractor as cell
+
+Below are examples for in-file saving:
+
+cell.get_cellar(save_file='y', max_ecli=200, sd='2022-01-01', file_format='csv')
+cell.get_cellar_extra(max_ecli='100, sd='2022-01-01', threads=15)
+
+Below are examples for in-memory saving:
+
+df = cell.get_cellar(save_file='n', file_format='csv', sd='2022-01-01', max_ecli=1000)
+df,json = cell.get_cellar_extra(save_file='n', max_ecli=1000, sd='2022-01-01', threads=15)
+```
 
 
 ## License

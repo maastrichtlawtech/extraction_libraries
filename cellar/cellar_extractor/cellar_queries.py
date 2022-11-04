@@ -1,14 +1,16 @@
-from SPARQLWrapper import SPARQLWrapper,JSON,POST
-def get_all_eclis(starting_ecli=None, starting_date=None,ending_date=None):
+from SPARQLWrapper import SPARQLWrapper, JSON, POST
+
+
+def get_all_eclis(starting_date=None, ending_date=None):
     """Gets a list of all ECLIs in CELLAR. If this needs to be picked up from a previous run,
     the last ECLI parsed in that run can be used as starting point for this run
 
-    :param starting_ecli: ECLI to start working from - alphabetically, defaults to None
-    :type starting_ecli: str, optional
     :param starting_date: Document modification date to start off from.
         Can be set to last run to only get updated documents.
         Ex. 2020-03-19T09:41:10.351+01:00
     :type starting_date: str, optional
+    :param ending_date: Document modification date to end at.
+    :type ending_date : str,optional
     :return:  A list of all (filtered) ECLIs in CELLAR.
     :rtype: list[str]
     """

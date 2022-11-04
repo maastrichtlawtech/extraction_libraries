@@ -1,17 +1,20 @@
 from bs4 import BeautifulSoup
 import requests
 import time
-LINK_SUMMARY_INF='https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere&from=EN'
-LINK_SUMJURE='https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere_SUM&from=EN'
-CELEX_SUBSTITUTE='cIdHere'
-LINK_SUMMARY='https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere_SUM&from=EN'
+
+LINK_SUMMARY_INF = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere&from=EN'
+LINK_SUMJURE = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere_SUM&from=EN'
+CELEX_SUBSTITUTE = 'cIdHere'
+LINK_SUMMARY = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere_SUM&from=EN'
 
 """
 Method for detecting code-words for case law directory codes for cellar.
 """
 
+
 def is_code(word):
     return word.replace(".", "0").replace("-", "0")[1:].isdigit()
+
 
 """
 Wrapped method for requests.get().
@@ -70,7 +73,7 @@ def get_summary_html(celex):
             if "The requested document does not exist." in response.text:
                 return "No summary available"
             else:
-                return "No summary available" #response.text
+                return "No summary available"
         else:
             return "No summary available"
 
@@ -88,12 +91,7 @@ def get_summary_from_html(html, starting):
     # Should only be used for summaries extraction
     text = get_full_text_from_html(html)
     if starting == "8":
-        text2 = text.replace("JURE SUMMARY", "", 1)
-        index = text2.index("JURE SUMMARY")
-        text2 = text2[index:]
-        text2 = text2.replace("JURE SUMMARY", "")
-        text2 = text2.strip()
-        return "No summary available" #text2
+        return "No summary available"
     elif starting == "6":
         try:
             text2 = text.replace("Summary", "nothing", 1)
@@ -151,6 +149,7 @@ def get_words_from_keywords_em(text):
             returner.update(line.split(sep=" - "))
     return ";".join(returner)
 
+
 def get_words_from_keywords(text):
     if "Keywords" in text:
         try:
@@ -169,7 +168,6 @@ def get_words_from_keywords(text):
             index = text.find("Summary")
             text = text[:index]
     return get_words_from_keywords_em(text)
-
 
 
 """
@@ -203,22 +201,24 @@ Sometimes thew websites do not load because of too many connections at once,
 this method waits a bit and tries again for up to 5 tries.
 """
 
+
 def get_html_text_by_celex_id(id):
     link = "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere&from=EN"
-    final=id
+    final = id
     if ";" in id:
         ids = id.split(";")
         for id_s in ids:
             if "INF" not in id_s:
-                final=id_s
+                final = id_s
                 break
 
-    final_link=link.replace(CELEX_SUBSTITUTE,final)
+    final_link = link.replace(CELEX_SUBSTITUTE, final)
     html = response_wrapper(final_link)
     if "The requested document does not exist." in html.text:
         return "404"
     else:
         return html.text
+
 
 """
 This method gets the page containing all document details for extracting the subject matter and
@@ -301,6 +301,8 @@ def get_eurovoc(text):
 Method for getting all of the case directory codes for each cellar case.
 Extracts them from a string containing the eurlex website containing all document information.
 """
+
+
 def get_codes(text):
     try:
         index_codes = text.index("Case law directory code:")

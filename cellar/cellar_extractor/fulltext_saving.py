@@ -1,7 +1,7 @@
 import pandas as pd
 import threading
-from cellar_extractor.eurlex_scraping import get_summary_from_html, get_summary_html, get_keywords_from_html, get_entire_page, \
-    get_full_text_from_html, get_subject, get_codes, get_eurovoc,get_html_text_by_celex_id
+from cellar_extractor.eurlex_scraping import get_summary_from_html, get_summary_html, get_keywords_from_html, \
+    get_entire_page, get_full_text_from_html, get_subject, get_codes, get_eurovoc, get_html_text_by_celex_id
 import json
 """
 This is the method executed by individual threads by the add_sections method.
@@ -25,9 +25,9 @@ def execute_sections_threads(celex, start, list_sum, list_key, list_full, list_s
         html = get_html_text_by_celex_id(id)
         if html != "404":
             text = get_full_text_from_html(html)
-            json_text={
-                'celex':str(id),
-                'text':text
+            json_text = {
+                'celex': str(id),
+                'text': text
             }
             full.append(json_text)
         else:
@@ -80,7 +80,7 @@ It operates with multiple threads, using that feature is recommended as it speed
 """
 
 
-def add_sections(data, threads,json_filepath=None):
+def add_sections(data, threads, json_filepath=None):
     name = 'CELEX IDENTIFIER'
     celex = data.loc[:, name]
     length = celex.size
@@ -111,19 +111,22 @@ def add_sections(data, threads,json_filepath=None):
     add_column_frow_list(data, "celex_subject_matter", list_subject)
     add_column_frow_list(data, "celex_directory_codes", list_codes)
     if json_filepath:
-        with open(json_filepath,'w',encoding='utf-8') as f:
+        with open(json_filepath, 'w', encoding='utf-8') as f:
             for l in list_full:
-                if len(l)>0:
-                    json.dump(l,f)
+                if len(l) > 0:
+                    json.dump(l, f)
     else:
-        json_file=[]
+        json_file = []
         for l in list_full:
-            if len(l)>0:
+            if len(l) > 0:
                 json_file.extend(l)
         return json_file
+
+
 """
 Used for adding columns easier to a dataframe for add_sections().
 """
+
 
 def add_column_frow_list(data, name, list):
     column = pd.Series([], dtype='string')
