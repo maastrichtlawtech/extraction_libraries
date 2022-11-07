@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import date
+from datetime import datetime
 from pathlib import Path
 
 from cellar_extractor.cellar_queries import get_all_eclis, get_raw_cellar_metadata
@@ -10,7 +10,7 @@ from cellar_extractor.cellar_extra_extract import extra_cellar
 
 def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_format='csv'):
     if not ed:
-        ed = date.today().strftime("%Y-%m-%d")
+        ed  = datetime.now().isoformat(timespec='seconds')
 
     file_name = 'cellar_' + sd + '_' + ed
     print('\n--- PREPARATION ---\n')
@@ -51,7 +51,7 @@ def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", thre
         return extra_cellar(data=data, threads=threads)
     else:
         if not ed:
-            ed = date.today().strftime("%Y-%m-%d")
+            ed  = datetime.now().isoformat(timespec='seconds')
         file_name = 'cellar_' + sd + '_' + ed
         file_path = os.path.join('data', file_name + '.csv')
         extra_cellar(filepath=file_path, threads=threads)
