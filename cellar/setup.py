@@ -10,11 +10,11 @@ long_descr = p.read_text()
 setup(
     name='cellar_extractor',
     packages=find_packages(include=['cellar_extractor']),
-    version='1.0.15',
+    version='1.0.16',
     description='Library for extracting cellar data',
     author='LawTech Lab',
     license='MIT',
-    install_requires=['bs4','SPARQLWrapper==2.0.0', 'requests==2.26.0', 'pandas==1.2.5','lxml==4.6.3'],
+    install_requires=['bs4','SPARQLWrapper==2.0.0', 'requests==2.26.0', 'pandas','lxml==4.6.3'],
     author_email='p.lewandowski@student.maastrichtuniversity.nl',
     keywords=['cellar', 'extractor'],
     long_description=long_descr,

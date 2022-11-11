@@ -100,7 +100,7 @@ import cellar_extractor as cell
 Below are examples for in-file saving:
 
 cell.get_cellar(save_file='y', max_ecli=200, sd='2022-01-01', file_format='csv')
-cell.get_cellar_extra(max_ecli='100, sd='2022-01-01', threads=15)
+cell.get_cellar_extra(max_ecli=100, sd='2022-01-01', threads=15)
 
 Below are examples for in-memory saving:
 

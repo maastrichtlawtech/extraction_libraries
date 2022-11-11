@@ -20,7 +20,9 @@ def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_forma
     print(f"Found {len(eclis)} ECLIs")
     if len(eclis) > max_ecli:
         eclis = eclis[:max_ecli]
-
+    if len(eclis) == 0:
+        print(f"No data to download found between {sd} and {ed}")
+        return False
     all_eclis = {}
     concurrent_docs = 100
     for i in range(0, len(eclis), concurrent_docs):
@@ -30,7 +32,7 @@ def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_forma
         Path('data').mkdir(parents=True, exist_ok=True)
         if file_format == 'csv':
             file_path = os.path.join('data', file_name + '.csv')
-            json_to_csv_main(all_eclis, file_name, file_path)
+            json_to_csv_main(all_eclis, file_path)
         else:
             file_path = os.path.join('data', file_name + '.json')
             with open(file_path, "w") as f:
@@ -46,6 +48,9 @@ def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_forma
 
 def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", threads=10):
     data = get_cellar(ed=ed, save_file=save_file, max_ecli=max_ecli, sd=sd, file_format='csv')
+    if data is False:
+        print("Cellar extraction unsuccessful")
+        return False
     print("\n--- START OF EXTRA EXTRACTION ---")
     if data is not None:
         return extra_cellar(data=data, threads=threads)
