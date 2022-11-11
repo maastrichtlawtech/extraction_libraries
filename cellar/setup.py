@@ -10,7 +10,7 @@ long_descr = p.read_text()
 setup(
     name='cellar_extractor',
     packages=find_packages(include=['cellar_extractor']),
-    version='1.0.20',
+    version='1.0.21',
     description='Library for extracting cellar data',
     author='LawTech Lab',
     license='MIT',
@@ -18,7 +18,7 @@ setup(
     author_email='p.lewandowski@student.maastrichtuniversity.nl',
     keywords=['cellar', 'extractor'],
     long_description=long_descr,
-    long_description_content_type='text/markdown',
+    long_description_content_type='te   xt/markdown',
     project_urls={
         "Bug Tracker": "https://github.com/maastrichtlawtech/case-law-explorer",
     },
