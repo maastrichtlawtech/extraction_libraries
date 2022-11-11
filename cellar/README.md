@@ -88,7 +88,7 @@ Python 3.9
         Extracting the additional data takes a lot of time. The use of multi-threading can cut down this time.
         Even with this, the method may take a couple of minutes for a couple of hundred cases. A maximum number
         of 15 recommended, as this method may also affect the devices internet connection.
-        <br>Default: 100
+        <br>Default: 10
     </ul>
 </ol>
 
