@@ -51,6 +51,12 @@ def extract_data_from_html(filename):
     return soup
 
 
+def check_if_df_empty(df):
+    if df.empty:
+        return True
+    return False
+
+
 def get_data_from_api(ecli_id):
     url = RECHTSPRAAK_METADATA_API_BASE_URL + ecli_id
     response_code = check_api(url)
@@ -190,16 +196,17 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                                                'datum_publicatie', 'zaaknummer', 'rechtsgebieden',
                                                'bijzondere_kenmerken', 'inhoudsindicatie', 'vindplaatsen'])
 
+                temp_file_name = f.split('\\')[-1][:len(f.split('\\')[-1]) - 4]
+
                 # Check if file already exists
-                file_check = Path("data/" + f.split('\\')[-1][:len(f.split('\\')[-1]) - 4] + "_metadata.csv")
+                file_check = Path("data/" + temp_file_name + "_metadata.csv")
                 if file_check.is_file():
-                    print("Metadata for " + f.split('\\')[-1][:len(f.split('\\')[-1]) - 4] + ".csv already exists.")
+                    print("Metadata for " + temp_file_name + ".csv already exists.")
                     continue
 
                 df = pd.read_csv(f)
                 no_of_rows = df.shape[0]
-                print("Getting metadata of " + str(no_of_rows) + " ECLIs from " +
-                      f.split('/')[-1][:len(f.split('/')[-1]) - 4] + ".csv")
+                print("Getting metadata of " + str(no_of_rows) + " ECLIs from " + temp_file_name + ".csv")
                 print("Working. Please wait...")
 
                 # Get all ECLIs in a list
@@ -215,9 +222,6 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 shutil.rmtree('temp_rs_data')
                 # executor.shutdown()  # Shutdown the executor
 
-                # Save CSV file
-                print("Creating CSV file...")
-
                 rsm_df['ecli_id'] = ecli_df
                 rsm_df['uitspraak'] = uitspraak_df
                 rsm_df['instantie'] = instantie_df
@@ -232,10 +236,13 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 # Create directory if not exists
                 Path('data').mkdir(parents=True, exist_ok=True)
 
-                rsm_df.to_csv("data/" + f.split('\\')[-1][:len(f.split('\\')[-1]) - 4] + "_metadata.csv",
-                              index=False, encoding='utf8')
-                print("CSV file " + f.split('\\')[-1][:len(f.split('\\')[-1]) - 4] + "_metadata.csv" +
-                      " successfully created.\n")
+                if check_if_df_empty(rsm_df):
+                    print("Metadata not found. Please check the API response.\n")
+                else:
+                    # Save CSV file
+                    print("Creating CSV file...")
+                    rsm_df.to_csv("data/" + temp_file_name + "_metadata.csv", index=False, encoding='utf8')
+                    print("CSV file " + temp_file_name + "_metadata.csv  successfully created.\n")
 
                 # Clear the lists for the next file
                 ecli_df = []
@@ -292,10 +299,15 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
             # Create directory if not exists
             Path('data').mkdir(parents=True, exist_ok=True)
 
-            rsm_df.to_csv("data/" + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4] + "_metadata.csv",
-                          index=False, encoding='utf8')
-            print("CSV file " + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4] + "_metadata.csv" +
-                  " successfully created.\n")
+            if check_if_df_empty(rsm_df):
+                print("Metadata not found. Please check the API response.\n")
+            else:
+                # Save CSV file
+                print("Creating CSV file...")
+                rsm_df.to_csv("data/" + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4] + "_metadata.csv",
+                              index=False, encoding='utf8')
+                print("CSV file " + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4] + "_metadata.csv" +
+                      " successfully created.\n")
 
         # Clear the lists for the next file
         ecli_df = []
