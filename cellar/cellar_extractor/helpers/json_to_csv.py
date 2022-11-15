@@ -91,6 +91,7 @@ def read_csv(file_path):
         return data
     except Exception:
         print("Something went wrong when trying to open the csv file!")
+        print(f" The path to the file was {file_path}")
         sys.exit(2)
 
 

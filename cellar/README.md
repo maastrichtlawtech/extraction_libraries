@@ -61,21 +61,21 @@ Python 3.9
     <strong>Parameters:</strong>
     <ul>
         <li><strong>max_ecli: int, optional</strong></li>
-        Maximum amount of ECLIs to retrieve
+        Maximum number of ECLIs to retrieve
         <br>Default: 100
         <li><strong>sd: date, optional, default '2022-05-01'</strong></li>
         The start publication date (yyyy-mm-dd)
         <li><strong>ed: date, optional, default current date</strong></li>
         The end publication date (yyyy-mm-dd)
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
-        Save data as in a data folder, or return in-memory
+        Save data in a data folder, or return in-memory
         <li><strong>file_format: ['csv', 'json'],optional, default 'csv'</strong></li>
-        Returns the data as a JSON/dictionary, or a CSV/Pandas Dataframe object.
+        Returns the data as a JSON/dictionary, or as a CSV/Pandas Dataframe object.
     </ul>
     <li><code>get_cellar_extra</code></li>
-    <ul> ed=None, save_file='y', max_ecli=100, sd="2022-05-01",threads=10
+    <ul> 
         <li><strong>max_ecli: int, optional</strong></li>
-        Maximum amount of ECLIs to retrieve
+        Maximum number of ECLIs to retrieve
         <br>Default: 100
         <li><strong>sd: date, optional, default '2022-05-01'</strong></li>
         The start publication date (yyyy-mm-dd)
@@ -84,10 +84,10 @@ Python 3.9
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
         Save the full text of cases as JSON file / return as a dictionary and save the rest of
         the data as a CSV file / return as a Pandas Dataframe object
-        <li><strong>threads: int ,optional, default 10</strong></li>
+        <li><strong>threads: int ,optional</strong></li>
         Extracting the additional data takes a lot of time. The use of multi-threading can cut down this time.
         Even with this, the method may take a couple of minutes for a couple of hundred cases. A maximum number
-        of 15 recommended, as this method may also affect the devices internet connection.
+        of 15 recommended, as this method may also affect the device's internet connection.
         <br>Default: 10
     </ul>
 </ol>
