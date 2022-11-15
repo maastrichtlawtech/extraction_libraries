@@ -237,7 +237,9 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 Path('data').mkdir(parents=True, exist_ok=True)
 
                 if check_if_df_empty(rsm_df):
-                    print("Metadata not found. Please check the API response.\n")
+                    print("Metadata not found. Please check the API response; either API is under maintenance, "
+                          "experiencing problems, or has changed. Please try again after some time or contact the "
+                          "administrator.\n")
                 else:
                     # Save CSV file
                     print("Creating CSV file...")
@@ -300,7 +302,9 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
             Path('data').mkdir(parents=True, exist_ok=True)
 
             if check_if_df_empty(rsm_df):
-                print("Metadata not found. Please check the API response.\n")
+                print("Metadata not found. Please check the API response; either API is under maintenance, "
+                      "experiencing problems, or has changed. Please try again after some time or contact the "
+                      "administrator.\n")
             else:
                 # Save CSV file
                 print("Creating CSV file...")
