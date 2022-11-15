@@ -1,7 +1,6 @@
 import glob
 import argparse
-from definitions.storage_handler import DIR_DATA_RAW
-from helpers.json_to_csv import read_csv
+from cellar_extractor.helpers.json_to_csv import read_csv
 
 """
 Method takes in a dataframe and returns a dataframe with only *number* of data rows.
@@ -35,7 +34,7 @@ if __name__ == '__main__':
             print(f"EXTRACTING FROM {csv_files[i]} ")
             data = read_csv(csv_files[i])
             output = extract_rows(data, number)
-            output_path = DIR_DATA_RAW + "/tester_100.csv"
+            output_path =  "/tester_100.csv"
             output.to_csv(output_path, index=False)
     print("")
     print(f"Extraction DONE")

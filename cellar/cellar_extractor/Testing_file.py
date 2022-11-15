@@ -10,12 +10,9 @@ Current main usage - Setting up Storage -> Setting up all the folders in root di
 """
 
 
-from helpers.citations_adder import *
-from helpers.fulltext_saving import *
-from helpers.eurlex_scraping import *
-from helpers.json_to_csv import *
+from helpers.json_to_csv import read_csv
 from helpers.sparql import *
-
+from helpers.citations_adder import add_citations_separate_webservice
 if __name__ == '__main__':
 
    """
@@ -25,11 +22,14 @@ if __name__ == '__main__':
     62000CJ0129
    They all have keywords and a summary
    """
-   link="https://ereader.cambridge.org/wr/viewer.html#book/8130a37c-c063-43ad-847f-9ac5428123f1/doc1"
-   celex="62021CO0659"
-   username=""
+   "62012CC0047"
+   path="helpers\data\cellar_csv_data_clean.csv"
+   data=read_csv(path)
+   #celex="62021CO0659"
+   username="n00ac9w5"
    password=""
-   celexes=["62021CO0659","62020CO0099","62021CO0221"]
-   query= "SELECT DN WHERE DN = 62000CJ0129"
-   response = get_keywords_from_celex(query,username,password)
+   #celexes=["62021CO0659","62020CO0099","62021CO0221"]
+   #query= " SELECT CI, DN WHERE DN = 62006CO0415"
+   #response = run_eurlex_webservice_query(query,username,password
+   add_citations_separate_webservice(data, 15, username, password)
    b=2

@@ -1,6 +1,6 @@
 from SPARQLWrapper import SPARQLWrapper, JSON, CSV, POST
 import requests
-def get_keywords_from_celexes(query_input,username,password):
+def run_eurlex_webservice_query(query_input,username,password):
     target = "https://eur-lex.europa.eu/EURLexWebService?wsdl"
     query = '''<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:sear="http://eur-lex.europa.eu/search">
       <soap:Header>
@@ -15,36 +15,12 @@ def get_keywords_from_celexes(query_input,username,password):
         <sear:searchRequest>
           <sear:expertQuery><![CDATA[%s]]></sear:expertQuery>
           <sear:page>1</sear:page>
-          <sear:pageSize>10</sear:pageSize>
+          <sear:pageSize>100</sear:pageSize>
           <sear:searchLanguage>en</sear:searchLanguage>
         </sear:searchRequest>
       </soap:Body>
     </soap:Envelope>''' % (username, password,query_input)
     return  requests.request("POST", target, data=query, allow_redirects=True)
-
-
-
-def get_keywords_from_celex(celexes,username,password):
-    target="https://eur-lex.europa.eu/EURLexWebService?wsdl"
-    query = '''<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:sear="http://eur-lex.europa.eu/search">
-  <soap:Header>
-    <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" soap:mustUnderstand="true">
-      <wsse:UsernameToken xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="UsernameToken-1">
-        <wsse:Username>%s</wsse:Username>
-        <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">%s</wsse:Password>
-      </wsse:UsernameToken>
-    </wsse:Security>
-  </soap:Header>
-  <soap:Body>
-    <sear:searchRequest>
-      <sear:expertQuery><![CDATA[SELECT IX,DN WHERE DN = 62021CO0659]]></sear:expertQuery>
-      <sear:page>1</sear:page>
-      <sear:pageSize>10</sear:pageSize>
-      <sear:searchLanguage>en</sear:searchLanguage>
-    </sear:searchRequest>
-  </soap:Body>
-</soap:Envelope>''' % (username,password)
-    return requests.request("POST",target,data=query,allow_redirects=True)
 
 
 """

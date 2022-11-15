@@ -1,6 +1,6 @@
 import pandas as pd
 import threading
-from cellar_extractor.eurlex_scraping import get_summary_from_html, get_summary_html, get_keywords_from_html, \
+from cellar_extractor.helpers.eurlex_scraping import get_summary_from_html, get_summary_html, get_keywords_from_html, \
     get_entire_page, get_full_text_from_html, get_subject, get_codes, get_eurovoc, get_html_text_by_celex_id
 import json
 """
@@ -78,7 +78,6 @@ Summary
 Method is cellar-specific, scraping html from https://eur-lex.europa.eu/homepage.html.
 It operates with multiple threads, using that feature is recommended as it speeds up the entire process.
 """
-
 
 def add_sections(data, threads, json_filepath=None):
     name = 'CELEX IDENTIFIER'

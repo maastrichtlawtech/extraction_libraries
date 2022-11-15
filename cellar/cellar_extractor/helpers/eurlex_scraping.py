@@ -126,7 +126,9 @@ This method tries to extract only they keywords from a part of html page contain
 They keywords on the page are always separated by " - " or other types of dashes.
 
 """
-
+def extract_dictionary_from_webservice_query(response):
+    text=response.text
+    b=2
 
 def get_words_from_keywords_em(text):
     lines = text.split(sep="\n")
