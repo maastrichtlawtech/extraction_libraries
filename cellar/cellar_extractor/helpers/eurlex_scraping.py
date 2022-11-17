@@ -1,12 +1,14 @@
 from bs4 import BeautifulSoup
 import requests
 import time
+import xmltodict
+import re
 
 LINK_SUMMARY_INF = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere&from=EN'
 LINK_SUMJURE = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere_SUM&from=EN'
 CELEX_SUBSTITUTE = 'cIdHere'
 LINK_SUMMARY = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere_SUM&from=EN'
-
+prog = re.compile(r'^[1234567890CE]\d{4}[A-Z]{1,2}\d{4}\d*')
 """
 Method for detecting code-words for case law directory codes for cellar.
 """
@@ -122,13 +124,96 @@ def get_keywords_from_html(html, starting):
 
 
 """
+
+Method used for citations extraction from eurlex webservices.
+It reads the SOAP response from the webservices, and adds values to the dictionary based on the results.
+Dictionary is using the celex id of a work as key and a list of celex id's of works cited as value.
+
+"""
+
+
+def extract_dictionary_from_webservice_query(response):
+    text = response.text
+    read = xmltodict.parse(text)
+    results = read['S:Envelope']['S:Body']['searchResults']['result']
+    dictionary = dict()
+    if type(results) == list:
+        for result in results:
+            celex, citing = extract_citations_from_soap(result)
+            dictionary[celex] = citing
+    else:
+        celex, citing = extract_citations_from_soap(results)
+        dictionary[celex] = citing
+    return dictionary
+
+
+"""
+
+Method used for citations extraction from eurlex webservices.
+Reads the individual celex id and documents cited from a single result.
+
+"""
+
+
+def extract_citations_from_soap(results):
+    main_content = results['content']['NOTICE']['WORK']
+    celex = main_content['ID_CELEX'].get('VALUE')
+    try:
+        citing = main_content['WORK_CITES_WORK']
+    except KeyError:
+        return celex, ""
+    citing_list = list()
+    if type(citing) == list:
+        for cited in citing:
+            celex_of_citation = get_citation_celex(cited)
+            if celex_of_citation != "":
+                citing_list.append(celex_of_citation)
+        return celex, ";".join(citing_list)
+    else:
+        return celex,get_citation_celex(citing)
+
+"""
+
+Method used for citations extraction from eurlex webservices.
+Goes thru all of the different id's of the document cited, and returns the one that is a celex id.
+
+"""
+
+
+def get_citation_celex(cited):
+    identifiers = cited['SAMEAS']
+    if type(identifiers) == list:
+        for id in identifiers:
+            ident = id['URI']['IDENTIFIER']
+            if is_celex_id(ident):
+                return ident
+    else:
+        ident = identifiers['URI']['IDENTIFIER']
+        if is_celex_id(ident):
+            return ident
+    return ""
+
+
+"""
+
+Method checking if the id passed is a celex id, using regex.
+
+"""
+
+
+def is_celex_id(id):
+    if prog.match(id):
+        return True
+    else:
+        return False
+
+
+"""
 This method tries to extract only they keywords from a part of html page containing it.
 They keywords on the page are always separated by " - " or other types of dashes.
 
 """
-def extract_dictionary_from_webservice_query(response):
-    text=response.text
-    b=2
+
 
 def get_words_from_keywords_em(text):
     lines = text.split(sep="\n")
@@ -150,6 +235,13 @@ def get_words_from_keywords_em(text):
             line = line.replace(")", "")
             returner.update(line.split(sep=" - "))
     return ";".join(returner)
+
+
+"""
+
+One of the methods used to extract keywords from summary text.
+
+"""
 
 
 def get_words_from_keywords(text):

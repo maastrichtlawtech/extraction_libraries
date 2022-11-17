@@ -51,8 +51,9 @@ Python 3.9
     <br>
     <li><code>get_cellar_extra</code></li>
     Gets all the ECLI data from the eurlex sparql endpoint, and on top of that scrapes the eurlex websites to acquire 
-    the full text, keywords, case law directory code and eurovoc identifiers. The full text is returned as a JSON file,
-    rest of data as a CSV. Can be in-memory or as saved files.
+    the full text, keywords, case law directory code and eurovoc identifiers. If the user does have an eurlex account with access to the eurlex webservices, he can also 
+    pass his webservices login credentials to the method, in order to extract data about works citing work and works 
+    being cited by work. The full text is returned as a JSON file, rest of data as a CSV.  Can be in-memory or as saved files.
 </ol>
 
 ## What are the parameters?
@@ -87,8 +88,12 @@ Python 3.9
         <li><strong>threads: int ,optional</strong></li>
         Extracting the additional data takes a lot of time. The use of multi-threading can cut down this time.
         Even with this, the method may take a couple of minutes for a couple of hundred cases. A maximum number
-        of 15 recommended, as this method may also affect the device's internet connection.
-        <br>Default: 10
+        of 10 recommended, as this method may also affect the device's internet connection.
+        <li><strong>username: string, optional, default empty string</strong></li>
+        The username to the eurlex webservices.
+        <li><strong>password: string, optional, default empty string</strong></li>
+        The password to the eurlex webservices.
+        <br>
     </ul>
 </ol>
 
@@ -100,12 +105,12 @@ import cellar_extractor as cell
 Below are examples for in-file saving:
 
 cell.get_cellar(save_file='y', max_ecli=200, sd='2022-01-01', file_format='csv')
-cell.get_cellar_extra(max_ecli=100, sd='2022-01-01', threads=15)
+cell.get_cellar_extra(max_ecli=100, sd='2022-01-01', threads=10)
 
 Below are examples for in-memory saving:
 
 df = cell.get_cellar(save_file='n', file_format='csv', sd='2022-01-01', max_ecli=1000)
-df,json = cell.get_cellar_extra(save_file='n', max_ecli=100, sd='2022-01-01', threads=15)
+df,json = cell.get_cellar_extra(save_file='n', max_ecli=100, sd='2022-01-01', threads=10)
 ```
 
 

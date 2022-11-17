@@ -12,7 +12,7 @@ def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_forma
     if not ed:
         ed = datetime.now().isoformat(timespec='seconds')
     file_name = 'cellar_' + sd + '_' + ed
-    file_name=file_name.replace(":","_")
+    file_name = file_name.replace(":", "_")
     print('\n--- PREPARATION ---\n')
     print(f'Starting from specified start date: {sd}')
     print(f'Up until the specified end date {ed}')
@@ -46,7 +46,7 @@ def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_forma
     print("\n--- DONE ---")
 
 
-def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", threads=10):
+def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", threads=10, username="", password=""):
     if not ed:
         ed = datetime.now().isoformat(timespec='seconds')
     data = get_cellar(ed=ed, save_file=save_file, max_ecli=max_ecli, sd=sd, file_format='csv')
@@ -55,10 +55,10 @@ def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", thre
         return False
     print("\n--- START OF EXTRA EXTRACTION ---")
     if data is not None:
-        return extra_cellar(data=data, threads=threads)
+        return extra_cellar(data=data, threads=threads, username=username, password=password)
     else:
         file_name = 'cellar_' + sd + '_' + ed
         file_name = file_name.replace(":", "_")
         file_path = os.path.join('data', file_name + '.csv')
-        extra_cellar(filepath=file_path, threads=threads)
+        extra_cellar(filepath=file_path, threads=threads, username=username, password=password)
     print("\n--- DONE ---")

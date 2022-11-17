@@ -3,6 +3,7 @@ import threading
 from cellar_extractor.helpers.eurlex_scraping import get_summary_from_html, get_summary_html, get_keywords_from_html, \
     get_entire_page, get_full_text_from_html, get_subject, get_codes, get_eurovoc, get_html_text_by_celex_id
 import json
+
 """
 This is the method executed by individual threads by the add_sections method.
 
@@ -79,8 +80,10 @@ Method is cellar-specific, scraping html from https://eur-lex.europa.eu/homepage
 It operates with multiple threads, using that feature is recommended as it speeds up the entire process.
 """
 
+
 def add_sections(data, threads, json_filepath=None):
     name = 'CELEX IDENTIFIER'
+
     celex = data.loc[:, name]
     length = celex.size
     if length > 100:  # to avoid getting problems with small files
