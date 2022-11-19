@@ -4,8 +4,8 @@ import time
 from io import StringIO
 from os.path import dirname, abspath
 import pandas as pd
-from cellar_extractor.helpers.sparql import get_citations_csv, get_cited, get_citing, run_eurlex_webservice_query
-from cellar_extractor.helpers.eurlex_scraping import extract_dictionary_from_webservice_query
+from cellar_extractor.sparql import get_citations_csv, get_cited, get_citing, run_eurlex_webservice_query
+from cellar_extractor.eurlex_scraping import extract_dictionary_from_webservice_query
 
 sys.path.append(dirname(dirname(dirname(dirname(abspath(__file__))))))
 

@@ -3,8 +3,8 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from cellar_extractor.helpers.cellar_queries import get_all_eclis, get_raw_cellar_metadata
-from cellar_extractor.helpers.json_to_csv import json_to_csv_main, json_to_csv_returning
+from cellar_extractor.cellar_queries import get_all_eclis, get_raw_cellar_metadata
+from cellar_extractor.json_to_csv import json_to_csv_main, json_to_csv_returning
 from cellar_extractor.cellar_extra_extract import extra_cellar
 
 

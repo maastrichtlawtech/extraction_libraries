@@ -1,6 +1,6 @@
-from cellar_extractor.helpers.json_to_csv import read_csv
-from cellar_extractor.helpers.fulltext_saving import add_sections
-from cellar_extractor.helpers.citations_adder import add_citations_separate_webservice
+from cellar_extractor.json_to_csv import read_csv
+from cellar_extractor.fulltext_saving import add_sections
+from cellar_extractor.citations_adder import add_citations_separate_webservice
 
 
 def extra_cellar(data=None, filepath=None, threads=10, username="", password=""):

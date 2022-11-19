@@ -1,6 +1,6 @@
 import glob
 import argparse
-from cellar_extractor.helpers.json_to_csv import read_csv
+from cellar_extractor.json_to_csv import read_csv
 
 """
 Method takes in a dataframe and returns a dataframe with only *number* of data rows.
