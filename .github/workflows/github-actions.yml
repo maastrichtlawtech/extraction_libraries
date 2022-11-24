@@ -1,8 +1,8 @@
-name: GitHub Actions
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+name: Extraction Libraries
+run-name: ${{ github.actor }} is testing out Extraction Libraries using GitHub Actions 🚀
 on: [push]
 jobs:
-  Explore-GitHub-Actions:
+  Explore-Extraction-Libraries:
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
