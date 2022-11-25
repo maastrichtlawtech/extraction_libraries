@@ -9,3 +9,11 @@ rechtspraak/build
 rechtspraak/dist
 rechtspraak/.pypirc
 rechtspraak/rechtspraak_extractor.egg-info
+
+temp
+
+*.pyc
+__pycache__/
+test.py
+echr.zip
+rechtspraak.zip
