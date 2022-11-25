@@ -300,14 +300,7 @@ def get_echr(sd='2022-08-01', ed=None,count=None, save_file='y'):
 
     # set up locations
     print('\n--- PREPARATION ---\n')
-    print('OUTPUT DATA STORAGE:\t')
-    print('OUTPUT:\t\t\t', CSV_ECHR_CASES)
-
-    storage = Storage(location='local')
-    storage.setup_pipeline(output_paths=[CSV_ECHR_CASES])
-
-    last_updated = storage.pipeline_last_updated
-    print('\nSTART DATE (LAST UPDATE):\t', last_updated.isoformat())
+    
 
     print('\n--- START ---')
     start = time.time()
@@ -328,13 +321,22 @@ def get_echr(sd='2022-08-01', ed=None,count=None, save_file='y'):
 
     print("--- Load ECHR data")
     if save_file == "y":
+        print('OUTPUT DATA STORAGE:\t')
+        print('OUTPUT:\t\t\t', CSV_ECHR_CASES)
+
+        storage = Storage(location='local')
+        storage.setup_pipeline(output_paths=[CSV_ECHR_CASES])
+
+        last_updated = storage.pipeline_last_updated
+        print('\nSTART DATE (LAST UPDATE):\t', last_updated.isoformat())
         df.to_csv(CSV_ECHR_CASES)
         print("--- Saved ECHR data")
+        print(f"\nUpdating local storage ...")
+        storage.finish_pipeline()
+
         return df
 
-    print(f"\nUpdating local storage ...")
-    storage.finish_pipeline()
-
+    
     end = time.time()
     print("\n--- DONE ---")
     print("Time taken: ", time.strftime('%H:%M:%S', time.gmtime(end - start)))
