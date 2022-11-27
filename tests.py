@@ -1,4 +1,4 @@
-from cellar.cellar_extractor.cellar import get_cellar, get_cellar_extra
+from cellar_extractor import *
 
 
 # Below are examples for in-memory saving:
