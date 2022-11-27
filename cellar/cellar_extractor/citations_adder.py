@@ -164,14 +164,18 @@ Output will more than likely be bigger than the input dictionary, as it will als
 which are not being extracted by the cellar extractor.
 
 """
-
+def allowed_id(id):
+    if id != "":
+        return id[0] == 8 or id[0] == 6
+    else:
+        return False
 
 def reverse_citing_dict(citing):
     cited = dict()
     for k in citing:
         citeds = citing.get(k).split(";")
         for c in citeds:
-            if c != "":
+            if allowed_id(c):
                 if c in cited:
                     cited[c] = cited.get(c) + "," + k
                 else:
@@ -226,7 +230,7 @@ def add_citations_separate_webservice(data, username, password):
     citing_dict = dict()
     for d in dictionary_list:
         citing_dict.update(d)
-
+    print("Webservice extraction finished, adding to dataframe.")
     time.sleep(1) # It seemed to print out the length of dictionary wrong, even when it was equal to 1000.
     cited_dict = reverse_citing_dict(citing_dict)
 

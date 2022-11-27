@@ -8,7 +8,7 @@ Current main usage - Setting up Storage -> Setting up all the folders in root di
 
 
 """
-
+from cellar import get_cellar_extra
 if __name__ == '__main__':
 
     """
@@ -33,4 +33,5 @@ if __name__ == '__main__':
     #query= " SELECT CI, DN WHERE DN = 62019CJ0668"
     #response = run_eurlex_webservice_query(query,username,password)
     #add_citations_separate_webservice(data, 15, username, password)
-    b=2
+    #b=2
+    get_cellar_extra(sd="1999-01-01",max_ecli=100,threads=10,save_file="n")
