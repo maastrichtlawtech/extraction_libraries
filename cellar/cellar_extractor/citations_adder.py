@@ -107,11 +107,16 @@ def execute_citations_webservice(dictionary_list, celexes, username, password):
             failure=True
         while not failure:
             response = run_eurlex_webservice_query(normal_query, username, password)
+            if response.status_code == 500:
+                perc=i*100/len(celexes)
+                print(f"Limit of web service usage reached! Citations collection will stop here at {perc} % of citations downloaded.")
+                return
             try:
                 dictionary = extract_dictionary_from_webservice_query(response)
                 dictionary_list.append(dictionary)
                 failure = True
             except:
+                print(response.content)
                 time.sleep(0.5)
         if len(contains_list) > 0:
             failure = False
@@ -119,11 +124,17 @@ def execute_citations_webservice(dictionary_list, celexes, username, password):
             contains_query = base_contains_query % (str(input))
             while not failure:
                 contains_response = run_eurlex_webservice_query(contains_query, username, password)
+                if contains_response.status_code == 500:
+                    perc = i * 100 / len(celexes)
+                    print(
+                        f"Limit of web service usage reached! Citations collection will stop here at {perc} % of citations downloaded.")
+                    return
                 try:
                     dictionary = extract_dictionary_from_webservice_query(contains_response)
                     dictionary_list.append(dictionary)
                     failure = True
                 except:
+                    print(response.content)
                     time.sleep(0.5)
 
 
@@ -216,10 +227,14 @@ def add_citations_separate_webservice(data, username, password):
     celex = data.loc[:, "CELEX IDENTIFIER"]
     query = " SELECT CI, DN WHERE DN = 62019CJ0668"
     response = run_eurlex_webservice_query(query, username, password)
-    if response.status_code == 500:
-        print("Incorrect username and password for eurlex webservices! (The account login credentials and webservice "
+    if response.status_code == 500 :
+        if "WS_MAXIMUM_NB_OF_WS_CALLS" in response.text:
+            print("Maximum number of calls to the eurlex webservices reached! The code will skip the citations download.")
+            return
+        else:
+            print("Incorrect username and password for eurlex webservices! (The account login credentials and webservice) "
               "login credentials are different)")
-        sys.exit(2)
+            sys.exit(2)
     elif response.status_code == 403:
         print("Webservice connection was blocked, eurlex might be going through maintenance right now.")
         sys.exit(2)
