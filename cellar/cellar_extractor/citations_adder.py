@@ -95,6 +95,8 @@ Also used for the single-thread approach.
 
 def execute_citations_webservice(dictionary_list, celexes, username, password):
     at_once = 100
+    success=0
+    retry=0
     base_query = "SELECT DN,CI WHERE DN = %s"
     base_contains_query = "SELECT DN,CI WHERE DN ~ %s"
     for i in range(0, len(celexes), at_once):
@@ -109,13 +111,16 @@ def execute_citations_webservice(dictionary_list, celexes, username, password):
             response = run_eurlex_webservice_query(normal_query, username, password)
             if response.status_code == 500:
                 perc=i*100/len(celexes)
-                print(f"Limit of web service usage reached! Citations collection will stop here at {perc} % of citations downloaded.")
+                print(f"Limit of web service usage reached! Citations collection will stop here at {perc} % of citations downloaded."
+                      f"\nThere were {success} successful queries and {retry} retries")
                 return
             try:
                 dictionary = extract_dictionary_from_webservice_query(response)
                 dictionary_list.append(dictionary)
+                success+=1
                 failure = True
             except:
+                retry+=1
                 print(response.content)
                 time.sleep(0.5)
         if len(contains_list) > 0:
@@ -127,13 +132,16 @@ def execute_citations_webservice(dictionary_list, celexes, username, password):
                 if contains_response.status_code == 500:
                     perc = i * 100 / len(celexes)
                     print(
-                        f"Limit of web service usage reached! Citations collection will stop here at {perc} % of citations downloaded.")
+                        f"Limit of web service usage reached! Citations collection will stop here at {perc} % of citations downloaded."
+                        f"\nThere were {success} successful queries and {retry} retries")
                     return
                 try:
                     dictionary = extract_dictionary_from_webservice_query(contains_response)
                     dictionary_list.append(dictionary)
+                    success+=1
                     failure = True
                 except:
+                    retry+=1
                     print(response.content)
                     time.sleep(0.5)
 

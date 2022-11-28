@@ -202,6 +202,8 @@ Method checking if the id passed is a celex id, using regex.
 
 
 def is_celex_id(id):
+    if id is None:
+        return False
     if prog.match(id):
         return True
     else:

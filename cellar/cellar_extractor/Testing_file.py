@@ -34,4 +34,4 @@ if __name__ == '__main__':
     #response = run_eurlex_webservice_query(query,username,password)
     #add_citations_separate_webservice(data, 15, username, password)
     #b=2
-    get_cellar_extra(sd="1999-01-01",max_ecli=1000000,threads=10,save_file="n",username="n00ac9w5",password="")
+    get_cellar_extra(sd="1999-01-01",max_ecli=1000000,threads=10,save_file="n",username="n00ac9w5",password="XUtjyPDrl1c")
