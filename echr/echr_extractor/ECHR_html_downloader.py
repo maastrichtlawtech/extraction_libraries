@@ -1,7 +1,5 @@
 from bs4 import BeautifulSoup
 import requests
-
-requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
 import threading
 
 base_url = 'https://hudoc.echr.coe.int/app/conversion/docx/html/body?library=ECHR&id='
@@ -28,9 +26,7 @@ def get_full_text_from_html(html_text):
 def download_full_text_main(df, threads):
     item_ids = df['itemid']
     length = item_ids.size
-     # to avoid getting problems with small files
     at_once_threads = int(length / threads)
-
     all_dict = list()
     threads = []
     for i in range(0, length, at_once_threads):
@@ -53,13 +49,10 @@ def download_full_text_separate(item_ids, dict_list):
         retry_ids = []
         htmls = {}
         for counter, item_id in enumerate(item_ids):
-            #if counter % 100 == 0:
-             #   print(f'{counter}/{len(item_ids)} items processed ...')
             try:
                 r = requests.get(base_url + item_id, timeout=1)
-                #print(base_url + item_id)
                 htmls[item_id] = get_full_text_from_html(r.text)
-            except Exception as e:
+            except Exception:
                 retry_ids.append(item_id)
 
         return htmls, retry_ids
@@ -67,5 +60,4 @@ def download_full_text_separate(item_ids, dict_list):
     dictionary, retry_ids = download_html(item_ids)
     dictionary_retry, r_id = download_html(retry_ids)
     dictionary.update(dictionary_retry)
-
     dict_list.append(dictionary)

@@ -1,17 +1,9 @@
-import sys
 import requests
 import time
 import argparse
 import pandas as pd
 import dateutil.parser
-from os.path import dirname, abspath
-from socket import timeout
-
-current_dir = dirname(dirname(abspath(__file__)))
-correct_dir = ('\\').join(current_dir.replace('\\', '/').split('/')[:-2])
-sys.path.append(correct_dir)
-from definitions.storage_handler import Storage, CSV_ECHR_CASES
-from definitions.mappings.attribute_name_maps import MAP_ECHR
+from datetime import datetime
 
 def get_r(url, timeout, retry, verbose):
     """
@@ -50,7 +42,8 @@ def read_echr_metadata(start_id, end_id, start_date, end_date, verbose=True, ski
     :param skip_missing_dates: boolean whether or not to save cases with missing dates
     """
     data = []
-    fields = MAP_ECHR.keys()
+    fields = ['itemid', 'appno', 'article', 'conclusion', 'docname', 'doctype', 'doctypebranch', 'ecli', 'importance',
+              'judgmentdate', 'languageisocode', 'originatingbody', 'publishedby', 'extractedappno']
     META_URL = 'http://hudoc.echr.coe.int/app/query/results' \
         '?query=(contentsitename=ECHR) AND ' \
                '(documentcollectionid2:"JUDGMENTS" OR \
@@ -76,7 +69,7 @@ def read_echr_metadata(start_id, end_id, start_date, end_date, verbose=True, ski
     if not start_date:
         start_date = "01-01-1000"
     if not end_date:
-        end_date = datetime.datetime.now()
+        end_date = datetime.now().isoformat('seconds')
     start_date = dateutil.parser.parse(start_date, dayfirst=True).date()
     end_date = dateutil.parser.parse(end_date, dayfirst=True).date()
     print(f'Fetching {end_id-start_id} results from index {start_id} to index {end_id} and \
@@ -133,45 +126,3 @@ def read_echr_metadata(start_id, end_id, start_date, end_date, verbose=True, ski
     print(f'{len(data)} results after filtering by date.')
     return pd.DataFrame.from_records(data), resultcount
 
-# set up script arguments
-parser = argparse.ArgumentParser()
-parser.add_argument('storage', choices=['local', 'aws'], help='location to save output data to')
-parser.add_argument('--start_id', help='The index from which to start searching through cases.', \
-                    type=int, required=False)
-parser.add_argument('--count', help='How many cases to retreive. Some may not be saved due to \
-                    language and date filtering', type=int, required=False)
-parser.add_argument('--start_date', help='DD-MM-YY. Save cases from after this date.', type=str, \
-                    required=False)
-parser.add_argument('--end_date', help='DD-MM-YY. Save cases from before this date.', type=str, \
-                    required=False)
-args = parser.parse_args()
-
-# set up locations
-print('\n--- PREPARATION ---\n')
-print('OUTPUT DATA STORAGE:\t', args.storage)
-print('OUTPUT:\t\t\t', CSV_ECHR_CASES)
-storage = Storage(location=args.storage)
-storage.setup_pipeline(output_paths=[CSV_ECHR_CASES])
-last_updated = storage.pipeline_last_updated
-print('\nSTART DATE (LAST UPDATE):\t', last_updated.isoformat())
-print('\n--- START ---')
-start = time.time()
-print("--- Extract ECHR data")
-arg_start_id = args.start_id if args.start_id else 0
-arg_end_id = args.count if args.count else None
-arg_start_date = args.start_date if args.start_date else None
-arg_end_date = args.end_date if args.end_date else None
-df, resultcount = read_echr_metadata(start_id=arg_start_id, end_id=arg_end_id, \
-                                     start_date=arg_start_date, end_date=arg_end_date)
-print(f'ECHR data shape: {df.shape}')
-print(f'Columns extracted: {list(df.columns)}')
-print("--- Load ECHR data")
-df.to_csv(CSV_ECHR_CASES)
-print(f"\nUpdating {args.storage} storage ...")
-storage.finish_pipeline()
-end = time.time()
-print("\n--- DONE ---")
-print("Time taken: ", time.strftime('%H:%M:%S', time.gmtime(end - start)))
-
-# Example python3 data_extraction/caselaw/echr/ECHR_metadata_harvester.py local --count=104
-# Avarage time for 35k cases: 00:04:50
