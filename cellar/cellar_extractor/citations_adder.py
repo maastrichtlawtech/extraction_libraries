@@ -159,19 +159,20 @@ def clean_celex(celex):
     normal_list = list()
     contains_list = list()
     for c1 in celex:
-        if ";" in c1:
-            celexes = c1.split(";")
-            for c2 in celexes:
-                if "_" not in c2:
-                    if "(" in c2:
-                        contains_list.append(c2.replace("(", "").replace(")", ""))
-                    else:
-                        normal_list.append(c2)
-        else:
-            if "(" in c1:
-                contains_list.append(c1.replace("(", "").replace(")", ""))
+        if c1 == c1: # nan check
+            if ";" in c1:
+                celexes = c1.split(";")
+                for c2 in celexes:
+                    if "_" not in c2:
+                        if "(" in c2:
+                            contains_list.append(c2.replace("(", "").replace(")", ""))
+                        else:
+                            normal_list.append(c2)
             else:
-                normal_list.append(c1)
+                if "(" in c1:
+                    contains_list.append(c1.replace("(", "").replace(")", ""))
+                else:
+                    normal_list.append(c1)
     return normal_list, contains_list
 
 
