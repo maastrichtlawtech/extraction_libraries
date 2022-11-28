@@ -13,6 +13,7 @@ sys.path.append(correct_dir)
 from definitions.storage_handler import Storage, CSV_ECHR_CASES
 from definitions.mappings.attribute_name_maps import MAP_ECHR
 
+
 def get_r(url, timeout, retry, verbose):
     """
     Get data from a URL. If this is uncuccessful it is attempted again up to a number of tries
@@ -37,6 +38,7 @@ def get_r(url, timeout, retry, verbose):
                     print(f"Unable to connect to {url}. Skipping this batch.")
                 return None
     return None
+
 
 def read_echr_metadata(start_id, end_id, start_date, end_date, verbose=True, skip_missing_dates=False):
     """
@@ -76,7 +78,7 @@ def read_echr_metadata(start_id, end_id, start_date, end_date, verbose=True, ski
     if not start_date:
         start_date = "01-01-1000"
     if not end_date:
-        end_date = datetime.datetime.now()
+        end_date = datetime.now()
     start_date = dateutil.parser.parse(start_date, dayfirst=True).date()
     end_date = dateutil.parser.parse(end_date, dayfirst=True).date()
     print(f'Fetching {end_id-start_id} results from index {start_id} to index {end_id} and \
