@@ -8,7 +8,7 @@ def get_echr(sd='2022-08-01', ed=None,count=None, save_file='y'):
 
     print("--- Extract ECHR data")
     # arg_end_id = args.count if args.count else None
-    df, resultcount = read_echr_metadata(end_id= count, fields=['itemid', 'documentcollectionid2', 'languageisocode'],
+    df, resultcount = read_echr_metadata(end_id= count,
                                          verbose=True)
     print(f'ECHR data shape: {df.shape}')
     print(f'Columns extracted: {list(df.columns)}')
