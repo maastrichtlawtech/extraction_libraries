@@ -1,17 +1,6 @@
-import sys
 import requests
-import time
-import argparse
 import pandas as pd
-from os.path import dirname, abspath
-from socket import timeout
 
-current_dir = dirname(dirname(dirname(abspath(__file__))))
-correct_dir = ('\\').join(current_dir.replace('\\', '/').split('/')[:-2])
-sys.path.append(correct_dir)
-
-from echr_extractor.definitions.mappings.attribute_name_maps import MAP_ECHR
-# from echr import CSV_ECHR_CASES
 
 # TODO find a better way to do this.....
 class ContinueException(Exception): pass
@@ -37,6 +26,7 @@ def r_get_timeout(url, timeout, retry, verbose):
     return r
 
 
+
 def read_echr_metadata(start_id=0, end_id=None, fields=None, verbose=True):
     """
     Read ECHR metadata into a Pandas DataFrame.
@@ -48,7 +38,8 @@ def read_echr_metadata(start_id=0, end_id=None, fields=None, verbose=True):
     """
 
     data = []
-    fields = MAP_ECHR.keys()
+    fields = ['itemid', 'appno', 'article', 'conclusion', 'docname', 'doctype', 'doctypebranch', 'ecli', 'importance',
+              'judgmentdate', 'languageisocode', 'originatingbody', 'publishedby', 'extractedappno']
     META_URL = 'http://hudoc.echr.coe.int/app/query/results' \
                '?query=(contentsitename=ECHR) AND ' \
                '(documentcollectionid2:"JUDGMENTS" OR documentcollectionid2:"COMMUNICATEDCASES") AND' \
@@ -62,7 +53,7 @@ def read_echr_metadata(start_id=0, end_id=None, fields=None, verbose=True):
     # example url: "https://hudoc.echr.coe.int/app/query/results?query=(contentsitename=ECHR)%20AND%20(documentcollectionid2:%22JUDGMENTS%22%20OR%20documentcollectionid2:%22COMMUNICATEDCASES%22)&select=itemid,applicability,application,appno,article,conclusion,decisiondate,docname,documentcollectionid,%20documentcollectionid2,doctype,doctypebranch,ecli,externalsources,extractedappno,importance,introductiondate,%20isplaceholder,issue,judgementdate,kpdate,kpdateAsText,kpthesaurus,languageisocode,meetingnumber,%20originatingbody,publishedby,Rank,referencedate,reportdate,representedby,resolutiondate,%20resolutionnumber,respondent,respondentOrderEng,rulesofcourt,separateopinion,scl,sharepointid,typedescription,%20nonviolation,violation&sort=itemid%20Ascending&start=0&length=2"
 
     # get total number of results:
-    url = META_URL.format(select=','.join(fields), start=0, length=1)
+    url = META_URL.format(select=','.join(fields), start=0, length=2)
     r = requests.get(url)
     resultcount = r.json()['resultcount']
 
@@ -116,58 +107,3 @@ def read_echr_metadata(start_id=0, end_id=None, fields=None, verbose=True):
             data.append(result['columns'])
 
     return pd.DataFrame.from_records(data), resultcount
-
-# def echr_download(argv):
-# set up script arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument('storage', choices=['local', 'aws'], help='location to save output data to')
-    parser.add_argument('--count', help='number of documents to retrieve', type=int, required=False)
-    args = parser.parse_args(argv)
-
-    # set up locations
-    print('\n--- PREPARATION ---\n')
-    print('OUTPUT DATA STORAGE:\t', args.storage)
-    print('OUTPUT:\t\t\t', CSV_ECHR_CASES)
-
-    storage = Storage(location=args.storage)
-    storage.setup_pipeline(output_paths=[CSV_ECHR_CASES])
-
-    last_updated = storage.pipeline_last_updated
-    print('\nSTART DATE (LAST UPDATE):\t', last_updated.isoformat())
-
-    print('\n--- START ---')
-    start = time.time()
-
-    print("--- Extract ECHR data")
-    arg_end_id = args.count if args.count else None
-    df, resultcount = read_echr_metadata(end_id=arg_end_id, fields=['itemid', 'documentcollectionid2', 'languageisocode'],
-                                         verbose=True)
-
-    print(f'ECHR data shape: {df.shape}')
-    print(f'Columns extracted: {list(df.columns)}')
-
-    print("--- Filter ECHR data")
-    df_eng = df.loc[df['languageisocode'] == 'ENG']
-
-    print(f'df before language filtering: {df.shape}')
-    print(f'df after language filtering: {df_eng.shape}')
-
-    print("--- Load ECHR data")
-
-    df.to_csv(CSV_ECHR_CASES)
-
-    print(f"\nUpdating {args.storage} storage ...")
-    storage.finish_pipeline()
-
-    end = time.time()
-    print("\n--- DONE ---")
-    print("Time taken: ", time.strftime('%H:%M:%S', time.gmtime(end - start)))
-
-    # Example python3 data_extraction/caselaw/echr/ECHR_metadata_harvester.py local --count=104
-    # Avarage time for 35k cases: 00:04:50
-    # TODO manage aws
-    # TODO manage the last update
-
-# if __name__ == '__main__':
-#     # giving arguments to the funtion
-#     echr_download(sys.argv[1:])

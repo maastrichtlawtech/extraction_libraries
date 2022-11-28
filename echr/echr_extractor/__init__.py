@@ -1,2 +1,2 @@
 from echr_extractor.echr import get_echr
-import echr_extractor.ECHR_metadata_harvester
+

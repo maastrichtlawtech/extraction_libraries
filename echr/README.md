@@ -24,6 +24,13 @@ Python 3.9
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/Cloud956">
+            <img src="https://avatars.githubusercontent.com/u/24865274?v=4" width="100;" alt="Cloud956"/>
+            <br />
+            <sub><b>Piotr Lewandowski</b></sub>
+        </a>
+    </td>
+    <td align="center">
         <a href="https://github.com/pranavnbapat">
             <img src="https://avatars.githubusercontent.com/u/7271334?v=4" width="100;" alt="pranavnbapat"/>
             <br />
