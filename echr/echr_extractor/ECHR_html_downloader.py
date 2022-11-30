@@ -45,19 +45,23 @@ def download_full_text_main(df, threads):
 
 
 def download_full_text_separate(item_ids, dict_list):
+    full_list = []
     def download_html(item_ids):
         retry_ids = []
-        htmls = {}
+
         for counter, item_id in enumerate(item_ids):
             try:
                 r = requests.get(base_url + item_id, timeout=1)
-                htmls[item_id] = get_full_text_from_html(r.text)
+                json_dict={
+                    'item_id':item_id,
+                    'full_text':get_full_text_from_html(r.text)
+                }
+                full_list.append(json_dict)
             except Exception:
                 retry_ids.append(item_id)
+        return  retry_ids
 
-        return htmls, retry_ids
+    retry_ids = download_html(item_ids)
+    download_html(retry_ids)
+    return full_list
 
-    dictionary, retry_ids = download_html(item_ids)
-    dictionary_retry, r_id = download_html(retry_ids)
-    dictionary.update(dictionary_retry)
-    dict_list.append(dictionary)
