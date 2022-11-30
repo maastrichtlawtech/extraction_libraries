@@ -30,7 +30,7 @@ def get_r(url, timeout, retry, verbose):
                 return None
     return None
 
-def read_echr_metadata(start_id, end_id, start_date, end_date, verbose=True, skip_missing_dates=False):
+def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, verbose=True, skip_missing_dates=False):
     """
     Read ECHR metadata into a Pandas DataFrame.
     :param start_id: integer index to start search from
