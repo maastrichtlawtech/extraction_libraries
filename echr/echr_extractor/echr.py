@@ -1,7 +1,8 @@
-from echr_extractor.ECHR_metadata_harvester import read_echr_metadata
+from echr_extractor.echr_metadata_harvester import read_echr_metadata
 import time
 from pathlib import Path
 import os
+
 def get_echr(sd='2022-08-01', ed=None,count=None, save_file='y'):
 
     print('\n--- START ---')

@@ -1,2 +1,2 @@
 from echr_extractor.echr import get_echr
-
+from echr_extractor.echr_html_downloader import download_full_text_main
