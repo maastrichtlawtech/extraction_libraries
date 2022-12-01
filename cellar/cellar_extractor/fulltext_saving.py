@@ -13,7 +13,7 @@ after all the threads are done the individual parts are put together.
 """
 
 
-def execute_sections_threads(celex, start, list_sum, list_key, list_full, list_subject, list_codes, list_eurovoc):
+def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full, list_subject, list_codes, list_eurovoc):
     sum = pd.Series([], dtype='string')
     key = pd.Series([], dtype='string')
     full = list()
@@ -23,17 +23,20 @@ def execute_sections_threads(celex, start, list_sum, list_key, list_full, list_s
     for i in range(len(celex)):
         j = start + i
         id = celex[j]
+        ecli = eclis[j]
         html = get_html_text_by_celex_id(id)
         if html != "404":
             text = get_full_text_from_html(html)
             json_text = {
                 'celex': str(id),
+                'ecli' : ecli,
                 'text': text
             }
             full.append(json_text)
         else:
             json_text = {
                 'celex': str(id),
+                'ecli': ecli,
                 'text': ""
             }
             full.append(json_text)
@@ -85,6 +88,7 @@ def add_sections(data, threads, json_filepath=None):
     name = 'CELEX IDENTIFIER'
 
     celex = data.loc[:, name]
+    eclis = data.loc[:,'ECLI']
     length = celex.size
     if length > 100:  # to avoid getting problems with small files
         at_once_threads = int(length / threads)
@@ -99,9 +103,10 @@ def add_sections(data, threads, json_filepath=None):
     list_eurovoc = list()
     for i in range(0, length, at_once_threads):
         curr_celex = celex[i:(i + at_once_threads)]
+        curr_ecli = eclis[i:(i + at_once_threads)]
         t = threading.Thread(target=execute_sections_threads,
                              args=(
-                                 curr_celex, i, list_sum, list_key, list_full, list_subject, list_codes, list_eurovoc))
+                                 curr_celex,curr_ecli, i, list_sum, list_key, list_full, list_subject, list_codes, list_eurovoc))
         threads.append(t)
     for t in threads:
         t.start()

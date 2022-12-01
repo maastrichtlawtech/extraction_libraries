@@ -25,39 +25,52 @@ def get_full_text_from_html(html_text):
 
 def download_full_text_main(df, threads):
     item_ids = df['itemid']
+    eclis = df['ecli']
     length = item_ids.size
     at_once_threads = int(length / threads)
     all_dict = list()
     threads = []
     for i in range(0, length, at_once_threads):
         curr_ids = item_ids[i:(i + at_once_threads)]
-        t = threading.Thread(target=download_full_text_separate, args=(curr_ids, all_dict))
+        curr_ecli = eclis[i:(i + at_once_threads)]
+        t = threading.Thread(target=download_full_text_separate, args=(curr_ids,curr_ecli, all_dict))
         threads.append(t)
     for t in threads:
         t.start()
     for t in threads:
         t.join()
 
-    main_dict = dict()
-    for d in all_dict:
-        main_dict.update(d)
-    return main_dict
+    json_file=list()
+    for l in all_dict:
+        if len(l)>0:
+            json_file.extend(l)
+    return json_file
 
 
-def download_full_text_separate(item_ids, dict_list):
-    def download_html(item_ids):
+def download_full_text_separate(item_ids,eclis, dict_list):
+    full_list = []
+    eclis = eclis.reset_index(drop=True)
+    item_ids = item_ids.reset_index(drop=True)
+    def download_html(item_ids,eclis):
         retry_ids = []
-        htmls = {}
-        for counter, item_id in enumerate(item_ids):
+        retry_eclis = []
+        for i in range(len(item_ids)):
+            item_id=item_ids[i]
+            ecli=eclis[i]
             try:
                 r = requests.get(base_url + item_id, timeout=1)
-                htmls[item_id] = get_full_text_from_html(r.text)
+                json_dict={
+                    'item_id': item_id,
+                    'ecli': ecli,
+                    'full_text': get_full_text_from_html(r.text)
+                }
+                full_list.append(json_dict)
             except Exception:
                 retry_ids.append(item_id)
+                retry_eclis.append(ecli)
+        return retry_ids, retry_eclis
 
-        return htmls, retry_ids
+    retry_ids, retry_eclis = download_html(item_ids, eclis)
+    download_html(retry_ids, retry_eclis)
+    dict_list.append(full_list)
 
-    dictionary, retry_ids = download_html(item_ids)
-    dictionary_retry, r_id = download_html(retry_ids)
-    dictionary.update(dictionary_retry)
-    dict_list.append(dictionary)
