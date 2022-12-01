@@ -1,6 +1,5 @@
 import requests
 import time
-import argparse
 import pandas as pd
 import dateutil.parser
 from datetime import datetime
@@ -30,13 +29,13 @@ def get_r(url, timeout, retry, verbose):
                 return None
     return None
 
-def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, verbose=True, skip_missing_dates=False):
+def read_echr_metadata(start_id=0, end_id=None, start_datetime=None, end_datetime=None, verbose=True, skip_missing_dates=True):
     """
     Read ECHR metadata into a Pandas DataFrame.
     :param start_id: integer index to start search from
     :param end_id: integer index to end search at where the default None fetches all results
-    :param start_date: date date from which to save cases
-    :param end_date: date date before which to save cases
+    :param start_datetime: datetime from which to save cases
+    :param end_datetime: datetime before which to save cases
     :param fields: list meta attribute names to return where the default None fetches all attributes
     :param verbose: boolean whether or not to print extra information
     :param skip_missing_dates: boolean whether or not to save cases with missing dates
@@ -66,14 +65,12 @@ def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, 
     if not end_id:
         end_id = resultcount
     end_id = start_id+end_id
-    if not start_date:
-        start_date = "01-01-1000"
-    if not end_date:
-        end_date = datetime.now().isoformat('seconds')
-    start_date = dateutil.parser.parse(start_date, dayfirst=True).date()
-    end_date = dateutil.parser.parse(end_date, dayfirst=True).date()
+    if not start_datetime:
+        start_datetime = dateutil.parser.parse("01-01-1000 00:00:00", dayfirst=True)
+    if not end_datetime:
+        end_datetime = datetime.now()
     print(f'Fetching {end_id-start_id} results from index {start_id} to index {end_id} and \
-          filtering for cases after {start_date} and before {end_date}.')
+          filtering for cases after {start_datetime} and before {end_datetime}.')
     timeout = 6
     retry = 3
     if start_id+end_id > 500:  # HUDOC does not allow fetching more than 500 items at the same time
@@ -93,13 +90,11 @@ def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, 
                 # Get every document from the results list.
                 for result in temp_dict:
                     try:
-                        case_date = dateutil.parser.parse(result['columns']['judgementdate']).date()
-                        if start_date <= case_date <= end_date:
+                        case_datetime = dateutil.parser.parse(result['columns']['judgementdate'])
+                        if start_datetime <= case_datetime <= end_datetime:
                             data.append(result['columns'])
                     except dateutil.parser._parser.ParserError:
-                        if skip_missing_dates:
-                            pass
-                        else:
+                        if not skip_missing_dates:
                             data.append(result['columns'])
     else:
         # Format URL based on start and length
@@ -115,13 +110,11 @@ def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, 
             # Get every document from the results list.
             for result in temp_dict:
                 try:
-                    case_date = dateutil.parser.parse(result['columns']['judgementdate']).date()
-                    if start_date <= case_date <= end_date:
+                    case_datetime = dateutil.parser.parse(result['columns']['judgementdate'], dayfirst=True)
+                    if start_datetime <= case_datetime <= end_datetime:
                         data.append(result['columns'])
                 except dateutil.parser._parser.ParserError:
-                    if skip_missing_dates:
-                        pass
-                    else:
+                    if not skip_missing_dates:
                         data.append(result['columns'])
     print(f'{len(data)} results after filtering by date.')
     return pd.DataFrame.from_records(data), resultcount
