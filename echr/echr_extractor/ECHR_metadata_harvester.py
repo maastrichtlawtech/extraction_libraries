@@ -69,9 +69,9 @@ def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, 
     if not start_date:
         start_date = "01-01-1000"
     if not end_date:
-        end_date = datetime.now().isoformat('seconds')
-    start_date = dateutil.parser.parse(start_date, dayfirst=True).date()
-    end_date = dateutil.parser.parse(end_date, dayfirst=True).date()
+        end_date = datetime.now()
+    #start_date = dateutil.parser.parse(start_date, dayfirst=True).date()
+   # end_date = dateutil.parser.parse(end_date, dayfirst=True).date()
     print(f'Fetching {end_id-start_id} results from index {start_id} to index {end_id} and \
           filtering for cases after {start_date} and before {end_date}.')
     timeout = 6
@@ -93,7 +93,7 @@ def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, 
                 # Get every document from the results list.
                 for result in temp_dict:
                     try:
-                        case_date = dateutil.parser.parse(result['columns']['judgementdate']).date()
+                        case_date = dateutil.parser.parse(result['columns']['judgmentdate']).date()
                         if start_date <= case_date <= end_date:
                             data.append(result['columns'])
                     except dateutil.parser._parser.ParserError:
@@ -115,7 +115,7 @@ def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, 
             # Get every document from the results list.
             for result in temp_dict:
                 try:
-                    case_date = dateutil.parser.parse(result['columns']['judgementdate']).date()
+                    case_date = dateutil.parser.parse(result['columns']['judgmentdate']).date()
                     if start_date <= case_date <= end_date:
                         data.append(result['columns'])
                 except dateutil.parser._parser.ParserError:
