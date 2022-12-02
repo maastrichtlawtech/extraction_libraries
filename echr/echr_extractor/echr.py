@@ -1,5 +1,5 @@
-from echr_extractor.echr_metadata_harvester import read_echr_metadata
-import time
+from echr_extractor.ECHR_metadata_harvester import read_echr_metadata
+
 from pathlib import Path
 import os
 

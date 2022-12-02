@@ -90,7 +90,7 @@ def read_echr_metadata(start_id=0, end_id=None, start_datetime=None, end_datetim
                 # Get every document from the results list.
                 for result in temp_dict:
                     try:
-                        case_datetime = dateutil.parser.parse(result['columns']['judgementdate'])
+                        case_datetime = dateutil.parser.parse(result['columns']['judgmentdate'])
                         if start_datetime <= case_datetime <= end_datetime:
                             data.append(result['columns'])
                     except dateutil.parser._parser.ParserError:
@@ -110,7 +110,7 @@ def read_echr_metadata(start_id=0, end_id=None, start_datetime=None, end_datetim
             # Get every document from the results list.
             for result in temp_dict:
                 try:
-                    case_datetime = dateutil.parser.parse(result['columns']['judgementdate'], dayfirst=True)
+                    case_datetime = dateutil.parser.parse(result['columns']['judgmentdate'], dayfirst=True)
                     if start_datetime <= case_datetime <= end_datetime:
                         data.append(result['columns'])
                 except dateutil.parser._parser.ParserError:
