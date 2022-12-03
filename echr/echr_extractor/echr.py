@@ -1,4 +1,5 @@
-from echr_extractor.ECHR_metadata_harvester import read_echr_metadata
+from echr_extractor.echr_metadata_harvester import read_echr_metadata
+from echr_extractor.echr_html_downloader import download_full_text_main
 
 from pathlib import Path
 import os
@@ -25,4 +26,4 @@ def get_echr(sd='2022-08-01', ed=None,count=None, save_file='y'):
     else:
         return df
 
-
+download_full_text = download_full_text_main

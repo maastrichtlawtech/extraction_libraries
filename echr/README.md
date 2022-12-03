@@ -38,6 +38,13 @@ Python 3.9
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/running-machin">
+            <img src="https://avatars.githubusercontent.com/u/60750154?v=4" width="100;" alt="running-machin"/>
+            <br />
+            <sub><b>gijsvd</b></sub>
+        </a>
+    </td>
+    <td align="center">
         <a href="https://github.com/shashankmc">
             <img src="https://avatars.githubusercontent.com/u/3445114?v=4" width="100;" alt="shashankmc"/>
             <br />
