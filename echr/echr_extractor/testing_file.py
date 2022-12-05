@@ -1,8 +1,12 @@
-from echr_extractor.echr import get_echr,download_full_text
-# from echr_extractor.echr_html_downloader import download_full_text_main
+from echr import get_echr_extra,get_echr
 
 
 
 if __name__ == '__main__':
-    df = get_echr(sd='2022-08-01', ed=None, count=100,save_file='n')
-    full_text = download_full_text(df,10)
+    df,json = get_echr_extra(count=100,save_file='y',threads=10)
+    df = get_echr(start_id=1,save_file='y')
+
+
+    df,json = get_echr_extra(start_id=20,end_id=3000,save_file='n')
+
+    df = get_echr(start_id=1000,count=2000,save_file='n')

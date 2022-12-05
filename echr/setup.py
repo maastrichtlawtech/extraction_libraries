@@ -3,15 +3,8 @@
 from setuptools import find_packages, setup
 from pathlib import Path
 
-this_dir = Path('README.md')
-# check beforehand
-if this_dir.exists():
-    this_dir = this_dir.resolve()
-
-
-long_descr = (this_dir).read_text()
-# with open("%s\\README.md"%this_dir, "r") as file:
-    # long_descr = file.read()
+p = Path("README.md")
+long_descr = p.read_text()
 
 setup(
     name='echr_extractor',
@@ -20,7 +13,7 @@ setup(
     description='Library for extracting ECHR data',
     author='LawTech Lab',
     license='MIT',
-    install_requires=["requests==2.26.0","pandas","beautifulsoup4"],
+    install_requires=["requests~=2.26.0","pandas~=1.2.5","beautifulsoup4~=4.9.3"],
     author_email='a.gade@student.maastrichtuniversity.nl',
     keywords=['echr', 'extractor', 'european', 'convention', 'human', 'rights', 'european convention', 'human rights',
               'european convention on human rights'],

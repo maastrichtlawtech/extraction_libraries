@@ -21,5 +21,6 @@ setup(
     long_description_content_type='text/markdown',
     project_urls={
         "Bug Tracker": "https://github.com/maastrichtlawtech/case-law-explorer",
+        "Build Source": "https://github.com/maastrichtlawtech/extraction_libraries",
     },
 )

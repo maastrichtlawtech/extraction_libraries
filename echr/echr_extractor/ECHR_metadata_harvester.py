@@ -1,8 +1,5 @@
 import requests
-import time
 import pandas as pd
-import dateutil.parser
-from datetime import datetime
 
 def get_r(url, timeout, retry, verbose):
     """
@@ -21,7 +18,7 @@ def get_r(url, timeout, retry, verbose):
             return r
         except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
             count += 1
-            if verbose: 
+            if verbose:
                 print(f"Timeout. Retry attempt {count}.")
             if count > retry:
                 if verbose:
@@ -29,7 +26,8 @@ def get_r(url, timeout, retry, verbose):
                 return None
     return None
 
-def read_echr_metadata(start_id=0, end_id=None, start_datetime=None, end_datetime=None, verbose=True, skip_missing_dates=True):
+
+def read_echr_metadata(start_id=0, end_id=None, verbose=True):
     """
     Read ECHR metadata into a Pandas DataFrame.
     :param start_id: integer index to start search from
@@ -44,13 +42,13 @@ def read_echr_metadata(start_id=0, end_id=None, start_datetime=None, end_datetim
     fields = ['itemid', 'appno', 'article', 'conclusion', 'docname', 'doctype', 'doctypebranch', 'ecli', 'importance',
               'judgmentdate', 'languageisocode', 'originatingbody', 'publishedby', 'extractedappno']
     META_URL = 'http://hudoc.echr.coe.int/app/query/results' \
-        '?query=(contentsitename=ECHR) AND ' \
+               '?query=(contentsitename=ECHR) AND ' \
                '(documentcollectionid2:"JUDGMENTS" OR \
                  documentcollectionid2:"COMMUNICATEDCASES") AND' \
                '(languageisocode:"ENG")' \
-        '&select={select}' + \
-        '&sort=itemid Ascending' + \
-        '&start={start}&length={length}'
+               '&select={select}' + \
+               '&sort=itemid Ascending' + \
+               '&start={start}&length={length}'
 
     META_URL = META_URL.replace(' ', '%20')
     META_URL = META_URL.replace('"', '%22')
@@ -64,19 +62,16 @@ def read_echr_metadata(start_id=0, end_id=None, start_datetime=None, end_datetim
 
     if not end_id:
         end_id = resultcount
-    end_id = start_id+end_id
-    if not start_datetime:
-        start_datetime = dateutil.parser.parse("01-01-1000 00:00:00", dayfirst=True)
-    if not end_datetime:
-        end_datetime = datetime.now()
-    print(f'Fetching {end_id-start_id} results from index {start_id} to index {end_id} and \
-          filtering for cases after {start_datetime} and before {end_datetime}.')
+        end_id = start_id + end_id
+
+    print(f'Fetching {end_id - start_id} results from index {start_id} to index {end_id} "')
+
     timeout = 6
     retry = 3
-    if start_id+end_id > 500:  # HUDOC does not allow fetching more than 500 items at the same time
+    if start_id + end_id > 500:  # HUDOC does not allow fetching more than 500 items at the same time
         for i in range(start_id, end_id, 500):
-            print(" - Fetching information from cases {} to {}.".format(i, i+500))
-
+            if verbose:
+                print(" - Fetching information from cases {} to {}.".format(i, i + 500))
             # Format URL based on the incremented index.
             url = META_URL.format(select=','.join(fields), start=i, length=500)
             if verbose:
@@ -89,13 +84,7 @@ def read_echr_metadata(start_id=0, end_id=None, start_datetime=None, end_datetim
                 temp_dict = r.json()['results']
                 # Get every document from the results list.
                 for result in temp_dict:
-                    try:
-                        case_datetime = dateutil.parser.parse(result['columns']['judgmentdate'])
-                        if start_datetime <= case_datetime <= end_datetime:
-                            data.append(result['columns'])
-                    except dateutil.parser._parser.ParserError:
-                        if not skip_missing_dates:
-                            data.append(result['columns'])
+                        data.append(result['columns'])
     else:
         # Format URL based on start and length
         url = META_URL.format(select=','.join(fields), start=start_id, length=end_id)
@@ -109,13 +98,9 @@ def read_echr_metadata(start_id=0, end_id=None, start_datetime=None, end_datetim
 
             # Get every document from the results list.
             for result in temp_dict:
-                try:
-                    case_datetime = dateutil.parser.parse(result['columns']['judgmentdate'], dayfirst=True)
-                    if start_datetime <= case_datetime <= end_datetime:
-                        data.append(result['columns'])
-                except dateutil.parser._parser.ParserError:
-                    if not skip_missing_dates:
-                        data.append(result['columns'])
-    print(f'{len(data)} results after filtering by date.')
-    return pd.DataFrame.from_records(data), resultcount
+                    data.append(result['columns'])
 
+    if len(data) == 0:
+        print("Search results ended up empty")
+        return False,False
+    return pd.DataFrame.from_records(data), resultcount

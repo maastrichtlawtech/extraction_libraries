@@ -85,7 +85,7 @@ Python 3.9
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
         Save the full text of cases as JSON file / return as a dictionary and save the rest of
         the data as a CSV file / return as a Pandas Dataframe object
-        <li><strong>threads: int ,optional</strong></li>
+        <li><strong>threads: int ,optional, default 10</strong></li>
         Extracting the additional data takes a lot of time. The use of multi-threading can cut down this time.
         Even with this, the method may take a couple of minutes for a couple of hundred cases. A maximum number
         of 10 recommended, as this method may also affect the device's internet connection.
