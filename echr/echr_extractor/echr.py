@@ -17,14 +17,15 @@ def get_echr(start_id=None,end_id=None,count=None, save_file='y'):
     df, resultcount = read_echr_metadata(end_id=end_id,start_id=start_id,verbose=False)
     if df is False and resultcount is False:
         return False
-    print("\n--- DONE ---")
     if save_file == "y":
         # saving file
         Path('data').mkdir(parents=True, exist_ok=True)
         file_path = os.path.join('data', filename + '.csv')
         df.to_csv( file_path,index=False)
+        print("\n--- DONE ---")
         return df
     else:
+        print("\n--- DONE ---")
         return df
 
 
@@ -38,9 +39,11 @@ def get_echr_extra(start_id=None,end_id=None,count=None, save_file='y',threads=1
     else:
         filename = f"echr_metadata_{start_id}-ALL"
     df = get_echr(start_id=start_id,end_id=end_id,count=count, save_file='n')
+    print("Full-text download will now begin")
     if df is False:
         return False,False
     json_list = download_full_text_main(df,threads)
+    print("Full-text download finished")
     if save_file == "y":
         filename_json = filename.replace("metadata","full_text")
         Path('data').mkdir(parents=True, exist_ok=True)

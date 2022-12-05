@@ -120,8 +120,8 @@ import echr_extractor as echr
 
 Below are examples for in-file saving:
 
-df, json = get_echr_extra(count=100,save_file='y',threads=10)
-df = get_echr(start_id=1,save_file='y')
+df, json = echr.get_echr_extra(count=100,save_file='y',threads=10)
+df = echr.get_echr(start_id=1,save_file='y')
 
 Below are examples for in-memory saving:
 
