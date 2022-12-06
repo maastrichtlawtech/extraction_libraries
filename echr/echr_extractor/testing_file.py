@@ -12,8 +12,8 @@ if __name__ == '__main__':
     Note that there is an extra import because of this.
     I have commented out some of your stuff to test this, if you run it as is it should work. @Benjamin
     """
-    df = get_echr(start_date=dateutil.parser.parse("22/02/2010").date(), end_date=dateutil.parser.parse("22/02/2020").date())
-
+    df = get_echr(start_date="22-03-2010", end_date = "22-01-2020")
+    b=2
     #df,json = get_echr_extra(start_id=20,end_id=3000,save_file='n')
 
     #df = get_echr(start_id=1000,count=2000,save_file='n')

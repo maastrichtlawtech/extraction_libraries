@@ -29,7 +29,7 @@ def get_r(url, timeout, retry, verbose):
     return None
 
 
-def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, verbose=True, skip_missing_dates=True):
+def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, verbose=True, skip_missing_dates=True,fields=None):
     """
     Read ECHR metadata into a Pandas DataFrame.
     :param start_id: integer index to start search from
@@ -40,8 +40,17 @@ def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, 
     :param skip_missing_dates: boolean whether or not to save cases with missing dates
     """
     data = []
-    fields = ['itemid', 'appno', 'article', 'conclusion', 'docname', 'doctype', 'doctypebranch', 'ecli', 'importance', 
-              'judgementdate', 'languageisocode', 'originatingbody', 'violation', 'nonviolation', 'extractedappno', 'scl']
+    if not fields:
+        fields= ['itemid', 'applicability', 'application', 'appno', 'article', 'conclusion', 'decisiondate', 'docname',
+              'documentcollectionid', 'documentcollectionid2', 'doctype', 'doctypebranch', 'ecli', 'externalsources',
+              'extractedappno',
+              'importance', 'introductiondate', 'isplaceholder', 'issue', 'judgementdate', 'kpdate', 'kpdateAsText',
+              'kpthesaurus',
+              'languageisocode', 'meetingnumber', 'originatingbody', 'publishedby', 'Rank', 'referencedate',
+              'reportdate', 'representedby','resolutiondate'
+              'resolutionnumber', 'respondent', 'respondentOrderEng', 'rulesofcourt', 'separateopinion', 'scl',
+              'sharepointid',
+              'typedescription', 'nonviolation', 'violation']
     META_URL = 'http://hudoc.echr.coe.int/app/query/results' \
                '?query=(contentsitename=ECHR) AND ' \
                '(documentcollectionid2:"JUDGMENTS" OR \
@@ -53,9 +62,9 @@ def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, 
 
     META_URL = META_URL.replace(' ', '%20')
     META_URL = META_URL.replace('"', '%22')
-    # An example url: "".
+    # An example url: "https://hudoc.echr.coe.int/app/query/results?query=(contentsitename=ECHR)%20AND%20(documentcollectionid2:%22JUDGMENTS%22%20OR%20documentcollectionid2:%22COMMUNICATEDCASES%22)&select=itemid,applicability,application,appno,article,conclusion,decisiondate,docname,documentcollectionid,%20documentcollectionid2,doctype,doctypebranch,ecli,externalsources,extractedappno,importance,introductiondate,%20isplaceholder,issue,judgementdate,kpdate,kpdateAsText,kpthesaurus,languageisocode,meetingnumber,%20originatingbody,publishedby,Rank,referencedate,reportdate,representedby,resolutiondate,%20resolutionnumber,respondent,respondentOrderEng,rulesofcourt,separateopinion,scl,sharepointid,typedescription,%20nonviolation,violation&sort=itemid%20Ascending&start=0&length=2".
 
-    # get total number of results:https://hudoc.echr.coe.int/app/query/results?query=(contentsitename=ECHR)%20AND%20(documentcollectionid2:%22JUDGMENTS%22%20OR%20documentcollectionid2:%22COMMUNICATEDCASES%22)&select=itemid,applicability,application,appno,article,conclusion,decisiondate,docname,documentcollectionid,%20documentcollectionid2,doctype,doctypebranch,ecli,externalsources,extractedappno,importance,introductiondate,%20isplaceholder,issue,judgementdate,kpdate,kpdateAsText,kpthesaurus,languageisocode,meetingnumber,%20originatingbody,publishedby,Rank,referencedate,reportdate,representedby,resolutiondate,%20resolutionnumber,respondent,respondentOrderEng,rulesofcourt,separateopinion,scl,sharepointid,typedescription,%20nonviolation,violation&sort=itemid%20Ascending&start=0&length=2
+    # get total number of results:
     url = META_URL.format(select=','.join(fields), start=0, length=1)
     r = requests.get(url)
     resultcount = r.json()['resultcount']
@@ -65,8 +74,12 @@ def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, 
         end_id = resultcount
     if not start_date:
         start_date = dateutil.parser.parse("01-01-1000", dayfirst=True).date()
+    else:
+        start_date = dateutil.parser.parse(start_date).date()
     if not end_date:
         end_date = datetime.now().date()
+    else:
+        end_date = dateutil.parser.parse(end_date).date()
     if verbose:
         print(f'Fetching {end_id-start_id} results from index {start_id} to index {end_id} and \
               filtering for cases after {start_date} and before {end_date}.')
@@ -93,7 +106,7 @@ def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, 
                         case_date = dateutil.parser.parse(result['columns']['judgementdate'], dayfirst=True).date()
                         if start_date <= case_date <= end_date:
                             data.append(result['columns'])
-                    except dateutil.parser._parser.ParserError:
+                    except dateutil.parser.ParserError:
                         if not skip_missing_dates:
                             data.append(result['columns'])
     else:
@@ -106,14 +119,13 @@ def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, 
         if r is not None:
             # Get the results list
             temp_dict = r.json()['results']
-
             # Get every document from the results list.
             for result in temp_dict:
                 try:
                     case_date = dateutil.parser.parse(result['columns']['judgementdate']).date()
                     if start_date <= case_date <= end_date:
                         data.append(result['columns'])
-                except dateutil.parser._parser.ParserError:
+                except dateutil.parser.ParserError:
                     if not skip_missing_dates:
                         data.append(result['columns'])
 

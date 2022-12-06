@@ -78,7 +78,8 @@ On top of that downloads the full text for each case downloaded. Can be saved in
 
 ## What are the parameters?
 <ol>
-    <li><code>get_echr</code></li>
+    <li><code>get_echr</code></li> 
+             skip_missing_dates=False,,fields=None)
     <strong>Parameters:</strong>
     <ul>
         <li><strong>start_id: int, optional, default: 0</strong></li>
@@ -89,7 +90,17 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         The number of cases to be downloaded, starting from the start_id. 
         <br><strong>WARNING</strong><br>
         If count is provided, the end_id will be set to start_id+count, overwriting any given end_id value.
-        <br>
+        <li><strong>start_date: date, optional, default None</strong></li>
+        The start publication date (mm-dd-yyyy)
+        <li><strong>end_date: date, optional, default current date</strong></li>
+        The end publication date (mm-dd-yyyy)
+        <li><strong>verbose: boolean, optional, default False</strong></li>
+        This option allows for additional printing, showing live progress of the extraction process.
+        <li><strong>skip_missing_dates: boolean, optional, default False</strong></li>
+        This option makes the extraction not collect data for cases where there is no judgement date provided.
+        <li><strong>fields: list of strings, optional, default all available fields</strong></li>
+        This argument can be provided, to limit the metadata to be downloaded. These fields will appear as 
+        different columns in the csv file / Dataframe object. The full list of fields is attached in the appendix.
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
         Save metadata as a csv file in the data folder, or return as a Pandas DataFrame object in-memory.
     </ul>
@@ -103,7 +114,17 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         The number of cases to be downloaded, starting from the start_id. 
         <br><strong>WARNING</strong><br>
         If count is provided, the end_id will be set to start_id+count, overwriting any given end_id value.
-        <br>
+        <li><strong>start_date: date, optional, default None</strong></li>
+        The start publication date (mm-dd-yyyy)
+        <li><strong>end_date: date, optional, default current date</strong></li>
+        The end publication date (mm-dd-yyyy)
+        <li><strong>verbose: boolean, optional, default False</strong></li>
+        This option allows for additional printing, showing live progress of the extraction process.
+        <li><strong>skip_missing_dates: boolean, optional, default False</strong></li>
+        This option makes the extraction not collect data for cases where there is no judgement date provided.
+        <li><strong>fields: list of strings, optional, default all available fields</strong></li>
+        This argument can be provided, to limit the metadata to be downloaded. These fields will appear as 
+        different columns in the csv file / Dataframe object. The full list of fields is attached in the appendix.
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
         Save metadata as a csv file in the data folder and the full_text as a json file, 
         or return a Pandas DataFrame object and a list of dictionaries in-memory.
@@ -111,8 +132,9 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         The full text download is a parallelizable process.
         This parameter determines the number of threads to be used in the download.
     </ul>
-    
+
 </ol>
+
 ## Examples
 
 ```
@@ -150,4 +172,19 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+```
+
+
+## Appendix
+
+```
+The full list of fields is as follows:
+
+fields = ['itemid','applicability','application','appno','article','conclusion','decisiondate','docname',
+'documentcollectionid','documentcollectionid2','doctype','doctypebranch','ecli','externalsources','extractedappno',
+'importance','introductiondate','isplaceholder','issue','judgementdate','kpdate','kpdateAsText','kpthesaurus',
+'languageisocode','meetingnumber','originatingbody','publishedby','Rank','referencedate','reportdate','representedby',
+'resolutiondate',resolutionnumber','respondent','respondentOrderEng','rulesofcourt','separateopinion','scl',
+'sharepointid','typedescription','nonviolation','violation']
+
 ```

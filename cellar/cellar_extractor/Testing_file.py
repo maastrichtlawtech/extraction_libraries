@@ -36,4 +36,4 @@ if __name__ == '__main__':
     #add_citations_separate_webservice(data, 15, username, password)
     #b=2
 
-    get_cellar_extra(sd="1999-01-01",max_ecli=200,threads=2,save_file="n",username="n00ac9w5",password="")
+    get_cellar_extra(sd="1900-01-01",max_ecli=2000000,threads=15,save_file="n",username="n00ac9w5",password="")
