@@ -217,7 +217,7 @@ def add_dictionary_to_df(df, dictionary, column_title):
     celex = df.loc[:, "CELEX IDENTIFIER"]
     for k in dictionary:
         if celex.str.contains(k).any():
-            index = df.index[df["CELEX IDENTIFIER"].str.contains(k)].tolist()
+            index = df.index[df["CELEX IDENTIFIER"].str.contains(k,na=False)].tolist()
             column[index[0]] = dictionary.get(k)
     column.sort_index(inplace=True)
     df.insert(1, column_title, column)

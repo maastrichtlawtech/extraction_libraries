@@ -103,8 +103,6 @@ def create_csv_returning(data):
         csv_writer.writerows(data)
         filepath.seek(0)
     df = read_csv(filepath)
-    df.dropna()
-    df.reset_index(inplace=True)
     return df
 
 
