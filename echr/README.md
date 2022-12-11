@@ -143,13 +143,13 @@ import echr_extractor as echr
 Below are examples for in-file saving:
 
 df, json = echr.get_echr_extra(count=100,save_file='y',threads=10)
-df = echr.get_echr(start_id=1,save_file='y')
+df = echr.get_echr(start_id=1,save_file='y',skip_missing_dates=True)
 
 Below are examples for in-memory saving:
 
 df, json = echr.get_echr_extra(start_id=20,end_id=3000,save_file='n')
     
-df = echr.get_echr(start_id=1000,count=2000,save_file='n')
+df = echr.get_echr(start_id=1000,count=2000,save_file='n',verbose=True)
 ```
 
 ## License
@@ -188,3 +188,4 @@ fields = ['itemid','applicability','application','appno','article','conclusion',
 'sharepointid','typedescription','nonviolation','violation']
 
 ```
+These fields can take different values, for more information head to https://hudoc.echr.coe.int.
