@@ -42,13 +42,16 @@ Cellar specific, works for celex id's starting a 6 and 8.
 
 
 def get_summary_html(celex):
-    if ";" in celex:
-        idss = celex.split(";")
-        for idsss in idss:
-            if "_" in idsss:
-                celex = idsss
+    if celex == celex: # nan check
+        if ";" in celex:
+            idss = celex.split(";")
+            for idsss in idss:
+                if "_" in idsss:
+                    celex = idsss
+        else:
+            celex = celex
     else:
-        celex = celex
+        return "No summary available"
     celex = celex.replace(" ", "")
     if celex.startswith("6"):
         if "INF" in celex:
@@ -301,13 +304,15 @@ this method waits a bit and tries again for up to 5 tries.
 def get_html_text_by_celex_id(id):
     link = "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere&from=EN"
     final = id
-    if ";" in id:
-        ids = id.split(";")
-        for id_s in ids:
-            if "INF" not in id_s:
-                final = id_s
-                break
-
+    if id == id: # nan check
+        if ";" in id:
+            ids = id.split(";")
+            for id_s in ids:
+                if "INF" not in id_s:
+                    final = id_s
+                    break
+    else:
+        return "404"
     final_link = link.replace(CELEX_SUBSTITUTE, final)
     html = response_wrapper(final_link)
     if "The requested document does not exist." in html.text:
