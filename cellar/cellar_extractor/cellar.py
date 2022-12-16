@@ -59,6 +59,7 @@ def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", thre
     file_name = file_name.replace(":", "_")
     file_path = os.path.join('data', file_name + '.csv')
     if save_file == 'y':
+        Path('data').mkdir(parents=True, exist_ok=True)
         extra_cellar(data = data ,filepath=file_path, threads=threads, username=username, password=password)
         print("\n--- DONE ---")
 
