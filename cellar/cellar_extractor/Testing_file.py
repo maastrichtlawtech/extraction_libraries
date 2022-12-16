@@ -8,32 +8,14 @@ Current main usage - Setting up Storage -> Setting up all the folders in root di
 
 
 """
+from os.path import join
+from json_to_csv import read_csv
 from cellar import get_cellar_extra
 import math
 if __name__ == '__main__':
 
-    """
-    CELEXES FOR TESTING USE
-    62005TJ0321
-    62006CO0415
-     62000CJ0129
-    They all have keywords and a summary
-    """
-    "6 2012 CC 0047"
-    #path = "helpers\data\cellar_csv_data_clean.csv"
-    #data = read_csv(path)
-    # celex="62021CO0659"
-    #username = "n00ac9w5"
-    #password = ""
-    #celexes = ['62021CO0659', "62020CO0099", "62021CO0221"]
-    #prog = re.compile(r'^[1234567890CE]\d{4}[A-Z]{1,2}\d{4}\d*')
-    #for id in celexes:
-     #   result = prog.match(id)
-     #   if result:
-     #       print("works")
-    #query= " SELECT CI, DN WHERE DN = 62019CJ0668"
-    #response = run_eurlex_webservice_query(query,username,password)
-    #add_citations_separate_webservice(data, 15, username, password)
-    #b=2
-
-    get_cellar_extra(sd="1900-01-01",max_ecli=2000000,threads=15,save_file="n",username="n00ac9w5",password="")
+    path = join("","data")
+    path_file = join(path,"tester.csv")
+    df = read_csv(path_file)
+    b=2
+    get_cellar_extra(sd="1900-01-01",ed="2020-01-01",max_ecli=350,threads=15,save_file="y",username="n00ac9w5",password="")

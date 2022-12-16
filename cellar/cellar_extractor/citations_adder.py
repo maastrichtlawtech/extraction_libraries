@@ -6,7 +6,7 @@ from os.path import dirname, abspath
 import pandas as pd
 from cellar_extractor.sparql import get_citations_csv, get_cited, get_citing, run_eurlex_webservice_query
 from cellar_extractor.eurlex_scraping import extract_dictionary_from_webservice_query
-
+from tqdm import tqdm
 sys.path.append(dirname(dirname(dirname(dirname(abspath(__file__))))))
 
 """
@@ -99,7 +99,7 @@ def execute_citations_webservice(dictionary_list, celexes, username, password):
     retry=0
     base_query = "SELECT DN,CI WHERE DN = %s"
     base_contains_query = "SELECT DN,CI WHERE DN ~ %s"
-    for i in range(0, len(celexes), at_once):
+    for i in tqdm(range(0, len(celexes), at_once),colour="GREEN"):
         curr_celex = celexes[i:(i + at_once)]
         normal_list, contains_list = clean_celex(curr_celex)
         input=" OR ".join(normal_list)
@@ -109,7 +109,7 @@ def execute_citations_webservice(dictionary_list, celexes, username, password):
             failure=True
         while not failure:
             response = run_eurlex_webservice_query(normal_query, username, password)
-            if response.status_code == 500:
+            if response.status_code == 500 and "WS_WS_CALLS_IDLE_INTERVAL" not in response.text:
                 perc=i*100/len(celexes)
                 print(f"Limit of web service usage reached! Citations collection will stop here at {perc} % of citations downloaded."
                       f"\nThere were {success} successful queries and {retry} retries")
@@ -121,7 +121,7 @@ def execute_citations_webservice(dictionary_list, celexes, username, password):
                 failure = True
             except:
                 retry+=1
-                print(response.content)
+                #print(response.content)
                 time.sleep(0.5)
         if len(contains_list) > 0:
             failure = False
@@ -129,7 +129,7 @@ def execute_citations_webservice(dictionary_list, celexes, username, password):
             contains_query = base_contains_query % (str(input))
             while not failure:
                 contains_response = run_eurlex_webservice_query(contains_query, username, password)
-                if contains_response.status_code == 500:
+                if contains_response.status_code == 500 and "WS_WS_CALLS_IDLE_INTERVAL" not in contains_response.text:
                     perc = i * 100 / len(celexes)
                     print(
                         f"Limit of web service usage reached! Citations collection will stop here at {perc} % of citations downloaded."
@@ -142,7 +142,7 @@ def execute_citations_webservice(dictionary_list, celexes, username, password):
                     failure = True
                 except:
                     retry+=1
-                    print(response.content)
+                    #print(response.content)
                     time.sleep(0.5)
 
 
@@ -249,12 +249,13 @@ def add_citations_separate_webservice(data, username, password):
         sys.exit(2)
     else:
         print("Webservice connection was successful!")
+    time.sleep(1)
     dictionary_list = list()
     execute_citations_webservice(dictionary_list,celex,username,password)
     citing_dict = dict()
     for d in dictionary_list:
         citing_dict.update(d)
-    print("Webservice extraction finished, adding to dataframe.")
+    print("Webservice extraction finished, the rest of extraction will now happen.")
     time.sleep(1) # It seemed to print out the length of dictionary wrong, even when it was equal to 1000.
     cited_dict = reverse_citing_dict(citing_dict)
 

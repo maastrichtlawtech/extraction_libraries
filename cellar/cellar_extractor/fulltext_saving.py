@@ -3,7 +3,8 @@ import threading
 from cellar_extractor.eurlex_scraping import get_summary_from_html, get_summary_html, get_keywords_from_html, \
     get_entire_page, get_full_text_from_html, get_subject, get_codes, get_eurovoc, get_html_text_by_celex_id
 import json
-
+from tqdm import tqdm
+import time
 """
 This is the method executed by individual threads by the add_sections method.
 
@@ -13,7 +14,7 @@ after all the threads are done the individual parts are put together.
 """
 
 
-def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full, list_subject, list_codes, list_eurovoc):
+def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full, list_subject, list_codes, list_eurovoc,progress_bar):
     sum = pd.Series([], dtype='string')
     key = pd.Series([], dtype='string')
     full = list()
@@ -62,6 +63,7 @@ def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full,
         eurovocs[j] = eurovoc
         subject_matter[j] = subject
         case_codes[j] = code
+        progress_bar.update(1)
     list_sum.append(sum)
     list_key.append(key)
     list_full.append(full)
@@ -86,10 +88,11 @@ It operates with multiple threads, using that feature is recommended as it speed
 
 def add_sections(data, threads, json_filepath=None):
     name = 'CELEX IDENTIFIER'
-
     celex = data.loc[:, name]
     eclis = data.loc[:,'ECLI']
     length = celex.size
+    time.sleep(1)
+    bar = tqdm(total=length,colour="GREEN")
     if length > 100:  # to avoid getting problems with small files
         at_once_threads = int(length / threads)
     else:
@@ -106,7 +109,7 @@ def add_sections(data, threads, json_filepath=None):
         curr_ecli = eclis[i:(i + at_once_threads)]
         t = threading.Thread(target=execute_sections_threads,
                              args=(
-                                 curr_celex,curr_ecli, i, list_sum, list_key, list_full, list_subject, list_codes, list_eurovoc))
+                                 curr_celex,curr_ecli, i, list_sum, list_key, list_full, list_subject, list_codes, list_eurovoc,bar))
         threads.append(t)
     for t in threads:
         t.start()

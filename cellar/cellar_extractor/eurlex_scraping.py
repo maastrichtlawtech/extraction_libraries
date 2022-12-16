@@ -329,6 +329,16 @@ the case law directory codes. Uses the celex identifier of a case.
 
 def get_entire_page(celex):
     link = 'https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:cIdHere'
+    if celex == celex:  # nan check
+        if ";" in celex:
+            idss = celex.split(";")
+            for idsss in idss:
+                if "_" in idsss:
+                    celex = idsss
+        else:
+            celex = celex
+    else:
+        return "No data available"
     sum_link = link.replace(CELEX_SUBSTITUTE, celex)
     response = response_wrapper(sum_link)
     try:
