@@ -1,60 +1,68 @@
-import requests
-import pandas as pd
+import request
 import dateutil.parser
 from datetime import datetime
 
+import pandas as pd
+
 def get_r(url, timeout, retry, verbose):
-    """
-    Get data from a URL. If this is uncuccessful it is attempted again up to a number of tries
-    given by retry. If it is still unsuccessful the batch is skipped.
-    :param url: string data source URL
-    :param timeout: numerical time to wait for a response
-    :param retry: integer number of times to retry upon failure
-    :param verbose: boolean whether or not to print extra information
-    """
-    count = 0
-    max_attempts = 20
-    while count < max_attempts:
-        try:
-            r = requests.get(url, timeout=timeout)
-            return r
-        except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
-            count += 1
-            if verbose:
-                print(f"Timeout. Retry attempt {count}.")
-            if count > retry:
-                if verbose:
-                    print(f"Unable to connect to {url}. Skipping this batch.")
-                return None
-    return None
+	"""
+	Get data from a URL. If this is uncuccessful it is attempted again up to a number of tries
+	given by retry. If it is still unsuccessful the batch is skipped.
+	:param str url: The data source URL.
+	:param double timeout: The amount of time to wait for a response each attempt.
+	:param int retry: The number of times to retry upon failure.
+	:param bool verbose: Whether or not to print extra information.
+	"""
+	count = 0
+	max_attempts = 20
+	while count < max_attempts:
+		try:
+			r = requests.get(url, timeout=timeout)
+			return r
+		except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
+			count += 1
+			if verbose:
+				print(f"Timeout. Retry attempt {count}.")
+			if count > retry:
+				if verbose:
+					print(f"Unable to connect to {url}. Skipping this batch.")
+				return None
+	return None
 
 
-def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, verbose=True, skip_missing_dates=True,fields=None):
+def read_echr_metadata(start_id, end_id, start_date, end_date, verbose, skip_missing_dates, fields):
     """
     Read ECHR metadata into a Pandas DataFrame.
-    :param start_id: integer index to start search from
-    :param end_id: integer index to end search at where the default None fetches all results
-    :param start_date: date from which to save cases
-    :param end_date: datetime before which to save cases
-    :param verbose: boolean whether or not to print extra information
-    :param skip_missing_dates: boolean whether or not to save cases with missing dates
+    :param int start_id: The index to start the search from.
+    :param int end_id: The index to end search at, where the default fetches all results.
+    :param date start_date: The point from which to save cases.
+    :param date end_date: The point before which to save cases.
+    :param bool verbose: Whther or not to print extra information.
+    :param bool skip_missing_dates: Whether or not to save cases with missing dates.
     """
     data = []
     if not fields:
-        fields= ['itemid', 'applicability', 'application', 'appno', 'article', 'conclusion', 'decisiondate', 'docname',
-              'documentcollectionid', 'documentcollectionid2', 'doctype', 'doctypebranch', 'ecli', 'externalsources',
-              'extractedappno',
-              'importance', 'introductiondate', 'isplaceholder', 'issue', 'judgementdate', 'kpdate', 'kpdateAsText',
-              'kpthesaurus',
-              'languageisocode', 'meetingnumber', 'originatingbody', 'publishedby', 'Rank', 'referencedate',
-              'reportdate', 'representedby','resolutiondate'
-              'resolutionnumber', 'respondent', 'respondentOrderEng', 'rulesofcourt', 'separateopinion', 'scl',
-              'sharepointid',
-              'typedescription', 'nonviolation', 'violation']
+        fields = ['itemid', 'applicability', 'appno', 'article', 'conclusion', 'docname', 
+                  'doctype', 'doctypebranch', 'ecli', 'importance', 'judgementdate', 
+                  'languageisocode', 'originatingbody', 'violation', 'nonviolation', 
+                  'extractedappno', 'scl', 'publishedby', 'representedby', 'respondent',
+                  'separateopinion', 'sharepointid', 'externalsources', 'issue', 'referencedate',
+                  'rulesofcourt', 'DocId', 'WorkId', 'Rank', 'Author', 'Size', 'Path', 
+                  'Description', 'Write', 'CollapsingStatus', 'HighlightedSummary', 
+                  'HighlightedProperties', 'contentclass', 'PictureThumbnailURL',
+                  'ServerRedirectedURL', 'ServerRedirectedEmbedURL', 'ServerRedirectedPreviewURL',
+                  'FileExtension', 'ContentTypeId', 'ParentLink', 'ViewsLifeTime', 'ViewsRecent',
+                  'SectionNames', 'SectionIndexes', 'SiteLogo', 'SiteDescription', 'deeplinks',
+                  'SiteName', 'IsDocument', 'LastModifiedTime', 'FileType', 'IsContainer',
+                  'WebTemplate', 'SecondaryFileExtension', 'docaclmeta', 'OriginalPath',
+                  'EditorOWSUSER', 'DisplayAuthor', 'ResultTypeIdList', 'PartitionId', 'UrlZone',
+                  'AAMEnabledManagedProperties', 'ResultTypeId', 'rendertemplateid']
     META_URL = 'http://hudoc.echr.coe.int/app/query/results' \
                '?query=(contentsitename=ECHR) AND ' \
                '(documentcollectionid2:"JUDGMENTS" OR \
-                 documentcollectionid2:"COMMUNICATEDCASES") AND' \
+                 documentcollectionid2:"COMMUNICATEDCASES" OR \
+                 documentcollectionid2:"DECISIONS" OR \
+                 documentcollectionid2:"CLIN") AND ' \
                '(languageisocode:"ENG")' \
                '&select={select}' + \
                '&sort=itemid Ascending' + \
@@ -62,7 +70,7 @@ def read_echr_metadata(start_id=0, end_id=None, start_date=None, end_date=None, 
 
     META_URL = META_URL.replace(' ', '%20')
     META_URL = META_URL.replace('"', '%22')
-    # An example url: "https://hudoc.echr.coe.int/app/query/results?query=(contentsitename=ECHR)%20AND%20(documentcollectionid2:%22JUDGMENTS%22%20OR%20documentcollectionid2:%22COMMUNICATEDCASES%22)&select=itemid,applicability,application,appno,article,conclusion,decisiondate,docname,documentcollectionid,%20documentcollectionid2,doctype,doctypebranch,ecli,externalsources,extractedappno,importance,introductiondate,%20isplaceholder,issue,judgementdate,kpdate,kpdateAsText,kpthesaurus,languageisocode,meetingnumber,%20originatingbody,publishedby,Rank,referencedate,reportdate,representedby,resolutiondate,%20resolutionnumber,respondent,respondentOrderEng,rulesofcourt,separateopinion,scl,sharepointid,typedescription,%20nonviolation,violation&sort=itemid%20Ascending&start=0&length=2".
+    # An example url: "https://hudoc.echr.coe.int/app/query/results?query=(contentsitename=ECHR)%20AND%20(documentcollectionid2:%22JUDGMENTS%22%20OR%20documentcollectionid2:%22COMMUNICATEDCASES%22%20OR%20documentcollectionid2:%22DECISIONS%22%20OR%20documentcollectionid2:%22CLIN%22)&select=itemid,applicability,application,appno,article,conclusion,decisiondate,docname,documentcollectionid,%20documentcollectionid2,doctype,doctypebranch,ecli,externalsources,extractedappno,importance,introductiondate,%20isplaceholder,issue,judgementdate,kpdate,kpdateAsText,kpthesaurus,languageisocode,meetingnumber,%20originatingbody,publishedby,Rank,referencedate,reportdate,representedby,resolutiondate,%20resolutionnumber,respondent,respondentOrderEng,rulesofcourt,separateopinion,scl,sharepointid,typedescription,%20nonviolation,violation&sort=itemid%20Ascending&start=0&length=200".
 
     # get total number of results:
     url = META_URL.format(select=','.join(fields), start=0, length=1)

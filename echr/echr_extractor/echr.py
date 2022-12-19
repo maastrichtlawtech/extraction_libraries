@@ -15,12 +15,13 @@ already but feel free to shoot me a message about it seeing as I did something s
 
 
 def get_echr(start_id=0, end_id=None, start_date=None, count=None, end_date=None, verbose=False,
-             skip_missing_dates=False, save_file='y',fields=None):
+             skip_missing_dates=True, save_file='y', fields=None):
     if count:
         end_id = int(start_id) + count
     print("--- STARTING ECHR DOWNLOAD ---")
+    fields = None
     df, resultcount = read_echr_metadata(start_id=start_id, end_id=end_id, start_date=start_date, end_date=end_date,
-                                         verbose=verbose, skip_missing_dates=skip_missing_dates,fields=fields)
+                                         verbose=verbose, skip_missing_dates=skip_missing_dates, fields=fields)
     if df is False and resultcount is False:
         return False
     if save_file == "y":
@@ -80,3 +81,5 @@ def get_echr_extra(start_id=0, end_id=None, start_date=None, count=None, end_dat
         return df, json_list
     else:
         return df, json_list
+
+
