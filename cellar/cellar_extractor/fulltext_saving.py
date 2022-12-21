@@ -53,7 +53,7 @@ def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full,
         entire_page = get_entire_page(id)
         text = get_full_text_from_html(entire_page)
         if entire_page != "No data available":
-            subject = get_subject(text)
+            #subject = get_subject(text)
             code = get_codes(text)
             eurovoc = get_eurovoc(text)
         else:
@@ -61,7 +61,7 @@ def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full,
             subject = ""
             eurovoc = ""
         eurovocs[j] = eurovoc
-        subject_matter[j] = subject
+        #subject_matter[j] = subject
         case_codes[j] = code
         progress_bar.update(1)
     list_sum.append(sum)
@@ -118,7 +118,7 @@ def add_sections(data, threads, json_filepath=None):
     add_column_frow_list(data, "celex_summary", list_sum)
     add_column_frow_list(data, "celex_keywords", list_key)
     add_column_frow_list(data, "celex_eurovoc", list_eurovoc)
-    add_column_frow_list(data, "celex_subject_matter", list_subject)
+   # add_column_frow_list(data, "celex_subject_matter", list_subject)
     add_column_frow_list(data, "celex_directory_codes", list_codes)
     if json_filepath:
         with open(json_filepath, 'w', encoding='utf-8') as f:
