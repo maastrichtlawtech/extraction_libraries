@@ -1,5 +1,5 @@
-from ECHR_metadata_harvester import read_echr_metadata
-from ECHR_html_downloader import download_full_text_main
+from echr_extractor.ECHR_metadata_harvester import read_echr_metadata
+from echr_extractor.ECHR_html_downloader import download_full_text_main
 from pathlib import Path
 import os
 import json

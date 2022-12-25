@@ -1,33 +1,34 @@
-import request
+import requests
 import dateutil.parser
 from datetime import datetime
 
 import pandas as pd
 
+
 def get_r(url, timeout, retry, verbose):
-	"""
-	Get data from a URL. If this is uncuccessful it is attempted again up to a number of tries
-	given by retry. If it is still unsuccessful the batch is skipped.
-	:param str url: The data source URL.
-	:param double timeout: The amount of time to wait for a response each attempt.
-	:param int retry: The number of times to retry upon failure.
-	:param bool verbose: Whether or not to print extra information.
-	"""
-	count = 0
-	max_attempts = 20
-	while count < max_attempts:
-		try:
-			r = requests.get(url, timeout=timeout)
-			return r
-		except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
-			count += 1
-			if verbose:
-				print(f"Timeout. Retry attempt {count}.")
-			if count > retry:
-				if verbose:
-					print(f"Unable to connect to {url}. Skipping this batch.")
-				return None
-	return None
+    """
+    Get data from a URL. If this is uncuccessful it is attempted again up to a number of tries
+    given by retry. If it is still unsuccessful the batch is skipped.
+    :param str url: The data source URL.
+    :param double timeout: The amount of time to wait for a response each attempt.
+    :param int retry: The number of times to retry upon failure.
+    :param bool verbose: Whether or not to print extra information.
+    """
+    count = 0
+    max_attempts = 20
+    while count < max_attempts:
+        try:
+            r = requests.get(url, timeout=timeout)
+            return r
+        except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
+            count += 1
+            if verbose:
+                print(f"Timeout. Retry attempt {count}.")
+            if count > retry:
+                if verbose:
+                    print(f"Unable to connect to {url}. Skipping this batch.")
+                return None
+    return None
 
 
 def read_echr_metadata(start_id, end_id, start_date, end_date, verbose, skip_missing_dates, fields):
@@ -42,13 +43,13 @@ def read_echr_metadata(start_id, end_id, start_date, end_date, verbose, skip_mis
     """
     data = []
     if not fields:
-        fields = ['itemid', 'applicability', 'appno', 'article', 'conclusion', 'docname', 
-                  'doctype', 'doctypebranch', 'ecli', 'importance', 'judgementdate', 
-                  'languageisocode', 'originatingbody', 'violation', 'nonviolation', 
+        fields = ['itemid', 'applicability', 'appno', 'article', 'conclusion', 'docname',
+                  'doctype', 'doctypebranch', 'ecli', 'importance', 'judgementdate',
+                  'languageisocode', 'originatingbody', 'violation', 'nonviolation',
                   'extractedappno', 'scl', 'publishedby', 'representedby', 'respondent',
                   'separateopinion', 'sharepointid', 'externalsources', 'issue', 'referencedate',
-                  'rulesofcourt', 'DocId', 'WorkId', 'Rank', 'Author', 'Size', 'Path', 
-                  'Description', 'Write', 'CollapsingStatus', 'HighlightedSummary', 
+                  'rulesofcourt', 'DocId', 'WorkId', 'Rank', 'Author', 'Size', 'Path',
+                  'Description', 'Write', 'CollapsingStatus', 'HighlightedSummary',
                   'HighlightedProperties', 'contentclass', 'PictureThumbnailURL',
                   'ServerRedirectedURL', 'ServerRedirectedEmbedURL', 'ServerRedirectedPreviewURL',
                   'FileExtension', 'ContentTypeId', 'ParentLink', 'ViewsLifeTime', 'ViewsRecent',
@@ -89,7 +90,7 @@ def read_echr_metadata(start_id, end_id, start_date, end_date, verbose, skip_mis
     else:
         end_date = dateutil.parser.parse(end_date).date()
     if verbose:
-        print(f'Fetching {end_id-start_id} results from index {start_id} to index {end_id} and \
+        print(f'Fetching {end_id - start_id} results from index {start_id} to index {end_id} and \
               filtering for cases after {start_date} and before {end_date}.')
 
     timeout = 6
@@ -139,5 +140,5 @@ def read_echr_metadata(start_id, end_id, start_date, end_date, verbose, skip_mis
 
     if len(data) == 0:
         print("Search results ended up empty")
-        return False,False
+        return False, False
     return pd.DataFrame.from_records(data), resultcount
