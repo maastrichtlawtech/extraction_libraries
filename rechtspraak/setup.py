@@ -9,7 +9,7 @@ long_descr = (this_dir / "README.md").read_text()
 setup(
     name='rechtspraak_extractor',
     packages=find_packages(include=['rechtspraak_extractor']),
-    version='1.1.1',
+    version='1.1.2',
     description='Library for extracting rechtspraak data',
     author='LawTech Lab',
     license='MIT',
@@ -19,7 +19,7 @@ setup(
     long_description=long_descr,
     long_description_content_type='text/markdown',
     project_urls={
-        "Bug Tracker": "https://github.com/maastrichtlawtech/case-law-explorer",
+        "Bug Tracker": "https://github.com/maastrichtlawtech/extraction_libraries",
         "Build Source": "https://github.com/maastrichtlawtech/extraction_libraries",
     },
 )

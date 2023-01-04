@@ -100,6 +100,7 @@ def execute_citations_webservice(dictionary_list, celexes, username, password):
     base_query = "SELECT DN,CI WHERE DN = %s"
     base_contains_query = "SELECT DN,CI WHERE DN ~ %s"
     for i in tqdm(range(0, len(celexes), at_once),colour="GREEN"):
+        time.sleep(3)
         curr_celex = celexes[i:(i + at_once)]
         normal_list, contains_list = clean_celex(curr_celex)
         input=" OR ".join(normal_list)

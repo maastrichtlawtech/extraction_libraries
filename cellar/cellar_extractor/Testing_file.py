@@ -7,8 +7,7 @@ Can be also used to develop future code.
 
 """
 import pandas as pd
-
-
+from cellar import get_cellar_extra
 def extract_containing_subject_matter(df,phrase):
     returner = df[df["LEGAL RESOURCE IS ABOUT SUBJECT MATTER"].str.contains(phrase, na=False)]
     return returner
@@ -56,12 +55,14 @@ from json_to_csv import read_csv
 
 if __name__ == '__main__':
 
-    path = join("","data")
-    path_file = join(path,"tester.csv")
-    df = read_csv(path_file)
-    nodes,edges = get_nodes_and_edges(df)
-    path_nodes = join(path, "nodes.csv")
-    path_edges = join(path, "edges.csv")
-    nodes.to_csv(path_nodes,index=False)
-    edges.to_csv(path_edges,index=False)
-    b=2
+   # path = join("","data")
+    #path_file = join(path,"tester.csv")
+   # df = read_csv(path_file)
+   # nodes,edges = get_nodes_and_edges(df)
+   # path_nodes = join(path, "nodes.csv")
+  #  path_edges = join(path, "edges.csv")
+   # nodes.to_csv(path_nodes,index=False)
+   # edges.to_csv(path_edges,index=False)
+  #  b=2
+
+  get_cellar_extra(save_file="y",username="n00ac9w5",password="",max_ecli=100000000,threads=10,sd="1900-01-01")
