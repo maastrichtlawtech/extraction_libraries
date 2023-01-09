@@ -52,7 +52,7 @@ def get_nodes_and_edges(df):
     return nodes,edges
 from os.path import join
 from json_to_csv import read_csv
-
+import time
 if __name__ == '__main__':
 
    # path = join("","data")
@@ -65,4 +65,4 @@ if __name__ == '__main__':
    # edges.to_csv(path_edges,index=False)
   #  b=2
 
-  get_cellar_extra(save_file="y",username="n00ac9w5",password="",max_ecli=100000000,threads=10,sd="1900-01-01")
+  get_cellar_extra(save_file="y",username="n00ac9w5",password="",max_ecli=10,threads=10,sd="1900-01-01")

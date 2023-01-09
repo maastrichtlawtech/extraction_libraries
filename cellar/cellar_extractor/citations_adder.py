@@ -99,52 +99,38 @@ def execute_citations_webservice(dictionary_list, celexes, username, password):
     retry=0
     base_query = "SELECT DN,CI WHERE DN = %s"
     base_contains_query = "SELECT DN,CI WHERE DN ~ %s"
-    for i in tqdm(range(0, len(celexes), at_once),colour="GREEN"):
-        time.sleep(3)
-        curr_celex = celexes[i:(i + at_once)]
-        normal_list, contains_list = clean_celex(curr_celex)
-        input=" OR ".join(normal_list)
-        normal_query = base_query % (str(input))
-        failure = False
-        if len(normal_list) == 0:
-            failure=True
-        while not failure:
-            response = run_eurlex_webservice_query(normal_query, username, password)
-            if response.status_code == 500 and "WS_WS_CALLS_IDLE_INTERVAL" not in response.text:
-                perc=i*100/len(celexes)
-                print(f"Limit of web service usage reached! Citations collection will stop here at {perc} % of citations downloaded."
-                      f"\nThere were {success} successful queries and {retry} retries")
-                return
-            try:
-                dictionary = extract_dictionary_from_webservice_query(response)
-                dictionary_list.append(dictionary)
-                success+=1
-                failure = True
-            except:
-                retry+=1
-                #print(response.content)
-                time.sleep(0.5)
-        if len(contains_list) > 0:
+    normal_celex, contains_celex = clean_celex(celexes)
+    def process_queries(link, celex):
+        nonlocal success,retry
+        for i in tqdm(range(0, len(celex), at_once),colour="GREEN"):
+            curr_celex = celex[i:(i + at_once)]
+            input=" OR ".join(curr_celex)
+            query = link % (str(input))
             failure = False
-            input=" OR ".join(contains_list)
-            contains_query = base_contains_query % (str(input))
             while not failure:
-                contains_response = run_eurlex_webservice_query(contains_query, username, password)
-                if contains_response.status_code == 500 and "WS_WS_CALLS_IDLE_INTERVAL" not in contains_response.text:
-                    perc = i * 100 / len(celexes)
-                    print(
-                        f"Limit of web service usage reached! Citations collection will stop here at {perc} % of citations downloaded."
-                        f"\nThere were {success} successful queries and {retry} retries")
+                response = run_eurlex_webservice_query(query, username, password)
+                if response.status_code == 500 and "WS_WS_CALLS_IDLE_INTERVAL" not in response.text:
+                    perc=i*100/len(celexes)
+                    print(f"Limit of web service usage reached! Citations collection will stop here at {perc} % of citations downloaded."
+                          f"\nThere were {success} successful queries and {retry} retries")
                     return
-                try:
-                    dictionary = extract_dictionary_from_webservice_query(contains_response)
-                    dictionary_list.append(dictionary)
-                    success+=1
+                elif "<numhits>0</numhits>" in response.text:
                     failure = True
-                except:
-                    retry+=1
-                    #print(response.content)
-                    time.sleep(0.5)
+                else:
+                    try:
+                        dictionary = extract_dictionary_from_webservice_query(response)
+                        dictionary_list.append(dictionary)
+                        success+=1
+                        failure = True
+                    except:
+                        retry+=1
+                        #print(response.content)
+                        time.sleep(0.5)
+            time.sleep(2)
+    if len(normal_celex)>0:
+        process_queries(base_query,normal_celex)
+    if len(contains_celex)>0:
+        process_queries(base_contains_query,contains_celex)
 
 
 """

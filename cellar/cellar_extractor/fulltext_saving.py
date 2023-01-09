@@ -58,7 +58,7 @@ def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full,
             eurovoc = get_eurovoc(text)
         else:
             code = ""
-            subject = ""
+            #subject = ""
             eurovoc = ""
         eurovocs[j] = eurovoc
         #subject_matter[j] = subject

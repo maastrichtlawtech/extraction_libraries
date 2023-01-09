@@ -25,7 +25,7 @@ After 10 retries, it gives up and returns a "404" string.
 
 
 def response_wrapper(link, num=1):
-    if num == 20:
+    if num == 10:
         return "404"
     try:
         response = requests.get(link)
