@@ -119,7 +119,8 @@ def get_data_from_api(ecli_id):
             except urllib.error.HTTPError as e:
                 print(e)
             except Exception as e:
-                print(e)
+                b=2
+               # print(e)
         else:
             ecli_df.append(ecli_id)
             uitspraak_df.append("API returned with error code: " + str(response_code))

@@ -19,7 +19,7 @@ def get_echr(start_id=0, end_id=None, start_date=None, count=None, end_date=None
     if count:
         end_id = int(start_id) + count
     print("--- STARTING ECHR DOWNLOAD ---")
-    fields = None
+    #fields = None
     df, resultcount = read_echr_metadata(start_id=start_id, end_id=end_id, start_date=start_date, end_date=end_date,
                                          verbose=verbose, skip_missing_dates=skip_missing_dates, fields=fields)
     if df is False and resultcount is False:

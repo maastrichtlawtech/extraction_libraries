@@ -9,7 +9,7 @@ long_descr = (this_dir / "README.md").read_text()
 setup(
     name='rechtspraak_extractor',
     packages=find_packages(include=['rechtspraak_extractor']),
-    version='1.1.2',
+    version='1.1.3',
     description='Library for extracting rechtspraak data',
     author='LawTech Lab',
     license='MIT',
