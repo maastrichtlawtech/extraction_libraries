@@ -53,7 +53,7 @@ def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", thre
     data = get_cellar(ed=ed, save_file='n', max_ecli=max_ecli, sd=sd, file_format='csv')
     if data is False:
         print("Cellar extraction unsuccessful")
-        return False
+        return False, False
     print("\n--- START OF EXTRA EXTRACTION ---")
     file_name = 'cellar_extra_' + sd + '_' + ed
     file_name = file_name.replace(":", "_")
