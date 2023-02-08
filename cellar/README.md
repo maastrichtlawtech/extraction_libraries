@@ -65,9 +65,9 @@ Python 3.9
         Maximum number of ECLIs to retrieve
         <br>Default: 100
         <li><strong>sd: date, optional, default '2022-05-01'</strong></li>
-        The start publication date (yyyy-mm-dd)
+        The start last modification date (yyyy-mm-dd)
         <li><strong>ed: date, optional, default current date</strong></li>
-        The end publication date (yyyy-mm-dd)
+        The end last modification date (yyyy-mm-dd)
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
         Save data in a data folder, or return in-memory
         <li><strong>file_format: ['csv', 'json'],optional, default 'csv'</strong></li>
@@ -79,9 +79,9 @@ Python 3.9
         Maximum number of ECLIs to retrieve
         <br>Default: 100
         <li><strong>sd: date, optional, default '2022-05-01'</strong></li>
-        The start publication date (yyyy-mm-dd)
+        The start last modification date (yyyy-mm-dd)
         <li><strong>ed: date, optional, default current date</strong></li>
-        The end publication date (yyyy-mm-dd)
+        The end last modification date (yyyy-mm-dd)
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
         Save the full text of cases as JSON file / return as a dictionary and save the rest of
         the data as a CSV file / return as a Pandas Dataframe object

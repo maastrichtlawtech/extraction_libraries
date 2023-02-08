@@ -3,13 +3,13 @@
 from setuptools import find_packages, setup
 from pathlib import Path
 
-this_dir = Path('rechtspraak_extractor')
-long_descr = (this_dir / "README.md").read_text()
+p = Path("README.md")
+long_descr = p.read_text()
 
 setup(
     name='rechtspraak_extractor',
     packages=find_packages(include=['rechtspraak_extractor']),
-    version='1.1.3',
+    version='1.1.4',
     description='Library for extracting rechtspraak data',
     author='LawTech Lab',
     license='MIT',
