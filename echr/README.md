@@ -91,9 +91,9 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         <br><strong>WARNING</strong><br>
         If count is provided, the end_id will be set to start_id+count, overwriting any given end_id value.
         <li><strong>start_date: date, optional, default None</strong></li>
-        The start publication date (mm-dd-yyyy)
+        The start publication date (yyyy-mm-dd)
         <li><strong>end_date: date, optional, default current date</strong></li>
-        The end publication date (mm-dd-yyyy)
+        The end publication date (yyyy-mm-dd)
         <li><strong>verbose: boolean, optional, default False</strong></li>
         This option allows for additional printing, showing live progress of the extraction process.
         <li><strong>skip_missing_dates: boolean, optional, default False</strong></li>
@@ -115,9 +115,9 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         <br><strong>WARNING</strong><br>
         If count is provided, the end_id will be set to start_id+count, overwriting any given end_id value.
         <li><strong>start_date: date, optional, default None</strong></li>
-        The start publication date (mm-dd-yyyy)
+        The start publication date (yyyy-mm-dd)
         <li><strong>end_date: date, optional, default current date</strong></li>
-        The end publication date (mm-dd-yyyy)
+        The end publication date (yyyy-mm-dd)
         <li><strong>verbose: boolean, optional, default False</strong></li>
         This option allows for additional printing, showing live progress of the extraction process.
         <li><strong>skip_missing_dates: boolean, optional, default False</strong></li>

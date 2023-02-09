@@ -21,8 +21,8 @@ if __name__ == '__main__':
               'referencedate', 'reportdate', 'representedby','resolutiondate', 'resolutionnumber', 
               'respondent', 'respondentOrderEng', 'rulesofcourt', 'separateopinion', 'scl',
               'sharepointid', 'typedescription', 'nonviolation', 'violation']
-    df = get_echr(start_date="22-03-2010", end_date="22-01-2020")
-    #b=2
+    df = get_echr(start_date="2022-01-01", end_date="2023-02-02")
+    b=2
     #df,json = get_echr_extra(start_id=20,end_id=3000,save_file='n')
 
     #df = get_echr(start_id=1000,count=2000,save_file='n')
