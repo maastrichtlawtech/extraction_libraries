@@ -59,11 +59,11 @@ def determine_filename(start_id, end_id, start_date, end_date):
 
 
 def get_echr_extra(start_id=0, end_id=None, start_date=None, count=None, end_date=None, verbose=True,
-                   skip_missing_dates=True, save_file='y', threads=10,fields=None):
+                    save_file='y', threads=10,fields=None):
     if count:
         end_id = int(start_id) + count
     df = get_echr(start_id=start_id, end_id=end_id, start_date=start_date, end_date=end_date, verbose=verbose,
-                  skip_missing_dates=skip_missing_dates, count=count, save_file='n',fields=fields)
+                   count=count, save_file='n',fields=fields)
     print("Full-text download will now begin")
     if df is False:
         return False, False
