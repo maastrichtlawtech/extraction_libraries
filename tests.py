@@ -99,39 +99,39 @@ def test_echr_extra_y():
         echr_extra_y()
         assert True
     except Exception:
-        assert False, "Saving extra cellar failed"
+        assert False, "Saving extra echr failed"
 
 def test_echr_extra_n():
     try:
         echr_extra_n()
         assert True
     except Exception:
-        assert False, "Saving extra cellar failed"
+        assert False, "Downloading extra echr failed"
 
 def test_echr_y():
     try:
         echr_y()
         assert True
     except Exception:
-        assert False, "Saving extra cellar failed"
+        assert False, "Saving echr failed"
 
 def test_echr_n():
     try:
         echr_n()
         assert True
     except Exception:
-        assert False, "Saving extra cellar failed"
+        assert False, "Downloading echr failed"
 
 def test_rechtspraak_y():
     try:
         rechtspraak_y()
         assert True
     except Exception:
-        assert False, "Saving extra cellar failed"
+        assert False, "Saving extra rechtspraak failed"
 
 def test_rechtspraak_n():
     try:
         rechtspraak_n()
         assert True
     except Exception:
-        assert False, "Saving extra cellar failed"
+        assert False, "Downloading extra rechtspraak failed"
