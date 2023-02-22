@@ -103,6 +103,9 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         different columns in the csv file / Dataframe object. The full list of fields is attached in the appendix.
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
         Save metadata as a csv file in the data folder, or return as a Pandas DataFrame object in-memory.
+        <li><strong>link: string ,optional, default None </strong></li>
+        Allows the user to download results of a search from the HUDOC website. If this argument is provided, all
+        the other arguments are ignored, except for 'fields'. Further information on proper usage is in the Appendix.
     </ul>
     <li><code>get_echr_extra</code></li>
     <ul> 
@@ -128,6 +131,9 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
         Save metadata as a csv file in the data folder and the full_text as a json file, 
         or return a Pandas DataFrame object and a list of dictionaries in-memory.
+        <li><strong>link: string ,optional, default None </strong></li>
+        Allows the user to download results of a search from the HUDOC website. If this argument is provided, all
+        the other arguments are ignored, except for 'fields'. Further information on proper usage is in the Appendix.
         <li><strong>threads: int, optional, default: 10</strong></li>
         The full text download is a parallelizable process.
         This parameter determines the number of threads to be used in the download.
@@ -178,6 +184,18 @@ limitations under the License.
 ## Appendix
 
 ```
+To properly use the 'link' parameter of the extraction methods, the user should head to 
+
+https://hudoc.echr.coe.int/eng#%20
+
+There, the user can use the tools of Advanced Search of HUDOC to search for specific cases.
+Afterwards*, the user can copy the link of the current website, and pass it on to the extraction methods. 
+
+
+* It should be noted that the link only updates after the 'search' button  of the Advanced Search is clicked.
+
+
+
 The full list of fields is as follows:
 
 fields = ['itemid','applicability','application','appno','article','conclusion','decisiondate','docname',

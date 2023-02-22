@@ -29,9 +29,86 @@ def get_r(url, timeout, retry, verbose):
                     print(f"Unable to connect to {url}. Skipping this batch.")
                 return None
     return None
+def link_to_query(link):
+    extra_cases_map = {
+        "bodyprocedure": '("PROCEDURE" ONEAR(n=1000) terms OR "PROCÉDURE" ONEAR(n=1000) terms)',
+        "bodyfacts": '("THE FACTS" ONEAR(n=1000) terms OR "EN FAIT" ONEAR(n=1000) terms)',
+        "bodycomplaints": '("COMPLAINTS" ONEAR(n=1000) terms OR "GRIEFS" ONEAR(n=1000) terms)',
+        "bodylaw": '("THE LAW" ONEAR(n=1000) terms OR "EN DROIT" ONEAR(n=1000) terms)',
+        "bodyreasons": '("FOR THESE REASONS" ONEAR(n=1000) terms OR "PAR CES MOTIFS" ONEAR(n=1000) terms)',
+        "bodyseparateopinions": '(("SEPARATE OPINION" OR "SEPARATE OPINIONS") ONEAR(n=5000) terms OR "OPINION '
+                                'SÉPARÉE" ONEAR(n=5000) terms)',
+        "bodyappendix": '("APPENDIX" ONEAR(n=1000) terms OR "ANNEXE" ONEAR(n=1000) terms)'
+    }
 
+    def basic_function(term, values):
+        values = ['"' + i + '"' for i in values]
+        main_body = list()
+        cut_term = term.replace('"', '')
+        for v in values:
+            main_body.append(f"({cut_term}={v}) OR ({cut_term}:{v})")
+        query = f"({' OR '.join(main_body)})"
+        return query
 
-def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date):
+    def full_text_function(term, values):
+        return f"({','.join(values)})"
+
+    def date_function(term, values):
+        values = ['"' + i + '"' for i in values]
+        query = '(kpdate >= "first_term" AND kpdate <= "second_term")'
+        query = query.replace("first_term", values[0])
+        query = query.replace("second_term", values[1])
+        return query
+
+    def advanced_function(term, values):
+        body = extra_cases_map.get(term)
+        query = body.replace("terms", ",".join(vals))
+        return query
+
+    query_map = {
+        "docname": basic_function,
+        "appno": basic_function,
+        "scl": basic_function,
+        "rulesofcourt": basic_function,
+        "applicability": basic_function,
+        "ecli": basic_function,
+        "conclusion": basic_function,
+        "resolutionnumber": basic_function,
+        "separateopinions": basic_function,
+        "externalsources": basic_function,
+        "kpthesaurus": basic_function,
+        "advopidentifier": basic_function,
+        "documentcollectionid2": basic_function,
+        "fulltext": full_text_function,
+        "kpdate": date_function,
+        "bodyprocedure": advanced_function,
+        "bodyfacts": advanced_function,
+        "bodycomplaints": advanced_function,
+        "bodylaw": advanced_function,
+        "bodyreasons": advanced_function,
+        "bodyseparateopinions": advanced_function,
+        "bodyappendix": advanced_function
+
+    }
+    start = link.index("{")
+    link_dictionary = eval(link[start:])
+    base_query = 'https://hudoc.echr.coe.int/app/query/results?query=contentsitename:ECHR' \
+                ' AND (NOT (doctype=PR OR doctype=HFCOMOLD OR doctype=HECOMOLD)) AND ' \
+                 'inPutter&select={select}&sort=itemid%20Ascending&start={start}&length={length}'
+    query_elements = list()
+    for key in list(link_dictionary.keys()):
+        vals = link_dictionary.get(key)
+        funct = query_map.get(key)
+        query_elements.append(funct(key, vals))
+    query_total = ' AND '.join(query_elements)
+    final_query = base_query.replace('inPutter', query_total)
+    #print(final_query)
+    #page = requests.get(final_query)
+   # results = eval(page.text)
+   # print(results.get('resultcount'))
+    return final_query
+
+def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date,link):
     """
     Read ECHR metadata into a Pandas DataFrame.
     :param int start_id: The index to start the search from.
@@ -57,36 +134,42 @@ def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date):
                   'WebTemplate', 'SecondaryFileExtension', 'docaclmeta', 'OriginalPath',
                   'EditorOWSUSER', 'DisplayAuthor', 'ResultTypeIdList', 'PartitionId', 'UrlZone',
                   'AAMEnabledManagedProperties', 'ResultTypeId', 'rendertemplateid']
-    META_URL = 'http://hudoc.echr.coe.int/app/query/results' \
-               '?query=(contentsitename=ECHR) AND ' \
-               '(documentcollectionid2:"JUDGMENTS" OR '\
-                 'documentcollectionid2:"COMMUNICATEDCASES" OR '\
-                 'documentcollectionid2:"DECISIONS" OR '\
-                 'documentcollectionid2:"CLIN") AND ' \
-               '(languageisocode:"ENG")' \
-               '&select={select}' + \
-               '&sort=itemid Ascending' + \
-               '&start={start}&length={length}'
+    if link:
+        META_URL = link_to_query(link)
 
-
-    # An example url: "https://hudoc.echr.coe.int/app/query/results?query=(contentsitename=ECHR)%20AND%20(documentcollectionid2:%22JUDGMENTS%22%20OR%20documentcollectionid2:%22COMMUNICATEDCASES%22%20OR%20documentcollectionid2:%22DECISIONS%22%20OR%20documentcollectionid2:%22CLIN%22)&select=itemid,applicability,application,appno,article,conclusion,decisiondate,docname,documentcollectionid,%20documentcollectionid2,doctype,doctypebranch,ecli,externalsources,extractedappno,importance,introductiondate,%20isplaceholder,issue,judgementdate,kpdate,kpdateAsText,kpthesaurus,languageisocode,meetingnumber,%20originatingbody,publishedby,Rank,referencedate,reportdate,representedby,resolutiondate,%20resolutionnumber,respondent,respondentOrderEng,rulesofcourt,separateopinion,scl,sharepointid,typedescription,%20nonviolation,violation&sort=itemid%20Ascending&start=0&length=200".
-
-    '(kpdate >= "first_term" AND kpdate <= "second_term")'
-    if start_date and end_date:
-        addition = f'(kpdate>="{start_date}" AND kpdate<="{end_date}")'
-    elif start_date:
-        addition = f'(kpdate >= "{start_date}")'
-    elif end_date:
-        addition = f'(kpdate <= "{end_date}")'
     else:
-        addition = ''
+        META_URL = 'http://hudoc.echr.coe.int/app/query/results' \
+                   '?query=(contentsitename=ECHR) AND ' \
+                   '(documentcollectionid2:"JUDGMENTS" OR '\
+                     'documentcollectionid2:"COMMUNICATEDCASES" OR '\
+                     'documentcollectionid2:"DECISIONS" OR '\
+                     'documentcollectionid2:"CLIN") AND ' \
+                   '(languageisocode:"ENG")' \
+                   '&select={select}' + \
+                   '&sort=itemid Ascending' + \
+                   '&start={start}&length={length}'
 
-    '(kpdate>="2022-01-01T00:00:00.0Z" AND kpdate<="2023-02-02T00:00:00.0Z")'
-    META_URL = META_URL.replace('(contentsitename=ECHR)','(contentsitename=ECHR) AND '+addition)
+        # An example url: "https://hudoc.echr.coe.int/app/query/results?query=(contentsitename=ECHR)%20AND%20(documentcollectionid2:%22JUDGMENTS%22%20OR%20documentcollectionid2:%22COMMUNICATEDCASES%22%20OR%20documentcollectionid2:%22DECISIONS%22%20OR%20documentcollectionid2:%22CLIN%22)&select=itemid,applicability,application,appno,article,conclusion,decisiondate,docname,documentcollectionid,%20documentcollectionid2,doctype,doctypebranch,ecli,externalsources,extractedappno,importance,introductiondate,%20isplaceholder,issue,judgementdate,kpdate,kpdateAsText,kpthesaurus,languageisocode,meetingnumber,%20originatingbody,publishedby,Rank,referencedate,reportdate,representedby,resolutiondate,%20resolutionnumber,respondent,respondentOrderEng,rulesofcourt,separateopinion,scl,sharepointid,typedescription,%20nonviolation,violation&sort=itemid%20Ascending&start=0&length=200".
+
+        if start_date and end_date:
+            addition = f'(kpdate>="{start_date}" AND kpdate<="{end_date}")'
+        elif start_date:
+            addition = f'(kpdate >= "{start_date}")'
+        elif end_date:
+            addition = f'(kpdate <= "{end_date}")'
+        else:
+            addition = ''
+
+        if addition:
+            META_URL = META_URL.replace('(contentsitename=ECHR)','(contentsitename=ECHR) AND '+addition)
+
+
     META_URL = META_URL.replace(' ', '%20')
     META_URL = META_URL.replace('"', '%22')
-    # get total number of results:
-    url = META_URL.format(select=','.join(fields), start=0, length=1)
+    META_URL = META_URL.replace('{select}',','.join(fields))
+        # get total number of results:
+    url = META_URL.format(start=0, length=1)
+    print(url)
     r = requests.get(url)
     resultcount = r.json()['resultcount']
     print("available results: ", resultcount)
@@ -104,7 +187,7 @@ def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date):
             if verbose:
                 print(" - Fetching information from cases {} to {}.".format(i, i + 500))
             # Format URL based on the incremented index.
-            url = META_URL.format(select=','.join(fields), start=i, length=500)
+            url = META_URL.format(start=i, length=500)
             if verbose:
                 print(url)
 
@@ -119,7 +202,7 @@ def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date):
 
     else:
         # Format URL based on start and length
-        url = META_URL.format(select=','.join(fields), start=start_id, length=end_id)
+        url = META_URL.format(start=start_id, length=end_id)
         if verbose:
             print(url)
 

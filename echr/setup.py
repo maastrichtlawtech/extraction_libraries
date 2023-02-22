@@ -9,7 +9,7 @@ long_descr = p.read_text()
 setup(
     name='echr_extractor',
     packages=find_packages(include=['echr_extractor']),
-    version='1.0.10',
+    version='1.0.13',
     description='Library for extracting ECHR data',
     author='LawTech Lab',
     license='MIT',

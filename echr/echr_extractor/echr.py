@@ -15,13 +15,13 @@ already but feel free to shoot me a message about it seeing as I did something s
 
 
 def get_echr(start_id=0, end_id=None, start_date=None, count=None, end_date=None, verbose=False, save_file='y',
-             fields=None):
+             fields=None,link=None):
     if count:
         end_id = int(start_id) + count
     print("--- STARTING ECHR DOWNLOAD ---")
     #fields = None
     df, resultcount = read_echr_metadata(start_id=start_id, end_id=end_id, start_date=start_date, end_date=end_date,
-                                         verbose=verbose, fields=fields)
+                                         verbose=verbose, fields=fields,link=link)
     if df is False and resultcount is False:
         return False
     if save_file == "y":
@@ -58,12 +58,12 @@ def determine_filename(start_id, end_id, start_date, end_date):
     return filename
 
 
-def get_echr_extra(start_id=0, end_id=None, start_date=None, count=None, end_date=None, verbose=True,
-                    save_file='y', threads=10,fields=None):
+def get_echr_extra(start_id=0, end_id=None, start_date=None, count=None, end_date=None, verbose=False,
+                    save_file='y', threads=10,fields=None,link=None):
     if count:
         end_id = int(start_id) + count
     df = get_echr(start_id=start_id, end_id=end_id, start_date=start_date, end_date=end_date, verbose=verbose,
-                   count=count, save_file='n',fields=fields)
+                   count=count, save_file='n',fields=fields,link=link)
     print("Full-text download will now begin")
     if df is False:
         return False, False

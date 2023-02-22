@@ -15,7 +15,7 @@ import shutil
 from rechtspraak_extractor.rechtspraak_functions import *
 
 # Define base url
-RECHTSPRAAK_METADATA_API_BASE_URL = "https://uitspraken.rechtspraak.nl/InzienDocument?id="
+RECHTSPRAAK_METADATA_API_BASE_URL = "https://https://uitspraken.rechtspraak.nl/#!/details?id="
 
 # Define empty lists where we'll store our data temporarily
 ecli_df = []
@@ -40,7 +40,7 @@ def get_cores():
     n_cores = multiprocessing.cpu_count()
 
     global max_workers
-    max_workers = n_cores * 5
+    max_workers = n_cores-1
     # If the main process is computationally intensive: Set to the number of logical CPU cores minus one.
 
     print(f"Maximum " + str(max_workers) + " threads supported by your machine.")
