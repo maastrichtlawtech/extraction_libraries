@@ -14,7 +14,7 @@ if __name__ == '__main__':
     """
 
 
-    df = get_echr_extra(count=100)
+    df = get_echr_extra(count=100,threads=5)
     b=2
     #df,json = get_echr_extra(start_id=20,end_id=3000,save_file='n')
 

@@ -27,7 +27,10 @@ def download_full_text_main(df, threads):
     item_ids = df['itemid']
     eclis = df['ecli']
     length = item_ids.size
-    at_once_threads = int(length / threads)
+    if length>threads:
+        at_once_threads = int(length / threads)
+    else:
+        at_once_threads=length
     all_dict = list()
     threads = []
     for i in range(0, length, at_once_threads):

@@ -93,7 +93,7 @@ def add_sections(data, threads, json_filepath=None):
     length = celex.size
     time.sleep(1)
     bar = tqdm(total=length,colour="GREEN")
-    if length > 100:  # to avoid getting problems with small files
+    if length > threads:  # to avoid getting problems with small files
         at_once_threads = int(length / threads)
     else:
         at_once_threads = length

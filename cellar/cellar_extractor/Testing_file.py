@@ -10,8 +10,9 @@ from nodes_and_edges import get_nodes_and_edges
 from os.path import join
 from json_to_csv import read_csv
 import time
+from cellar import get_cellar
 if __name__ == '__main__':
-
+    data = get_cellar(sd='1500-01-01',save_file='n',max_ecli=100)
     path = join("","data")
     path_file = join(path,"cellar_full_january_2023.csv")
     df = read_csv(path_file)
