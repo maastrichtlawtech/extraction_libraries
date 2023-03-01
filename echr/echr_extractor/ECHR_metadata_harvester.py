@@ -154,10 +154,10 @@ def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date,l
         if start_date and end_date:
             addition = f'(kpdate>="{start_date}" AND kpdate<="{end_date}")'
         elif start_date:
-            end_date = '1900-01-01'
+            end_date = datetime.today().date()
             addition = f'(kpdate>="{start_date}" AND kpdate<="{end_date}")'
         elif end_date:
-            start_date = datetime.today().date()
+            start_date = '1900-01-01'
             addition = f'(kpdate>="{start_date}" AND kpdate<="{end_date}")'
         else:
             addition = ''
