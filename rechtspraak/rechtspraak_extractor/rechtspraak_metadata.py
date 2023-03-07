@@ -15,7 +15,7 @@ import shutil
 from rechtspraak_extractor.rechtspraak_functions import *
 
 # Define base url
-RECHTSPRAAK_METADATA_API_BASE_URL = "https://https://uitspraken.rechtspraak.nl/#!/details?id="
+RECHTSPRAAK_METADATA_API_BASE_URL = "https://uitspraken.rechtspraak.nl/#!/details?id="
 
 # Define empty lists where we'll store our data temporarily
 ecli_df = []

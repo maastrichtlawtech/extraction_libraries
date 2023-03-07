@@ -8,7 +8,7 @@ LINK_SUMMARY_INF = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CEL
 LINK_SUMJURE = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere_SUM&from=EN'
 CELEX_SUBSTITUTE = 'cIdHere'
 LINK_SUMMARY = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere_SUM&from=EN'
-prog = re.compile(r'^[1234567890CE]\d{4}[A-Z]{1,2}\d{4}\d*')
+prog = re.compile(r'^[1234567890CE]\d{4}[A-Z]{1,2}\d{3,4}\d*')
 """
 Method for detecting code-words for case law directory codes for cellar.
 """
