@@ -17,6 +17,20 @@ Python 3.9
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/running-machin">
+            <img src="https://avatars.githubusercontent.com/u/60750154?v=4" width="100;" alt="running-machin"/>
+            <br />
+            <sub><b>running-machin</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/Cloud956">
+            <img src="https://avatars.githubusercontent.com/u/24865274?v=4" width="100;" alt="Cloud956"/>
+            <br />
+            <sub><b>Piotr Lewandowski</b></sub>
+        </a>
+    </td>
+    <td align="center">
         <a href="https://github.com/shashankmc">
             <img src="https://avatars.githubusercontent.com/u/3445114?v=4" width="100;" alt="shashankmc"/>
             <br />
