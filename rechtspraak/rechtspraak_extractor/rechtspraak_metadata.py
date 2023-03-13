@@ -15,7 +15,8 @@ import shutil
 from rechtspraak_extractor.rechtspraak_functions import *
 
 # Define base url
-RECHTSPRAAK_METADATA_API_BASE_URL = "https://uitspraken.rechtspraak.nl/#!/details?id="
+RECHTSPRAAK_METADATA_API_BASE_URL = "http://data.rechtspraak.nl/uitspraken/content?id=" # old one = "https://uitspraken.rechtspraak.nl/#!/details?id="
+return_type = "&return=DOC"
 
 # Define empty lists where we'll store our data temporarily
 ecli_df = []
@@ -24,6 +25,7 @@ instantie_df = []
 datum_uitspraak_df = []
 datum_publicatie_df = []
 zaaknummer_df = []
+formele_relaties_df = []
 rechtsgebieden_df = []
 bijzondere_kenmerken_df = []
 inhoudsindicatie_df = []
@@ -46,9 +48,11 @@ def get_cores():
     print(f"Maximum " + str(max_workers) + " threads supported by your machine.")
 
 
-def extract_data_from_html(filename):
-    soup = BeautifulSoup(open("temp_rs_data/" + filename), "html.parser")
-    return soup
+def extract_data_from_xml(url):
+    with urllib.request.urlopen(url) as response:
+        xml_file = response.read()
+        return xml_file
+
 
 
 def check_if_df_empty(df):
@@ -58,42 +62,36 @@ def check_if_df_empty(df):
 
 
 def get_data_from_api(ecli_id):
-    url = RECHTSPRAAK_METADATA_API_BASE_URL + ecli_id
+    url = RECHTSPRAAK_METADATA_API_BASE_URL + ecli_id + return_type
     response_code = check_api(url)
     global ecli_df, uitspraak_df, instantie_df, datum_uitspraak_df, datum_publicatie_df, zaaknummer_df, \
-        rechtsgebieden_df, bijzondere_kenmerken_df, inhoudsindicatie_df, vindplaatsen_df
+        formele_relaties_df, rechtsgebieden_df, bijzondere_kenmerken_df, inhoudsindicatie_df, vindplaatsen_df
     try:
         if response_code == 200:
             try:
-                # Create HTML file
-                # html_file = ecli_id + ".html"
-                html_file = ecli_id.replace(":", "-") + ".html"
-                urllib.request.urlretrieve(url, "temp_rs_data/" + html_file)
+     
+                # Extract data from xml
+                xml_object = extract_data_from_xml(url)
 
-                # Extract data from HTML
-                html_object = extract_data_from_html(html_file)
-
-                soup = BeautifulSoup(str(html_object), features='lxml')
+                soup = BeautifulSoup(xml_object, features='xml')
 
                 # Get the data
-                uitspraak_info = soup.find_all("div", {"class": "uitspraak-info"})
-                section = soup.find_all("div", {"class": "section"})
-
-                # We're using temporary variable "temp" to get the other metadata information such as instantie,
-                # datum uitspraak, datum publicatie, zaaknummer, rechtsgebieden, bijzondere kenmerken,
-                # inhoudsindicatie, and vindplaatsen
-                temp = soup.find_all("dl", {"class": "dl-horizontal"})
-                instantie = BeautifulSoup(str(temp[0]('dd')[0]), features='lxml').get_text().strip()
-                datum_uitspraak = BeautifulSoup(str(temp[0]('dd')[1]), features='lxml').get_text().strip()
-                datum_publicatie = BeautifulSoup(str(temp[0]('dd')[2]), features='lxml').get_text().strip()
-                zaaknummer = BeautifulSoup(str(temp[0]('dd')[3]), features='lxml').get_text().strip()
-                rechtsgebieden = BeautifulSoup(str(temp[0]('dd')[4]), features='lxml').get_text().strip()
-                bijzondere_kenmerken = BeautifulSoup(str(temp[0]('dd')[5]), features='lxml').get_text().strip()
-                inhoudsindicatie = BeautifulSoup(str(temp[0]('dd')[6]), features='lxml').get_text().strip()
-                vindplaatsen = BeautifulSoup(str(temp[0]('dd')[7]), features='lxml').get_text().strip()
-
-                uitspraak = BeautifulSoup(str(uitspraak_info), features='lxml').get_text()
-                uitspraak = uitspraak + BeautifulSoup(str(section), features='lxml').get_text()
+               
+                instantie = soup.find("dcterms:creator").text
+                datum_uitspraak = soup.find("dcterms:date").text
+                datum_publicatie = soup.find("dcterms:issued").text
+                zaaknummer = soup.find("psi:zaaknummer").text
+                rechtsgebieden = soup.find("dcterms:subject").text
+                formele_relatie = soup.findAll("dcterms:relation")
+                relatie = None
+                for i in formele_relatie:
+                    # append the string to formele_relatie
+                    relatie += i.text + "\n"
+                formele_relaties = relatie
+                bijzondere_kenmerken = soup.find("psi:procedure").text
+                inhoudsindicatie = soup.find("inhoudsindicatie").text
+                vindplaatsen = soup.find("dcterms:hasVersion").text
+                uitspraak = soup.find("uitspraak").text
 
                 ecli_df.append(ecli_id)
                 uitspraak_df.append(uitspraak)
@@ -101,17 +99,15 @@ def get_data_from_api(ecli_id):
                 datum_uitspraak_df.append(datum_uitspraak)
                 datum_publicatie_df.append(datum_publicatie)
                 zaaknummer_df.append(zaaknummer)
+                formele_relaties_df.append(formele_relaties)
                 rechtsgebieden_df.append(rechtsgebieden)
                 bijzondere_kenmerken_df.append(bijzondere_kenmerken)
                 inhoudsindicatie_df.append(inhoudsindicatie)
                 vindplaatsen_df.append(vindplaatsen)
 
-                del uitspraak, instantie, datum_uitspraak, datum_publicatie, zaaknummer, rechtsgebieden, \
-                    bijzondere_kenmerken, inhoudsindicatie, vindplaatsen
+                del uitspraak, instantie, datum_uitspraak, datum_publicatie, zaaknummer,formele_relaties,\
+                    rechtsgebieden,bijzondere_kenmerken, inhoudsindicatie, vindplaatsen
 
-                # BS4 creates an HTML file to get the data. Remove the file after use
-                if os.path.exists("temp_rs_data/" + html_file):
-                    os.remove("temp_rs_data/" + html_file)
                 urllib.request.urlcleanup()
 
             except urllib.error.URLError as e:
@@ -188,14 +184,15 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
         csv_files = read_csv('data', "metadata")
 
         global ecli_df, uitspraak_df, instantie_df, datum_uitspraak_df, datum_publicatie_df, zaaknummer_df, \
-            rechtsgebieden_df, bijzondere_kenmerken_df, inhoudsindicatie_df, vindplaatsen_df
+            formele_relaties_df,rechtsgebieden_df, bijzondere_kenmerken_df, inhoudsindicatie_df, vindplaatsen_df
 
         if len(csv_files) > 0 and save_file == 'y':
             for f in csv_files:
                 # Create empty dataframe
                 rsm_df = pd.DataFrame(columns=['ecli_id', 'uitspraak', 'instantie', 'datum_uitspraak',
-                                               'datum_publicatie', 'zaaknummer', 'rechtsgebieden',
-                                               'bijzondere_kenmerken', 'inhoudsindicatie', 'vindplaatsen'])
+                                               'datum_publicatie', 'zaaknummer',"formele_relaties",
+                                                'rechtsgebieden','bijzondere_kenmerken',
+                                                'inhoudsindicatie', 'vindplaatsen'])
 
                 temp_file_name = f.split('\\')[-1][:len(f.split('\\')[-1]) - 4]
 
@@ -229,6 +226,7 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 rsm_df['datum_uitspraak'] = datum_uitspraak_df
                 rsm_df['datum_publicatie'] = datum_publicatie_df
                 rsm_df['zaaknummer'] = zaaknummer_df
+                rsm_df['formele_relaties'] = formele_relaties_df
                 rsm_df['rechtsgebieden'] = rechtsgebieden_df
                 rsm_df['bijzondere_kenmerken'] = bijzondere_kenmerken_df
                 rsm_df['inhoudsindicatie'] = inhoudsindicatie_df
@@ -254,6 +252,7 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 datum_uitspraak_df = []
                 datum_publicatie_df = []
                 zaaknummer_df = []
+                formele_relaties_df = []
                 rechtsgebieden_df = []
                 bijzondere_kenmerken_df = []
                 inhoudsindicatie_df = []
@@ -264,8 +263,8 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
 
     if rs_data is not None:
         rsm_df = pd.DataFrame(columns=['ecli_id', 'uitspraak', 'instantie', 'datum_uitspraak', 'datum_publicatie',
-                                       'zaaknummer', 'rechtsgebieden', 'bijzondere_kenmerken', 'inhoudsindicatie',
-                                       'vindplaatsen'])
+                                       'zaaknummer','formele_relaties', 'rechtsgebieden', 'bijzondere_kenmerken',
+                                        'inhoudsindicatie','vindplaatsen'])
 
         print("Getting metadata of " + str(no_of_rows) + " ECLIs")
         print("Working. Please wait...")
@@ -283,7 +282,7 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
         shutil.rmtree('temp_rs_data')
 
         # global ecli_df, uitspraak_df, instantie_df, datum_uitspraak_df, datum_publicatie_df, zaaknummer_df, \
-        #     rechtsgebieden_df, bijzondere_kenmerken_df, inhoudsindicatie_df, vindplaatsen_df
+        #    formele_relaties_df, rechtsgebieden_df, bijzondere_kenmerken_df, inhoudsindicatie_df, vindplaatsen_df
 
         rsm_df['ecli_id'] = ecli_df
         rsm_df['uitspraak'] = uitspraak_df
@@ -291,6 +290,7 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
         rsm_df['datum_uitspraak'] = datum_uitspraak_df
         rsm_df['datum_publicatie'] = datum_publicatie_df
         rsm_df['zaaknummer'] = zaaknummer_df
+        rsm_df['formele_relaties'] = formele_relaties_df
         rsm_df['rechtsgebieden'] = rechtsgebieden_df
         rsm_df['bijzondere_kenmerken'] = bijzondere_kenmerken_df
         rsm_df['inhoudsindicatie'] = inhoudsindicatie_df
@@ -321,6 +321,7 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
         datum_uitspraak_df = []
         datum_publicatie_df = []
         zaaknummer_df = []
+        formele_relaties_df = []
         rechtsgebieden_df = []
         bijzondere_kenmerken_df = []
         inhoudsindicatie_df = []
