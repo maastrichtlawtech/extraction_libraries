@@ -42,7 +42,7 @@ Cellar specific, works for celex id's starting a 6 and 8.
 
 
 def get_summary_html(celex):
-    if celex == celex: # nan check
+    if celex == celex:  # nan check
         if ";" in celex:
             idss = celex.split(";")
             for idsss in idss:
@@ -173,7 +173,8 @@ def extract_citations_from_soap(results):
                 citing_list.append(celex_of_citation)
         return celex, ";".join(citing_list)
     else:
-        return celex,get_citation_celex(citing)
+        return celex, get_citation_celex(citing)
+
 
 """
 
@@ -304,7 +305,7 @@ this method waits a bit and tries again for up to 5 tries.
 def get_html_text_by_celex_id(id):
     link = "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere&from=EN"
     final = id
-    if id == id: # nan check
+    if id == id:  # nan check
         if ";" in id:
             ids = id.split(";")
             for id_s in ids:
@@ -449,3 +450,57 @@ def get_codes(text):
     except Exception:
         code = ""
     return code
+
+
+def get_advocate_or_judge(text, phrase):
+    """
+    :param text: full text of the info page of a case from eur-lex website
+    :param phrase: Phrase to search for, works for Advocate General and Judge-Rapporteur
+    :return: The name of the person with the title of phrase param ( if listed on page)
+    """
+    try:
+        index_matter = text.index(phrase)
+        extracting = text[index_matter + len(phrase):]
+        extracting = extracting.replace('\n', '', 1)
+        ending = extracting.find('\n')
+        extracting = extracting[:ending]
+        extracting.replace(',', '_')  # In case they ever change it to delimiter
+        subject_mat = extracting.split(sep="_")
+        subject_mat = [i.strip() for i in subject_mat]
+        return ";".join(subject_mat)
+    except Exception:
+        return ""
+
+
+def get_case_affecting(text):
+    """
+    :param text: full text of the info page of a case from eur-lex website
+    :return: The celex id's of case affecting listed + entire string data with more information about the case affecting
+    """
+    phrase = 'Case affecting:'
+    try:
+        index_matter = text.index(phrase)
+        extracting = text[index_matter + len(phrase):]
+        extracting = extracting.replace('\n', '', 1)
+        phrases = extracting.split(sep='\n')
+        full_strings = []
+        ids = set()
+        for p in phrases:
+            if ':' in p:
+                break
+            else:
+                words = p.split()
+                if len(words)>1:
+                    for w in words:
+                        if is_celex_id(w):
+                            ids.add(w)
+                    full_strings.append(p)
+                else:
+                    if len(words)==1:
+                        last = full_strings.pop()
+                        last +="_"+p
+                        full_strings.append(last)
+
+        return ';'.join(ids), ';'.join(full_strings)
+    except Exception:
+        return "", ""
