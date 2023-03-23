@@ -189,7 +189,7 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
         if len(csv_files) > 0 and save_file == 'y':
             for f in csv_files:
                 # Create empty dataframe
-                rsm_df = pd.DataFrame(columns=['ecli_id', 'full_text', 'creator', 'date_decision',
+                rsm_df = pd.DataFrame(columns=['ecli', 'full_text', 'creator', 'date_decision',
                                                'issued', 'zaaknummer',"relations",
                                                 'subject','procedure',
                                                 'inhoudsindicatie', 'hasVersion'])
@@ -220,7 +220,7 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 shutil.rmtree('temp_rs_data')
                 # executor.shutdown()  # Shutdown the executor
 
-                rsm_df['ecli_id'] = ecli_df
+                rsm_df['ecli'] = ecli_df
                 rsm_df['full_text'] = full_text_df
                 rsm_df['creator'] = creator_df
                 rsm_df['date_decision'] = date_decision_df
@@ -262,7 +262,7 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
             return True
 
     if rs_data is not None:
-        rsm_df = pd.DataFrame(columns=['ecli_id', 'full_text', 'creator', 'date_decision', 'issued',
+        rsm_df = pd.DataFrame(columns=['ecli', 'full_text', 'creator', 'date_decision', 'issued',
                                        'zaaknummer','relations', 'subject', 'procedure',
                                         'inhoudsindicatie','hasVersion'])
 
@@ -284,7 +284,7 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
         # global ecli_df, full_text_df, creator_df, date_decision_df, issued_df, zaaknummer_df, \
         #    relations_df, subject_df, procedure_df, inhoudsindicatie_df, hasVersion_df
 
-        rsm_df['ecli_id'] = ecli_df
+        rsm_df['ecli'] = ecli_df
         rsm_df['full_text'] = full_text_df
         rsm_df['creator'] = creator_df
         rsm_df['date_decision'] = date_decision_df
