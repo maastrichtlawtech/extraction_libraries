@@ -25,7 +25,9 @@ creator_df = []
 date_decision_df = []
 issued_df = []
 zaaknummer_df = []
+type_df = []
 relations_df = []
+references_df = []
 subject_df = []
 procedure_df = []
 inhoudsindicatie_df = []
@@ -64,8 +66,8 @@ def check_if_df_empty(df):
 def get_data_from_api(ecli_id):
     url = RECHTSPRAAK_METADATA_API_BASE_URL + ecli_id + return_type
     response_code = check_api(url)
-    global ecli_df, full_text_df, creator_df, date_decision_df, issued_df, zaaknummer_df, \
-        relations_df, subject_df, procedure_df, inhoudsindicatie_df, hasVersion_df
+    global ecli_df, full_text_df, creator_df, date_decision_df, issued_df, zaaknummer_df, type_df, \
+        relations_df, references_df, subject_df, procedure_df, inhoudsindicatie_df, hasVersion_df
     try:
         if response_code == 200:
             try:
@@ -81,6 +83,7 @@ def get_data_from_api(ecli_id):
                 date_decision = soup.find("dcterms:date").text
                 issued = soup.find("dcterms:issued").text
                 zaaknummer = soup.find("psi:zaaknummer").text
+                rs_type = soup.find("dcterms:type").text
                 subject = soup.find("dcterms:subject").text
                 relation = soup.findAll("dcterms:relation")
                 relatie = None
@@ -88,6 +91,12 @@ def get_data_from_api(ecli_id):
                     # append the string to relation
                     relatie += i.text + "\n"
                 relations = relatie
+                reference = soup.findAll("dcterms:references")
+                ref = None
+                for u in reference:
+                    # append the string to relation
+                    ref += u.text + "\n"
+                references = ref    
                 procedure = soup.find("psi:procedure").text
                 inhoudsindicatie = soup.find("inhoudsindicatie").text
                 hasVersion = soup.find("dcterms:hasVersion").text
@@ -99,14 +108,15 @@ def get_data_from_api(ecli_id):
                 date_decision_df.append(date_decision)
                 issued_df.append(issued)
                 zaaknummer_df.append(zaaknummer)
+                type_df.append(rs_type)
                 relations_df.append(relations)
+                references_df.append(references)
                 subject_df.append(subject)
                 procedure_df.append(procedure)
                 inhoudsindicatie_df.append(inhoudsindicatie)
                 hasVersion_df.append(hasVersion)
-
-                del full_text, creator, date_decision, issued, zaaknummer,relations,\
-                    subject,procedure, inhoudsindicatie, hasVersion
+                del full_text, creator, date_decision, issued, zaaknummer,relations, rs_type,\
+                    references, subject,procedure, inhoudsindicatie, hasVersion
 
                 urllib.request.urlcleanup()
 
@@ -115,8 +125,7 @@ def get_data_from_api(ecli_id):
             except urllib.error.HTTPError as e:
                 print(e)
             except Exception as e:
-                b=2
-               # print(e)
+               print(e)
         else:
             ecli_df.append(ecli_id)
             full_text_df.append("API returned with error code: " + str(response_code))
@@ -184,14 +193,14 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
         csv_files = read_csv('data', "metadata")
 
         global ecli_df, full_text_df, creator_df, date_decision_df, issued_df, zaaknummer_df, \
-            relations_df,subject_df, procedure_df, inhoudsindicatie_df, hasVersion_df
-
+           type_df, relations_df,references_df, subject_df,\
+           procedure_df, inhoudsindicatie_df, hasVersion_df
         if len(csv_files) > 0 and save_file == 'y':
             for f in csv_files:
                 # Create empty dataframe
                 rsm_df = pd.DataFrame(columns=['ecli', 'full_text', 'creator', 'date_decision',
-                                               'issued', 'zaaknummer',"relations",
-                                                'subject','procedure',
+                                               'issued', 'zaaknummer','type',"relations",
+                                                'references','subject','procedure',
                                                 'inhoudsindicatie', 'hasVersion'])
 
                 temp_file_name = f.split('\\')[-1][:len(f.split('\\')[-1]) - 4]
@@ -226,7 +235,9 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 rsm_df['date_decision'] = date_decision_df
                 rsm_df['issued'] = issued_df
                 rsm_df['zaaknummer'] = zaaknummer_df
+                rsm_df['type'] = type_df
                 rsm_df['relations'] = relations_df
+                rsm_df['references'] = references_df
                 rsm_df['subject'] = subject_df
                 rsm_df['procedure'] = procedure_df
                 rsm_df['inhoudsindicatie'] = inhoudsindicatie_df
@@ -252,7 +263,9 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 date_decision_df = []
                 issued_df = []
                 zaaknummer_df = []
+                type_df = []
                 relations_df = []
+                references_df = []
                 subject_df = []
                 procedure_df = []
                 inhoudsindicatie_df = []
@@ -263,7 +276,7 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
 
     if rs_data is not None:
         rsm_df = pd.DataFrame(columns=['ecli', 'full_text', 'creator', 'date_decision', 'issued',
-                                       'zaaknummer','relations', 'subject', 'procedure',
+                                       'zaaknummer','type','relations','references', 'subject', 'procedure',
                                         'inhoudsindicatie','hasVersion'])
 
         print("Getting metadata of " + str(no_of_rows) + " ECLIs")
@@ -290,7 +303,9 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
         rsm_df['date_decision'] = date_decision_df
         rsm_df['issued'] = issued_df
         rsm_df['zaaknummer'] = zaaknummer_df
+        rsm_df['type'] = type_df
         rsm_df['relations'] = relations_df
+        rsm_df['references'] = references_df
         rsm_df['subject'] = subject_df
         rsm_df['procedure'] = procedure_df
         rsm_df['inhoudsindicatie'] = inhoudsindicatie_df
@@ -321,7 +336,9 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
         date_decision_df = []
         issued_df = []
         zaaknummer_df = []
+        type_df = []
         relations_df = []
+        references_df = []
         subject_df = []
         procedure_df = []
         inhoudsindicatie_df = []
