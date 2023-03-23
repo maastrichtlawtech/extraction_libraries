@@ -1,5 +1,6 @@
 from echr_extractor.ECHR_metadata_harvester import read_echr_metadata
 from echr_extractor.ECHR_html_downloader import download_full_text_main
+from echr_extractor.ECHR_nodes_edges_list_transform import echr_nodes_edges
 from pathlib import Path
 import os
 import json
@@ -81,5 +82,17 @@ def get_echr_extra(start_id=0, end_id=None, start_date=None, count=None, end_dat
         return df, json_list
     else:
         return df, json_list
+
+def get_nodes_edges(metadata_path, save_file='y'):
+
+
+    nodes, edges = echr_nodes_edges(metadata_path)
+    if save_file == "y":
+        edges.to_csv('ECHR_edges.csv', index=False, encoding='utf-8')
+        nodes.to_json('ECHR_nodes.json', orient="records")
+        edges.to_json('ECHR_edges.json', orient="records")
+        return nodes, edges
+
+    return nodes, edges
 
 

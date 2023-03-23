@@ -13,7 +13,7 @@ setup(
     description='Library for extracting ECHR data',
     author='LawTech Lab',
     license='MIT',
-    install_requires=["requests~=2.26.0","pandas~=1.2.5","beautifulsoup4~=4.9.3"],
+    install_requires=["requests~=2.26.0","pandas~=1.2.5","beautifulsoup4~=4.9.3", "dataparser"],
     author_email='a.gade@student.maastrichtuniversity.nl',
     keywords=['echr', 'extractor', 'european', 'convention', 'human', 'rights', 'european convention', 'human rights',
               'european convention on human rights'],
