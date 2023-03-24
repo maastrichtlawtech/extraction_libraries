@@ -504,3 +504,25 @@ def get_case_affecting(text):
         return ';'.join(ids), ';'.join(full_strings)
     except Exception:
         return "", ""
+
+def get_citations_with_extra_info(text):
+    """
+    :param text: full text of the info page of a case from eur-lex website
+    """
+    phrase = 'Instruments cited in case law:'
+    data_list = []
+    try:
+        index_matter = text.index(phrase)
+        extracting = text[index_matter + len(phrase):]
+        extracting = extracting.replace('\n', '', 1)
+        sentences = extracting.splitlines()
+        for line in sentences:
+            words = line.split()
+            if is_celex_id(words[0]):
+                fixed_line = line.replace(" - ",'-').replace(" ","_")
+                data_list.append(fixed_line)
+            else:
+                return ";".join(data_list)
+
+    except:
+        return ''

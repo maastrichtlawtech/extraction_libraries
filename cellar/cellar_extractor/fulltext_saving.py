@@ -15,7 +15,7 @@ after all the threads are done the individual parts are put together.
 
 
 def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full, list_codes, list_eurovoc, list_adv,
-                             list_judge, list_affecting_id, list_affecting_str, progress_bar):
+                             list_judge, list_affecting_id, list_affecting_str,list_citations_extra, progress_bar):
     sum = pd.Series([], dtype='string')
     key = pd.Series([], dtype='string')
     full = list()
@@ -25,6 +25,7 @@ def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full,
     judge_rapporteur = pd.Series([], dtype='string')
     affecting_id = pd.Series([], dtype='string')
     affecting_str = pd.Series([], dtype='string')
+    citations_extra = pd.Series([], dtype='string')
     for i in range(len(celex)):
         j = start + i
         id = celex[j]
@@ -62,6 +63,7 @@ def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full,
             adv = get_advocate_or_judge(text, "Advocate General:")
             judge = get_advocate_or_judge(text, "Judge-Rapporteur:")
             ids_affecting, strings_affecting = get_case_affecting(text)
+            citation_extra = get_citations_with_extra_info(text)
         else:
             code = ""
             eurovoc = ""
@@ -69,6 +71,7 @@ def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full,
             judge = ""
             ids_affecting = ""
             strings_affecting = ""
+            citation_extra = ""
 
         eurovocs[j] = eurovoc
         case_codes[j] = code
@@ -76,6 +79,7 @@ def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full,
         affecting_id[j] = ids_affecting
         affecting_str[j] = strings_affecting
         judge_rapporteur[j] = judge
+        citations_extra[j] = citation_extra
         progress_bar.update(1)
 
     list_sum.append(sum)
@@ -87,7 +91,7 @@ def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full,
     list_judge.append(judge_rapporteur)
     list_affecting_id.append(affecting_id)
     list_affecting_str.append(affecting_str)
-
+    list_citations_extra.append(citations_extra)
 
 """
 This method adds the following sections to a pandas dataframe, as separate columns:
@@ -126,13 +130,14 @@ def add_sections(data, threads, json_filepath=None):
     list_judge = list()
     list_affecting_id = list()
     list_affecting_str = list()
+    list_citations_extra = list()
     for i in range(0, length, at_once_threads):
         curr_celex = celex[i:(i + at_once_threads)]
         curr_ecli = eclis[i:(i + at_once_threads)]
         t = threading.Thread(target=execute_sections_threads,
                              args=(
                                  curr_celex, curr_ecli, i, list_sum, list_key, list_full, list_codes, list_eurovoc,
-                                 list_adv, list_judge, list_affecting_id, list_affecting_str, bar))
+                                 list_adv, list_judge, list_affecting_id, list_affecting_str,list_citations_extra, bar))
         threads.append(t)
     for t in threads:
         t.start()
@@ -143,9 +148,10 @@ def add_sections(data, threads, json_filepath=None):
     add_column_frow_list(data, "celex_eurovoc", list_eurovoc)
     add_column_frow_list(data, "celex_directory_codes", list_codes)
     add_column_frow_list(data, 'advocate_general', list_adv)
-    add_column_frow_list(data, 'judge-rapporteur', list_judge)
+    add_column_frow_list(data, 'judge_rapporteur', list_judge)
     add_column_frow_list(data, 'affecting_ids', list_affecting_id)
     add_column_frow_list(data, 'affecting_strings', list_affecting_str)
+    add_column_frow_list(data, 'citations_extra_info',list_citations_extra)
     if json_filepath:
         with open(json_filepath, 'w', encoding='utf-8') as f:
             for l in list_full:
