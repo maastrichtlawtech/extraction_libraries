@@ -118,7 +118,8 @@ def retrieve_edges_list(df, df_unfiltered):
                         case = case[case['languageisocode'].str.contains(lang, regex=False, flags=re.IGNORECASE)]
 
                 for id, i in case.iterrows():
-                    print(type(i.judgementdate), i.judgementdate)
+                    if i.judgementdate is np.nan:
+                        continue
                     date = dateparser.parse(i.judgementdate)
                     year_from_case = date.year
 
@@ -130,10 +131,10 @@ def retrieve_edges_list(df, df_unfiltered):
                 if len(case) > 0:
                     if len(case) > 3:
                         print("stop")
+                    # print(case)
                     for _,row in case.iterrows():
 
                         eclis.append(row.ecli)
-
                 else:
                     count = count + 1
                     missing_cases.append(ref)
@@ -197,7 +198,8 @@ def lookup_casename(ref, df):
     James and Others --> CASE OF JAMES AND OTHERS
     """
     name = get_casename(ref)
-
+    print(name)
+    
     # DEV note: In case, add more patterns to CLEAN_REF.txt in future
     
     f = open('echr/echr_extractor/CLEAN_REF.txt', 'r')
@@ -223,7 +225,8 @@ def lookup_casename(ref, df):
 
     uptext = re.sub(r'\[.*', "", uptext)
     uptext = uptext.strip()
-
+    print("uptext: ", uptext)
+    sys.exit()
     row = df[df['docname'].str.contains(uptext, regex=False, flags=re.IGNORECASE)]
 
     if len(row) == 0:
