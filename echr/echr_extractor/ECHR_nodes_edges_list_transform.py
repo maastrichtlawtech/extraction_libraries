@@ -131,7 +131,6 @@ def retrieve_edges_list(df, df_unfiltered):
                 if len(case) > 0:
                     if len(case) > 3:
                         print("stop")
-                    # print(case)
                     for _,row in case.iterrows():
 
                         eclis.append(row.ecli)
@@ -198,7 +197,6 @@ def lookup_casename(ref, df):
     James and Others --> CASE OF JAMES AND OTHERS
     """
     name = get_casename(ref)
-    print(name)
     
     # DEV note: In case, add more patterns to CLEAN_REF.txt in future
     
@@ -225,12 +223,10 @@ def lookup_casename(ref, df):
 
     uptext = re.sub(r'\[.*', "", uptext)
     uptext = uptext.strip()
-    print("uptext: ", uptext)
-    sys.exit()
     row = df[df['docname'].str.contains(uptext, regex=False, flags=re.IGNORECASE)]
 
-    if len(row) == 0:
-        print("no cases matched: ", name)
+    # if len(row) == 0:
+    #     print("no cases matched: ", name)
 
     return row
 
