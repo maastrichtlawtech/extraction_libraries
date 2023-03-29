@@ -5,7 +5,7 @@ from pathlib import Path,PurePath
 current_dir = (abspath(__file__))
 correct_dir = '\\'.join(current_dir.replace('\\', '/').split('/')[:-2])
 sys.path.append(correct_dir)
-print(sys.path)
+# print(sys.path)
 
 
 from echr_extractor.echr import get_echr_extra, get_echr, get_nodes_edges
