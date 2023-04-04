@@ -108,7 +108,7 @@ def link_to_query(link):
    # print(results.get('resultcount'))
     return final_query
 
-def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date,link):
+def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date,link, language):
     """
     Read ECHR metadata into a Pandas DataFrame.
     :param int start_id: The index to start the search from.
@@ -144,7 +144,7 @@ def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date,l
                      'documentcollectionid2:"COMMUNICATEDCASES" OR '\
                      'documentcollectionid2:"DECISIONS" OR '\
                      'documentcollectionid2:"CLIN") AND ' \
-                   '(languageisocode:"ENG")' \
+                   '(languageisocode:"[lang]")' \
                    '&select={select}' + \
                    '&sort=itemid Ascending' + \
                    '&start={start}&length={length}'
@@ -169,6 +169,7 @@ def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date,l
     META_URL = META_URL.replace(' ', '%20')
     META_URL = META_URL.replace('"', '%22')
     META_URL = META_URL.replace('{select}',','.join(fields))
+    META_URL = META_URL.replace('[lang]',language)
         # get total number of results:
     url = META_URL.format(start=0, length=1)
     print(url)

@@ -28,8 +28,7 @@ def metadata_to_nodesedgeslist(df):
 
     param df: the complete dataframe from the metadata
     """
-    # df = df[df['article'].notna()]
-    # df = df[df.article.str.contains("P1")]  # change to args -> need mapping between article names and format in column?
+    
     return df
 
 

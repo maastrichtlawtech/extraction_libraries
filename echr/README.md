@@ -74,20 +74,21 @@ Python 3.9
     <li><code>get_echr_extra</code></li>
     Gets all of the available metadata for echr cases from the HUDOC database. 
 On top of that downloads the full text for each case downloaded. Can be saved in a file or returned in-memory.
+<br>
+    <li><code>get_nodes_edges</code></li>
+    Gets all of the available nodes and edges for echr cases for given metadata from the HUDOC database.
 </ol>
 
 ## What are the parameters?
 <ol>
     <li><code>get_echr</code></li> 
-             skip_missing_dates=False,,fields=None)
-    <strong>Parameters:</strong>
     <ul>
         <li><strong>start_id: int, optional, default: 0</strong></li>
         The id of the first case to be downloaded.
          <li><strong>end_id: int, optional, default: The maximum number of cases available</strong></li>
         The id of the last case to be downloaded.
         <li><strong>count: int, optional, default: None </strong></li>
-        The number of cases to be downloaded, starting from the start_id. 
+        The number of cases per language to be downloaded, starting from the start_id. 
         <br><strong>WARNING</strong><br>
         If count is provided, the end_id will be set to start_id+count, overwriting any given end_id value.
         <li><strong>start_date: date, optional, default None</strong></li>
@@ -106,6 +107,8 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         <li><strong>link: string ,optional, default None </strong></li>
         Allows the user to download results of a search from the HUDOC website. If this argument is provided, all
         the other arguments are ignored, except for 'fields'. Further information on proper usage is in the Appendix.
+        <li><strong>language: ['ENG', 'FRE'], optional, default 'ENG'</strong></li>
+        The language of the metadata to be downloaded from the available languages.
     </ul>
     <li><code>get_echr_extra</code></li>
     <ul> 
@@ -114,7 +117,7 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         <li><strong>end_id: int, optional, default: The maximum number of cases available</strong></li>
         The id of the last case to be downloaded.
         <li><strong>count: int, optional, default: None </strong></li>
-        The number of cases to be downloaded, starting from the start_id. 
+        The number of cases per language given as input to be downloaded, starting from the start_id. 
         <br><strong>WARNING</strong><br>
         If count is provided, the end_id will be set to start_id+count, overwriting any given end_id value.
         <li><strong>start_date: date, optional, default None</strong></li>
@@ -131,6 +134,8 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
         Save metadata as a csv file in the data folder and the full_text as a json file, 
         or return a Pandas DataFrame object and a list of dictionaries in-memory.
+        <li><strong>language: ['ENG', 'FRE'], optional, default 'ENG'</strong></li>
+        The language of the metadata to be downloaded from the available languages.
         <li><strong>link: string ,optional, default None </strong></li>
         Allows the user to download results of a search from the HUDOC website. If this argument is provided, all
         the other arguments are ignored, except for 'fields'. Further information on proper usage is in the Appendix.
@@ -138,6 +143,12 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         The full text download is a parallelizable process.
         This parameter determines the number of threads to be used in the download.
     </ul>
+    <li><code>get_nodes_edges</code></li>
+    <ul>
+        <li><strong>metadata_path</strong></li>
+        The path to the metadata file to read.
+        <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
+        Save the nodes and edges of cases in metadata as csv files in the data folder, or return them as Pandas Dataframe objects in-memory.
 
 </ol>
 
@@ -156,6 +167,9 @@ Below are examples for in-memory saving:
 df, json = echr.get_echr_extra(start_id=20,end_id=3000,save_file='n')
     
 df = echr.get_echr(start_id=1000,count=2000,save_file='n',verbose=True)
+
+nodes, edges = echr.get_nodes_edges(metadata_path='data/echr_metadata.csv',save_file='n')
+```
 ```
 
 ## License
