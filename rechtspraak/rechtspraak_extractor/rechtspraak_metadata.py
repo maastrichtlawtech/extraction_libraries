@@ -121,11 +121,14 @@ def get_data_from_api(ecli_id):
                 urllib.request.urlcleanup()
 
             except urllib.error.URLError as e:
-                print(e)
+                b=2
+                #print(e)
             except urllib.error.HTTPError as e:
-                print(e)
+                b=2
+               # print(e)
             except Exception as e:
-               print(e)
+                b=2
+               #print(e)
         else:
             ecli_df.append(ecli_id)
             full_text_df.append("API returned with error code: " + str(response_code))

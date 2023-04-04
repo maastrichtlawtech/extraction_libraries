@@ -116,7 +116,7 @@ def get_rechtspraak(max_ecli=100, sd='2022-08-01', ed=None, save_file='y'):
             # Build file name
             file_name = 'rechtspraak_' + starting_date + '_' + ending_date + '_' + current_time
 
-            save_csv(json_object, file_name, save_file)
+
             get_exe_time(start_time)
 
             if save_file == 'n':
@@ -128,7 +128,6 @@ def get_rechtspraak(max_ecli=100, sd='2022-08-01', ed=None, save_file='y'):
                 global_rs_df['updated'] = rs_updated_df
                 global_rs_df['link'] = rs_link_df
                 print("Done")
-
                 # Clear the lists for the next usage
                 rs_ecli_df = []
                 rs_title_df = []
@@ -136,5 +135,8 @@ def get_rechtspraak(max_ecli=100, sd='2022-08-01', ed=None, save_file='y'):
                 rs_updated_df = []
                 rs_link_df = []
                 return global_rs_df
+            else:
+                save_csv(json_object, file_name, save_file)
+                return
     else:
         print(f"URL returned with a {response_code} error code")
