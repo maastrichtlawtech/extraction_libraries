@@ -13,7 +13,7 @@ import dateutil.parser
 
 import datetime
 if __name__ == '__main__':
-    df,json = get_echr_extra(count=200,save_file='y',threads=10,language=["FRE"])
+    df = get_echr_extra(count=200,save_file='n',language=["FRE","ENG"])
     # get posixpath from data folder and file that starts with echr_metadata and ends with .csv
 
     # meta_path = [os.path.join('data',f) for f in os.listdir('data') if f.startswith('echr_metadata') and f.endswith('.csv')][0]

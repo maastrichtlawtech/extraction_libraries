@@ -89,7 +89,7 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         The id of the last case to be downloaded.
         <li><strong>count: int, optional, default: None </strong></li>
         The number of cases per language to be downloaded, starting from the start_id. 
-        <br><strong>WARNING</strong><br>
+        <br><strong>!NOTICE!</strong><br>
         If count is provided, the end_id will be set to start_id+count, overwriting any given end_id value.
         <li><strong>start_date: date, optional, default None</strong></li>
         The start publication date (yyyy-mm-dd)
@@ -107,9 +107,11 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         <li><strong>link: string ,optional, default None </strong></li>
         Allows the user to download results of a search from the HUDOC website. If this argument is provided, all
         the other arguments are ignored, except for 'fields'. Further information on proper usage is in the Appendix.
-        <li><strong>language: ['ENG', 'FRE'], optional, default 'ENG'</strong></li>
+        <li><strong>language: list of strings, optional, default ['ENG']</strong></li>
         The language of the metadata to be downloaded from the available languages.
-    </ul>
+        <br><strong>!NOTICE!</strong><br>
+        If link is provided, the language argument will not be used, as the language also appears in the link.
+</ul>
     <li><code>get_echr_extra</code></li>
     <ul> 
         <li><strong>start_id: int, optional, default: 0</strong></li>
@@ -118,7 +120,7 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         The id of the last case to be downloaded.
         <li><strong>count: int, optional, default: None </strong></li>
         The number of cases per language given as input to be downloaded, starting from the start_id. 
-        <br><strong>WARNING</strong><br>
+        <br><strong>!NOTICE!</strong><br>
         If count is provided, the end_id will be set to start_id+count, overwriting any given end_id value.
         <li><strong>start_date: date, optional, default None</strong></li>
         The start publication date (yyyy-mm-dd)
@@ -134,8 +136,10 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
         Save metadata as a csv file in the data folder and the full_text as a json file, 
         or return a Pandas DataFrame object and a list of dictionaries in-memory.
-        <li><strong>language: ['ENG', 'FRE'], optional, default 'ENG'</strong></li>
+        <li><strong>language: list of strings, optional, default ['ENG']</strong></li>
         The language of the metadata to be downloaded from the available languages.
+        <br><strong>!NOTICE!</strong><br>
+        If link is provided, the language argument will not be used, as the language also appears in the link.
         <li><strong>link: string ,optional, default None </strong></li>
         Allows the user to download results of a search from the HUDOC website. If this argument is provided, all
         the other arguments are ignored, except for 'fields'. Further information on proper usage is in the Appendix.
@@ -149,7 +153,7 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         The path to the metadata file to read.
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
         Save the nodes and edges of cases in metadata as csv files in the data folder, or return them as Pandas Dataframe objects in-memory.
-
+    </ul>
 </ol>
 
 ## Examples

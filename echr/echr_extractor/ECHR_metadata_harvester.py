@@ -1,7 +1,5 @@
 import requests
-import dateutil.parser
 from datetime import datetime
-
 import pandas as pd
 
 
@@ -29,6 +27,18 @@ def get_r(url, timeout, retry, verbose):
                     print(f"Unable to connect to {url}. Skipping this batch.")
                 return None
     return None
+
+
+def basic_function(term, values):
+    values = ['"' + i + '"' for i in values]
+    main_body = list()
+    cut_term = term.replace('"', '')
+    for v in values:
+        main_body.append(f"({cut_term}={v}) OR ({cut_term}:{v})")
+    query = f"({' OR '.join(main_body)})"
+    return query
+
+
 def link_to_query(link):
     extra_cases_map = {
         "bodyprocedure": '("PROCEDURE" ONEAR(n=1000) terms OR "PROCÉDURE" ONEAR(n=1000) terms)',
@@ -40,15 +50,6 @@ def link_to_query(link):
                                 'SÉPARÉE" ONEAR(n=5000) terms)',
         "bodyappendix": '("APPENDIX" ONEAR(n=1000) terms OR "ANNEXE" ONEAR(n=1000) terms)'
     }
-
-    def basic_function(term, values):
-        values = ['"' + i + '"' for i in values]
-        main_body = list()
-        cut_term = term.replace('"', '')
-        for v in values:
-            main_body.append(f"({cut_term}={v}) OR ({cut_term}:{v})")
-        query = f"({' OR '.join(main_body)})"
-        return query
 
     def full_text_function(term, values):
         return f"({','.join(values)})"
@@ -87,13 +88,14 @@ def link_to_query(link):
         "bodylaw": advanced_function,
         "bodyreasons": advanced_function,
         "bodyseparateopinions": advanced_function,
-        "bodyappendix": advanced_function
+        "bodyappendix": advanced_function,
+        "languageisocode": basic_function
 
     }
     start = link.index("{")
     link_dictionary = eval(link[start:])
     base_query = 'https://hudoc.echr.coe.int/app/query/results?query=contentsitename:ECHR' \
-                ' AND (NOT (doctype=PR OR doctype=HFCOMOLD OR doctype=HECOMOLD)) AND ' \
+                 ' AND (NOT (doctype=PR OR doctype=HFCOMOLD OR doctype=HECOMOLD)) AND ' \
                  'inPutter&select={select}&sort=itemid%20Ascending&start={start}&length={length}'
     query_elements = list()
     for key in list(link_dictionary.keys()):
@@ -102,13 +104,14 @@ def link_to_query(link):
         query_elements.append(funct(key, vals))
     query_total = ' AND '.join(query_elements)
     final_query = base_query.replace('inPutter', query_total)
-    #print(final_query)
-    #page = requests.get(final_query)
-   # results = eval(page.text)
-   # print(results.get('resultcount'))
+    # print(final_query)
+    # page = requests.get(final_query)
+    # results = eval(page.text)
+    # print(results.get('resultcount'))
     return final_query
 
-def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date,link, language):
+
+def get_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date, link, language):
     """
     Read ECHR metadata into a Pandas DataFrame.
     :param int start_id: The index to start the search from.
@@ -140,11 +143,11 @@ def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date,l
     else:
         META_URL = 'http://hudoc.echr.coe.int/app/query/results' \
                    '?query=(contentsitename=ECHR) AND ' \
-                   '(documentcollectionid2:"JUDGMENTS" OR '\
-                     'documentcollectionid2:"COMMUNICATEDCASES" OR '\
-                     'documentcollectionid2:"DECISIONS" OR '\
-                     'documentcollectionid2:"CLIN") AND ' \
-                   '(languageisocode:"[lang]")' \
+                   '(documentcollectionid2:"JUDGMENTS" OR ' \
+                   'documentcollectionid2:"COMMUNICATEDCASES" OR ' \
+                   'documentcollectionid2:"DECISIONS" OR ' \
+                   'documentcollectionid2:"CLIN") AND ' \
+                   'language' \
                    '&select={select}' + \
                    '&sort=itemid Ascending' + \
                    '&start={start}&length={length}'
@@ -163,14 +166,16 @@ def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date,l
             addition = ''
 
         if addition:
-            META_URL = META_URL.replace('(contentsitename=ECHR)','(contentsitename=ECHR) AND '+addition)
-
+            META_URL = META_URL.replace('(contentsitename=ECHR)', '(contentsitename=ECHR) AND ' + addition)
 
     META_URL = META_URL.replace(' ', '%20')
     META_URL = META_URL.replace('"', '%22')
-    META_URL = META_URL.replace('{select}',','.join(fields))
-    META_URL = META_URL.replace('[lang]',language)
-        # get total number of results:
+    META_URL = META_URL.replace('{select}', ','.join(fields))
+
+    language_input = basic_function('languageisocode', language)
+    if not link:
+        META_URL = META_URL.replace('language', language_input)
+
     url = META_URL.format(start=0, length=1)
     print(url)
     r = requests.get(url)
@@ -180,7 +185,7 @@ def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date,l
     if not end_id:
         end_id = resultcount
     if verbose:
-        print(f'Fetching {end_id - start_id} results from index {start_id} to index {end_id} ' 
+        print(f'Fetching {end_id - start_id} results from index {start_id} to index {end_id} '
               f'{f" and filtering cases after {start_date}" if start_date else ""} {f"and filtering cases before {end_date}" if end_date else "."}')
 
     timeout = 6
@@ -201,7 +206,7 @@ def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date,l
                 temp_dict = r.json()['results']
                 # Get every document from the results list.
                 for result in temp_dict:
-                        data.append(result['columns'])
+                    data.append(result['columns'])
 
     else:
         # Format URL based on start and length
@@ -217,8 +222,7 @@ def read_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date,l
             for result in temp_dict:
                 data.append(result['columns'])
 
-
     if len(data) == 0:
         print("Search results ended up empty")
-        return False, False
-    return pd.DataFrame.from_records(data), resultcount
+        return False
+    return pd.DataFrame.from_records(data)

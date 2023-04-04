@@ -1,8 +1,7 @@
-from echr_extractor.ECHR_metadata_harvester import read_echr_metadata
+from echr_extractor.ECHR_metadata_harvester import get_echr_metadata
 from echr_extractor.ECHR_html_downloader import download_full_text_main
 from echr_extractor.ECHR_nodes_edges_list_transform import echr_nodes_edges
 from pathlib import Path
-import pandas as pd
 import os
 import json
 
@@ -17,24 +16,15 @@ already but feel free to shoot me a message about it seeing as I did something s
 
 
 def get_echr(start_id=0, end_id=None, start_date=None, count=None, end_date=None, verbose=False, save_file='y',
-             fields=None,link=None, language=["FRE"]):
-    df = pd.DataFrame()
-    resultcount = 0
+             fields=None, link=None, language=None):
+    if language is None:
+        language = ["ENG"]
     if count:
         end_id = int(start_id) + count
-    for lang in language:
-
-        print(f"--- STARTING ECHR DOWNLOAD FOR {lang} ---")
-        #fields = None
-        # append the dataframes from each language to the same dataframe if df is not False
-        if df is not False and resultcount is not False:
-            df = df.append(read_echr_metadata(start_id=start_id, end_id=end_id, start_date=start_date, end_date=end_date,
-                                             verbose=verbose, fields=fields,link=link, language=lang)[0])
-            resultcount += read_echr_metadata(start_id=start_id, end_id=end_id, start_date=start_date, end_date=end_date,
-                                                verbose=verbose, fields=fields,link=link, language=lang)[1]
-        elif df is False and resultcount is False:
-            continue
-    if df is False and resultcount is False:
+    print(f"--- STARTING ECHR DOWNLOAD FOR  ---")
+    df = get_echr_metadata(start_id=start_id, end_id=end_id, start_date=start_date, end_date=end_date,
+                                        verbose=verbose, fields=fields, link=link, language=language)
+    if df is False:
         return False
     if save_file == "y":
         filename = determine_filename(start_id, end_id, start_date, end_date)
@@ -71,11 +61,9 @@ def determine_filename(start_id, end_id, start_date, end_date):
 
 
 def get_echr_extra(start_id=0, end_id=None, start_date=None, count=None, end_date=None, verbose=False,
-                    save_file='y', threads=10,fields=None,link=None, language=["ENG"]):
-    if count:
-        end_id = int(start_id) + count
+                   save_file='y', threads=10, fields=None, link=None, language=None):
     df = get_echr(start_id=start_id, end_id=end_id, start_date=start_date, end_date=end_date, verbose=verbose,
-                   count=count, save_file='n',fields=fields,link=link, language=language)
+                  count=count, save_file='n', fields=fields, link=link, language=language)
     print("Full-text download will now begin")
     if df is False:
         return False, False
@@ -94,9 +82,8 @@ def get_echr_extra(start_id=0, end_id=None, start_date=None, count=None, end_dat
     else:
         return df, json_list
 
+
 def get_nodes_edges(metadata_path, save_file='y'):
-
-
     nodes, edges = echr_nodes_edges(metadata_path)
     if save_file == "y":
         Path('data').mkdir(parents=True, exist_ok=True)
@@ -106,5 +93,3 @@ def get_nodes_edges(metadata_path, save_file='y'):
         return nodes, edges
 
     return nodes, edges
-
-
