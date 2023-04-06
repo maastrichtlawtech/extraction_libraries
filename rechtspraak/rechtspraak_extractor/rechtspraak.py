@@ -15,12 +15,6 @@ from rechtspraak_extractor.rechtspraak_functions import *
 # Define base URL
 RECHTSPRAAK_API_BASE_URL = "https://data.rechtspraak.nl/uitspraken/zoeken?"
 
-rs_ecli_df = []
-rs_title_df = []
-rs_summary_df = []
-rs_updated_df = []
-rs_link_df = []
-
 
 def get_data_from_url(url):
     res = requests.get(url)
@@ -72,13 +66,7 @@ def save_csv(json_object, file_name, save_file):
         # file_path = os.path.join('data', file_name + '.csv')
         df.to_csv('data/' + file_name + '.csv', index=False, encoding='utf8')
         print("Data saved to CSV file successfully.")
-    else:
-        rs_ecli_df.extend(ecli_id)
-        rs_title_df.extend(title)
-        rs_summary_df.extend(summary)
-        rs_updated_df.extend(updated)
-        rs_link_df.extend(link)
-
+    return df
 
 def get_rechtspraak(max_ecli=100, sd='2022-08-01', ed=None, save_file='y'):
     print("Rechtspraak dump downloader API")
@@ -120,20 +108,7 @@ def get_rechtspraak(max_ecli=100, sd='2022-08-01', ed=None, save_file='y'):
             get_exe_time(start_time)
 
             if save_file == 'n':
-                global rs_ecli_df, rs_title_df, rs_summary_df, rs_updated_df, rs_link_df
-                global_rs_df = pd.DataFrame(columns=['id', 'title', 'summary', 'updated', 'link'])
-                global_rs_df['id'] = rs_ecli_df
-                global_rs_df['title'] = rs_title_df
-                global_rs_df['summary'] = rs_summary_df
-                global_rs_df['updated'] = rs_updated_df
-                global_rs_df['link'] = rs_link_df
-                print("Done")
-                # Clear the lists for the next usage
-                rs_ecli_df = []
-                rs_title_df = []
-                rs_summary_df = []
-                rs_updated_df = []
-                rs_link_df = []
+                global_rs_df = save_csv(json_object, file_name, save_file)
                 return global_rs_df
             else:
                 save_csv(json_object, file_name, save_file)
