@@ -88,6 +88,7 @@ def get_nodes_edges(metadata_path, save_file='y'):
     if save_file == "y":
         Path('data').mkdir(parents=True, exist_ok=True)
         edges.to_csv(os.path.join('data', 'ECHR_edges.csv'), index=False, encoding='utf-8')
+        nodes.to_csv(os.path.join('data', 'ECHR_nodes.csv'), index=False, encoding='utf-8')
         nodes.to_json(os.path.join('data', 'ECHR_nodes.json'), orient="records")
         edges.to_json(os.path.join('data', 'ECHR_edges.json'), orient="records")
         return nodes, edges

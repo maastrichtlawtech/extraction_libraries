@@ -5,6 +5,7 @@ import sys
 import dateutil.parser as parser    # for selecting by date
 import dateparser
 from os.path import dirname, abspath
+from echr_extractor.clean_ref import clean_pattern
 # from definitions.storage_handler import Storage, CSV_ECHR_NODES, CSV_ECHR_EDGES, JSON_ECHR_EDGES, JSON_ECHR_NODES
 
 
@@ -16,11 +17,22 @@ def open_metadata(PATH_metadata):
     """
     try:
         df = pd.read_csv(PATH_metadata)  # change hard coded path
-        print(df.info())
         return df
     except FileNotFoundError:
         print("File not found. Please check the path to the metadata file.")
         return False
+
+def concat_metadata(df):
+    agg_func = {'itemid' : 'first', 'appno' : 'first', 'article' : 'first', 'conclusion' : 'first' , 'docname' : 'first' , 'doctype' : 'first',
+                'doctypebranch' : 'first', 'ecli' : 'first', 'importance' : 'first', 'judgementdate' : 'first', 'languageisocode' : ', '.join, 'originatingbody' : 'first',
+                'violation' : 'first', 'nonviolation' : 'first', 'extractedappno' : 'first', 'scl' : 'first'}
+    new_df = df.groupby('ecli').agg(agg_func)
+    print(new_df)
+    return new_df
+
+def get_language_from_metadata(df):
+    df = concat_metadata(df)
+    df.to_json('langisocode-nodes.json', orient="records")
 
 def metadata_to_nodesedgeslist(df):
     """
@@ -61,7 +73,8 @@ def retrieve_edges_list(df, df_unfiltered):
     missing_cases = []
     for index, item in df.iterrows():
         eclis = []
-
+        app_number = []
+        extracted_appnos = []
         if item.extractedappno is not np.nan:
             extracted_appnos = item.extractedappno.split(';') 
 
@@ -87,7 +100,9 @@ def retrieve_edges_list(df, df_unfiltered):
 
             for ref in new_ref_list:
                 app_number = re.findall("[0-9]{3,5}\/[0-9]{2}", ref) ################
-                app_number = app_number + extracted_appnos
+                if len(extracted_appnos) > 0:
+                    app_number = app_number + extracted_appnos
+                # app_number = app_number + extracted_appnos
                 app_number = set(app_number)
                 
                 if len(app_number) > 0:
@@ -131,7 +146,6 @@ def retrieve_edges_list(df, df_unfiltered):
                     if len(case) > 3:
                         print("stop")
                     for _,row in case.iterrows():
-
                         eclis.append(row.ecli)
                 else:
                     count = count + 1
@@ -197,10 +211,8 @@ def lookup_casename(ref, df):
     """
     name = get_casename(ref)
     
-    # DEV note: In case, add more patterns to CLEAN_REF.txt in future
-    
-    f = open('echr/echr_extractor/CLEAN_REF.txt', 'r')
-    patterns = f.read().splitlines()
+    # DEV note: In case, add more patterns to clean_ref.py in future
+    patterns = clean_pattern
 
     uptext = name.upper()
 
@@ -282,6 +294,7 @@ def echr_nodes_edges(metadata_path):
 
     print('\n--- EXTRACTING NODES LIST ---\n')
     nodes = retrieve_nodes_list(data)
+    # get_language_from_metadata(nodes)
 
     print('\n--- EXTRACTING EDGES LIST ---\n')
     edges = retrieve_edges_list(nodes, data)
