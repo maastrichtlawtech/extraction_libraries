@@ -1,11 +1,13 @@
 import json
 import os
+from os.path import join
 from datetime import datetime
 from pathlib import Path
 from tqdm import tqdm
 from cellar_extractor.cellar_queries import get_all_eclis, get_raw_cellar_metadata
 from cellar_extractor.json_to_csv import json_to_csv_main, json_to_csv_returning
 from cellar_extractor.cellar_extra_extract import extra_cellar
+from cellar_extractor.nodes_and_edges import get_nodes_and_edges
 import time
 
 def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_format='csv'):
@@ -68,3 +70,16 @@ def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", thre
         print("\n--- DONE ---")
 
         return data,json
+
+def get_nodes_and_edges_lists(df = None,save_file='y'):
+    if df is None:
+        print("No dataframe passed!")
+        return
+    else:
+        nodes,edges = get_nodes_and_edges(df)
+        if save_file == 'y':
+            Path('data').mkdir(parents=True, exist_ok=True)
+            nodes.to_csv(join('data','nodes'),index=False)
+            edges.to_csv(join('data','edges'),index=False)
+        else:
+            return nodes,edges

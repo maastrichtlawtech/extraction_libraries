@@ -27,7 +27,6 @@ if __name__ == '__main__':
     """
     print(str(datetime.datetime.today().date()))
     #df = get_echr_extra(count=100,threads=5,start_date='2000-01-01',end_date='2023-01-01')
-    #b=2
     #df,json = get_echr_extra(start_id=20,end_id=3000,save_file='n')
 
     #df = get_echr(start_id=1000,count=2000,save_file='n')

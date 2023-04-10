@@ -21,7 +21,7 @@ def get_edges_list(df):
         val = vals[i]
         if val == val:
             val_unpacked = val.split(";")
-            final_val = [i for i in val_unpacked if i.startswith("6")]
+            final_val = val_unpacked
             if len(final_val) == 0:
                 s_list.append(k)
                 all_celexes.add(k)

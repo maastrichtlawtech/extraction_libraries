@@ -54,6 +54,10 @@ Python 3.9
     the full text, keywords, case law directory code and eurovoc identifiers. If the user does have an eurlex account with access to the eurlex webservices, he can also 
     pass his webservices login credentials to the method, in order to extract data about works citing work and works 
     being cited by work. The full text is returned as a JSON file, rest of data as a CSV.  Can be in-memory or as saved files.
+    <li><code>get_nodes_and_edges_lists</code></li>
+    Gets 2 dataframe objects, one for the nodes and edges of the citations within the passed dataframe.
+    Allows the creation of a network graph of the citations. Can be saved in-memory or in the data folder as csv files.
+    <br>
 </ol>
 
 ## What are the parameters?
@@ -61,30 +65,28 @@ Python 3.9
     <li><code>get_cellar</code></li>
     <strong>Parameters:</strong>
     <ul>
-        <li><strong>max_ecli: int, optional</strong></li>
-        Maximum number of ECLIs to retrieve
-        <br>Default: 100
+        <li><strong>max_ecli: int, optional, default 100</strong></li>
+        Maximum number of ECLIs to retrieve.
         <li><strong>sd: date, optional, default '2022-05-01'</strong></li>
-        The start last modification date (yyyy-mm-dd)
+        The start last modification date (yyyy-mm-dd).
         <li><strong>ed: date, optional, default current date</strong></li>
-        The end last modification date (yyyy-mm-dd)
+        The end last modification date (yyyy-mm-dd).
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
-        Save data in a data folder, or return in-memory
+        Save data in a data folder, or return in-memory.
         <li><strong>file_format: ['csv', 'json'],optional, default 'csv'</strong></li>
         Returns the data as a JSON/dictionary, or as a CSV/Pandas Dataframe object.
     </ul>
     <li><code>get_cellar_extra</code></li>
     <ul> 
-        <li><strong>max_ecli: int, optional</strong></li>
-        Maximum number of ECLIs to retrieve
-        <br>Default: 100
+        <li><strong>max_ecli: int, optional, default 100</strong></li>
+        Maximum number of ECLIs to retrieve.
         <li><strong>sd: date, optional, default '2022-05-01'</strong></li>
-        The start last modification date (yyyy-mm-dd)
+        The start last modification date (yyyy-mm-dd).
         <li><strong>ed: date, optional, default current date</strong></li>
-        The end last modification date (yyyy-mm-dd)
+        The end last modification date (yyyy-mm-dd).
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
         Save the full text of cases as JSON file / return as a dictionary and save the rest of
-        the data as a CSV file / return as a Pandas Dataframe object
+        the data as a CSV file / return as a Pandas Dataframe object.
         <li><strong>threads: int ,optional, default 10</strong></li>
         Extracting the additional data takes a lot of time. The use of multi-threading can cut down this time.
         Even with this, the method may take a couple of minutes for a couple of hundred cases. A maximum number
@@ -94,6 +96,13 @@ Python 3.9
         <li><strong>password: string, optional, default empty string</strong></li>
         The password to the eurlex webservices.
         <br>
+    </ul>
+    <li><code>get_nodes_and_edges_lists</code></li>
+    <ul>
+        <li><strong>df: DataFrame object, required, default None</strong></li>
+        DataFrame of cellar metadata acquired from the get_cellar_extra method.
+        <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
+        Save data in a data folder, or return in-memory.
     </ul>
 </ol>
 
