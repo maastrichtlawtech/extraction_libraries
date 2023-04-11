@@ -55,8 +55,8 @@ Python 3.9
     pass his webservices login credentials to the method, in order to extract data about works citing work and works 
     being cited by work. The full text is returned as a JSON file, rest of data as a CSV.  Can be in-memory or as saved files.
     <li><code>get_nodes_and_edges_lists</code></li>
-    Gets 2 dataframe objects, one for the nodes and edges of the citations within the passed dataframe.
-    Allows the creation of a network graph of the citations. Can be saved in-memory or in the data folder as csv files.
+    Gets 2 list objects, one for the nodes and edges of the citations within the passed dataframe.
+    Allows the creation of a network graph of the citations. Can only be returned in-memory.
     <br>
 </ol>
 
@@ -100,9 +100,8 @@ Python 3.9
     <li><code>get_nodes_and_edges_lists</code></li>
     <ul>
         <li><strong>df: DataFrame object, required, default None</strong></li>
-        DataFrame of cellar metadata acquired from the get_cellar_extra method.
-        <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
-        Save data in a data folder, or return in-memory.
+        DataFrame of cellar metadata acquired from the get_cellar_extra method with eurlex webservice credentials passed.
+        This method will only work on dataframes with citations data.
     </ul>
 </ol>
 

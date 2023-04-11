@@ -71,15 +71,14 @@ def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", thre
 
         return data,json
 
-def get_nodes_and_edges_lists(df = None,save_file='y'):
+def get_nodes_and_edges_lists(df = None):
     if df is None:
         print("No dataframe passed!")
         return
     else:
-        nodes,edges = get_nodes_and_edges(df)
-        if save_file == 'y':
-            Path('data').mkdir(parents=True, exist_ok=True)
-            nodes.to_csv(join('data','nodes'),index=False)
-            edges.to_csv(join('data','edges'),index=False)
-        else:
-            return nodes,edges
+        try:
+            nodes,edges = get_nodes_and_edges(df)
+        except:
+            print('Something went wrong. Nodes and edges creation unsuccessful.')
+            return False,False
+        return nodes,edges
