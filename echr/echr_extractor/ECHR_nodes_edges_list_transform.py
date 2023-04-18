@@ -1,12 +1,9 @@
 import numpy as np
 import pandas as pd
 import re
-import sys
-import dateutil.parser as parser    # for selecting by date
 import dateparser
-from os.path import dirname, abspath
 from echr_extractor.clean_ref import clean_pattern
-# from definitions.storage_handler import Storage, CSV_ECHR_NODES, CSV_ECHR_EDGES, JSON_ECHR_EDGES, JSON_ECHR_NODES
+
 
 
 def open_metadata(PATH_metadata):
