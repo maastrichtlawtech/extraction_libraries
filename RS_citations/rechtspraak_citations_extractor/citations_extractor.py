@@ -4,7 +4,7 @@ import urllib.request
 import rdflib
 import sys
 from os.path import dirname, abspath
-
+import threading
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 import pandas as pd
 from dotenv import load_dotenv
@@ -113,21 +113,59 @@ It allows us to stop the script whenever we want without loosing our data, and w
 # Main method to execute LIDO API call on a list of ECLIs from a CSV file and extract the citations of each
 # Add the implementation of the incremental writing of rows
 def find_citations_for_cases(dataframe,username,password):
-    df_eclis = dataframe['ecli']
-    df_eclis = df_eclis.reset_index(drop=True)
+    df_eclis = dataframe.reset_index(drop=True)
 
-    eclis = list(df_eclis['ecli'])
+    eclis = list(df_eclis['ecli'].dropna())
+    total_incoming = []
+    total_outgoing = []
+    total_legislations = []
 
     for i, ecli in enumerate(eclis):
         case_citations_incoming, case_citations_outgoing, legislation_citations = find_citations_for_case(
             remove_spaces_from_ecli(ecli), case_citations_fieldnames, legislation_citations_fieldnames, username,
             password)
-
-        # TODO saving but how ?
-
-
-
-
+        if case_citations_incoming:
+            total_incoming.extend(case_citations_incoming)
+        if case_citations_outgoing:
+            total_outgoing.extend(case_citations_outgoing)
+        if legislation_citations:
+            total_legislations.extend(legislation_citations)
+    df_incoming = pd.DataFrame(total_incoming)
+    df_outgoing = pd.DataFrame(total_outgoing)
+    df_legislations= pd.DataFrame(total_legislations)
+    return df_incoming, df_outgoing, df_legislations
+def citations_multithread_single(big_incoming, big_outgoing, big_legislations, ecli, username, password):
+    for i, ecli in enumerate(ecli):
+        case_citations_incoming, case_citations_outgoing, legislation_citations = find_citations_for_case(
+            remove_spaces_from_ecli(ecli), case_citations_fieldnames, legislation_citations_fieldnames, username,
+            password)
+        if case_citations_incoming:
+            big_incoming.extend(case_citations_incoming)
+        if case_citations_outgoing:
+            big_outgoing.extend(case_citations_outgoing)
+        if legislation_citations:
+            big_legislations.extend(legislation_citations)
+def find_citations_for_cases_multithread(dataframe,username,password,threads):
+    ecli = dataframe['ecli'].dropna().reset_index(drop=True)
+    length = ecli.size
+    at_once_threads = int(length/ threads)
+    big_incoming = []
+    big_outgoing = []
+    big_legislations = []
+    threads = []
+    for i in range(0, length, at_once_threads):
+        curr_ecli = ecli[i:(i + at_once_threads)]
+        t = threading.Thread(target=citations_multithread_single,
+                             args=[big_incoming, big_outgoing, big_legislations, curr_ecli, username, password])
+        threads.append(t)
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    df_incoming = pd.DataFrame(big_incoming)
+    df_outgoing = pd.DataFrame(big_outgoing)
+    df_legislations = pd.DataFrame(big_legislations)
+    return df_incoming, df_outgoing, df_legislations
 def add_citations_no_duplicates(already_existing_list, element):
     duplicate = False
     new_ecli = get_ecli(element)
@@ -196,7 +234,7 @@ def find_citations_for_case(ecli, case_citations_fieldnames, legislation_citatio
                         if is_case_law(sub_ref):
                             added_sth_new = add_citations_no_duplicates(case_law_citations_incoming, sub_ref)
 
-        if not added_sth_new and start_page > 10:
+        if not added_sth_new or start_page>20:
             end_of_pages = True
 
     # Remove duplicates empties
@@ -212,6 +250,10 @@ def find_citations_for_case(ecli, case_citations_fieldnames, legislation_citatio
     for dicts in case_law_citations_incoming:
         if dicts[target_ecli] == remove_spaces_from_ecli(ecli):
             case_law_citations_incoming.remove(dicts)
+            break
+    for dicts in case_law_citations_outgoing:
+        if dicts[target_ecli] == remove_spaces_from_ecli(ecli):
+            case_law_citations_outgoing.remove(dicts)
             break
     if (remove_spaces_from_ecli(ecli) in case_law_citations_incoming):
         case_law_citations_incoming.remove(remove_spaces_from_ecli(ecli))
@@ -253,18 +295,15 @@ def extract_results_legislations(list, ecli, fields,username,password):
     return list_of_all_results
 
 
-def get_citations(dataframe = None, username = "",password = ""):
+def get_citations(dataframe = None, username = "",password = "",threads=5):
     if dataframe is None or not username or not password:
         print("Incorrect arguments passed. Returning...")
         return 0
     print('\n--- START ---\n')
 
     # find citations, and save the file incrementally
-    find_citations_for_cases(dataframe, username,password)
-
-    print(f"\nUpdating storage ...")
-
+    df_in, df_out, df_leg = find_citations_for_cases_multithread(dataframe, username,password,threads)
 
     print("\n--- DONE ---")
-
+    return df_in, df_out, df_leg
 

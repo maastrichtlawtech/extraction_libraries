@@ -13,12 +13,11 @@ import dateutil.parser
 
 import datetime
 if __name__ == '__main__':
-    df = get_echr_extra(count=1000,save_file='y',language=["FRE","ENG"])
-    # get posixpath from data folder and file that starts with echr_metadata and ends with .csv
+    df = get_echr_extra(count=100,save_file='y',language=["FRE","ENG"],start_date='2023-01-01')
 
-    meta_path = [os.path.join('data',f) for f in os.listdir('data') if f.startswith('echr_metadata') and f.endswith('.csv')][0]
-    nodes,edges = get_nodes_edges(metadata_path = PurePath(meta_path) ,save_file='y')
-    
+
+
+
     """
     Start and end dates must be date objects, which can be achieved by calling dateutil.parser.parse(some date string).date().
     I assume you dont want to do that in this file but im not sure where this conversion is most appropriate so I'll leave it up to you.
