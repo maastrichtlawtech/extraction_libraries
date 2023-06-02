@@ -5,6 +5,7 @@ import rdflib
 import sys
 from os.path import dirname, abspath
 import threading
+import json
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 import pandas as pd
 from dotenv import load_dotenv
@@ -134,17 +135,34 @@ def find_citations_for_cases(dataframe,username,password):
     df_outgoing = pd.DataFrame(total_outgoing)
     df_legislations= pd.DataFrame(total_legislations)
     return df_incoming, df_outgoing, df_legislations
-def citations_multithread_single(big_incoming, big_outgoing, big_legislations, ecli, username, password):
+def citations_multithread_single(big_incoming, big_outgoing, big_legislations, ecli, username, password,current_index):
+    incoming_df = pd.Series([], dtype='string')
+    outgoing_df = pd.Series([], dtype='string')
+    legislations_df = pd.Series([], dtype='string')
     for i, ecli in enumerate(ecli):
+        index = current_index + i
         case_citations_incoming, case_citations_outgoing, legislation_citations = find_citations_for_case(
             remove_spaces_from_ecli(ecli), case_citations_fieldnames, legislation_citations_fieldnames, username,
             password)
         if case_citations_incoming:
-            big_incoming.extend(case_citations_incoming)
+            encoded = json.dumps(case_citations_incoming)
+            incoming_df[index] = encoded
         if case_citations_outgoing:
-            big_outgoing.extend(case_citations_outgoing)
+            encoded = json.dumps(case_citations_outgoing)
+            outgoing_df[index] = encoded
         if legislation_citations:
-            big_legislations.extend(legislation_citations)
+            encoded = json.dumps(legislation_citations)
+            legislations_df[index] = encoded
+    big_incoming.append(incoming_df)
+    big_outgoing.append(outgoing_df)
+    big_legislations.append(legislations_df)
+
+def add_column_frow_list(data, name, list):
+    column = pd.Series([], dtype='string')
+    for l in list:
+        column = column.append(l)
+    column.sort_index(inplace=True)
+    data.insert(1, name, column)
 def find_citations_for_cases_multithread(dataframe,username,password,threads):
     ecli = dataframe['ecli'].dropna().reset_index(drop=True)
     length = ecli.size
@@ -156,16 +174,17 @@ def find_citations_for_cases_multithread(dataframe,username,password,threads):
     for i in range(0, length, at_once_threads):
         curr_ecli = ecli[i:(i + at_once_threads)]
         t = threading.Thread(target=citations_multithread_single,
-                             args=[big_incoming, big_outgoing, big_legislations, curr_ecli, username, password])
+                             args=[big_incoming, big_outgoing, big_legislations, curr_ecli, username, password,i])
         threads.append(t)
     for t in threads:
         t.start()
     for t in threads:
         t.join()
-    df_incoming = pd.DataFrame(big_incoming)
-    df_outgoing = pd.DataFrame(big_outgoing)
-    df_legislations = pd.DataFrame(big_legislations)
-    return df_incoming, df_outgoing, df_legislations
+    add_column_frow_list(dataframe, 'citations_incoming', big_incoming)
+    add_column_frow_list(dataframe, 'citations_outgoing', big_outgoing)
+    add_column_frow_list(dataframe, 'legislations_cited', big_legislations)
+    return dataframe
+
 def add_citations_no_duplicates(already_existing_list, element):
     duplicate = False
     new_ecli = get_ecli(element)
@@ -211,7 +230,7 @@ def find_citations_for_case(ecli, case_citations_fieldnames, legislation_citatio
     incoming = "inkomende-links"
 
     while not end_of_pages:
-        added_sth_new = True
+        added_sth_new = False
         url = "{}?id={}&start={}&rows={}&output=xml".format(LIDO_ENDPOINT, get_lido_id(ecli), start_page, 100)
         start_page += 1
 
@@ -234,7 +253,8 @@ def find_citations_for_case(ecli, case_citations_fieldnames, legislation_citatio
                         if is_case_law(sub_ref):
                             added_sth_new = add_citations_no_duplicates(case_law_citations_incoming, sub_ref)
 
-        if not added_sth_new or start_page>20:
+        if not added_sth_new or start_page>15:
+            print(start_page)
             end_of_pages = True
 
     # Remove duplicates empties
@@ -290,7 +310,6 @@ def extract_results_legislations(list, ecli, fields,username,password):
         legislation_result[fields[1]] = (leg_citation)  # Target article
         legislation_result[fields[2]] = (get_legislation_webpage(leg_citation))  # Target article webpage
         legislation_result[fields[3]] = (get_legislation_name(leg_citation,username,password))  # pref label == article name
-        legislation_result[fields[4]] = ("")  # date of decision of ecli
         list_of_all_results.append(legislation_result)
     return list_of_all_results
 
@@ -298,12 +317,12 @@ def extract_results_legislations(list, ecli, fields,username,password):
 def get_citations(dataframe = None, username = "",password = "",threads=5):
     if dataframe is None or not username or not password:
         print("Incorrect arguments passed. Returning...")
-        return 0
+        return False,False,False
     print('\n--- START ---\n')
 
     # find citations, and save the file incrementally
-    df_in, df_out, df_leg = find_citations_for_cases_multithread(dataframe, username,password,threads)
+    df = find_citations_for_cases_multithread(dataframe, username,password,threads)
 
     print("\n--- DONE ---")
-    return df_in, df_out, df_leg
+    return df
 
