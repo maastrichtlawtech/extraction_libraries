@@ -41,12 +41,14 @@ Python 3.9
 <li><b>Rechtspraak Citations Extractor</b>
 <ol>
     <li><code>get_citations</code></li>
-    Gets all the data about case law citing/being cited and the legislations cited from the cases in passed on DataFrame of case metadata.
+    Gets all the data about case law citing/being cited and the legislations cited from the cases 
+    in passed on DataFrame of case metadata. Requires a valid DataFrame object with a column titled 'ecli'. Returns the same Dataframe object,
+     with 3 additional columns containing JSON strings of citation information.
 </ol> </li>
 
 ## What are the parameters?
 <ol>
-    <li><strong>get_citations(dataframe = None, username = '', password = '')</strong></li>
+    <li><strong>get_citations(dataframe = None, username = '', password = '', threads = 2)</strong></li>
     <strong>Parameters:</strong>
     <ul>
         <li><strong>dataframe: Pandas DataFrame object, required</strong></li>
@@ -58,6 +60,8 @@ Python 3.9
         The username that together with the password can be used to log into LIDO.
         <li><strong>password: string, required, default ''</strong></li>
         The password that together with the username can be used to log into LIDO.
+        <li><strong>threads: int, optional, default 1</strong></li>
+        Option for multi-threading of LiDO requests - not recommended to go above 2, as LiDO breaks connections when overwhelmed.
     </ul>
 </ol>
 
@@ -69,10 +73,10 @@ import rechtspraak_citations_extractor as rex_citations
 -----------------------------------------------------------------------------------------------------------------------
 
 # To get the rechtspraak data in a dataframe:
-df = rex.get_rechtspraak(max_ecli=100, sd='2022-08-01', save_file='n')  # Gets 100 ECLIs from 1st August 2022
-
+df = rex.get_rechtspraak(max_ecli=100, sd='2022-08-01', save_file='y')  # Gets 100 ECLIs from 1st August 2022
+df = get_rechtspraak_metadata(save_file='n',dataframe=df)
 # To get the citations:
-rex_citations.get_citations(df,'username','password')
+df_with_citaitons = rex_citations.get_citations(df,'username','password')
 ```
 
 

@@ -1,1 +1,1 @@
-from citations_extractor import get_citations
+from rechtspraak_citations_extractor.citations_extractor import get_citations
