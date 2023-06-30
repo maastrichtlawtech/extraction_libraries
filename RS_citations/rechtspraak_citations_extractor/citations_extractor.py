@@ -7,7 +7,7 @@ import json
 import pandas as pd
 from dotenv import load_dotenv
 from requests.auth import HTTPBasicAuth
-
+from tqdm import tqdm
 load_dotenv()
 
 LIDO_ENDPOINT = "http://linkeddata.overheid.nl/service/get-links"
@@ -135,7 +135,7 @@ def find_citations_for_cases(dataframe, username, password):
     return df_incoming, df_outgoing, df_legislations
 
 
-def citations_multithread_single(big_incoming, big_outgoing, big_legislations, ecli, username, password, current_index):
+def citations_multithread_single(big_incoming, big_outgoing, big_legislations, ecli, username, password, current_index,bar):
     incoming_df = pd.Series([], dtype='string')
     outgoing_df = pd.Series([], dtype='string')
     legislations_df = pd.Series([], dtype='string')
@@ -153,6 +153,7 @@ def citations_multithread_single(big_incoming, big_outgoing, big_legislations, e
         if legislation_citations:
             encoded = json.dumps(legislation_citations)
             legislations_df[index] = encoded
+        bar.update(1)
     big_incoming.append(incoming_df)
     big_outgoing.append(outgoing_df)
     big_legislations.append(legislations_df)
@@ -174,10 +175,11 @@ def find_citations_for_cases_multithread(dataframe, username, password, threads)
     big_outgoing = []
     big_legislations = []
     threads = []
+    bar = tqdm(total=length, colour="GREEN",position=0, leave=True,miniters=int(length/100),maxinterval=10000)
     for i in range(0, length, at_once_threads):
         curr_ecli = ecli[i:(i + at_once_threads)]
         t = threading.Thread(target=citations_multithread_single,
-                             args=[big_incoming, big_outgoing, big_legislations, curr_ecli, username, password, i])
+                             args=[big_incoming, big_outgoing, big_legislations, curr_ecli, username, password, i,bar])
         threads.append(t)
     for t in threads:
         t.start()

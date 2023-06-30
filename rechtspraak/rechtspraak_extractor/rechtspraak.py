@@ -68,7 +68,7 @@ def save_csv(json_object, file_name, save_file):
         print("Data saved to CSV file successfully.")
     return df
 
-def get_rechtspraak(max_ecli=100, sd='2022-08-01', ed=None, save_file='y'):
+def get_rechtspraak(max_ecli=100, sd='1900-01-01', ed=None, save_file='y'):
     print("Rechtspraak dump downloader API")
 
     amount = max_ecli
@@ -96,7 +96,7 @@ def get_rechtspraak(max_ecli=100, sd='2022-08-01', ed=None, save_file='y'):
         print("Getting " + str(amount) + " documents from " + starting_date + " till " + ending_date)
 
         json_object = get_data_from_url(url)
-
+        print(f"Found {len(json_object)} cases!")
         if json_object:
             # Get current time
             current_time = datetime.now().strftime("%H-%M-%S")

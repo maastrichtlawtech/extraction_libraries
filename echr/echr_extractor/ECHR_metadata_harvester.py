@@ -147,7 +147,7 @@ def get_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date, l
                    'documentcollectionid2:"COMMUNICATEDCASES" OR ' \
                    'documentcollectionid2:"DECISIONS" OR ' \
                    'documentcollectionid2:"CLIN") AND ' \
-                   'lang' \
+                   'lang_inputter' \
                    '&select={select}' + \
                    '&sort=itemid Ascending' + \
                    '&start={start}&length={length}'
@@ -172,7 +172,7 @@ def get_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date, l
     META_URL = META_URL.replace('"', '%22')
     language_input = basic_function('languageisocode', language)
     if not link:
-        META_URL = META_URL.replace('lang', language_input)
+        META_URL = META_URL.replace('lang_inputter', language_input)
                                     
     META_URL = META_URL.replace('{select}', ','.join(fields))
 

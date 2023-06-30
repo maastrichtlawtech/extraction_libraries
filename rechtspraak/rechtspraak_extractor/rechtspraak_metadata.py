@@ -11,9 +11,9 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 import platform
 import shutil
-
+from tqdm import tqdm
 from rechtspraak_extractor.rechtspraak_functions import *
-
+from functools import partial
 # Define base url
 RECHTSPRAAK_METADATA_API_BASE_URL = "http://data.rechtspraak.nl/uitspraken/content?id=" # old one = "https://uitspraken.rechtspraak.nl/#!/details?id="
 return_type = "&return=DOC"
@@ -63,44 +63,76 @@ def check_if_df_empty(df):
     return False
 
 
+def get_text_if_exists(el):
+    try:
+        return el.text
+    except:
+        return ''
+
+def update_bar(bar, *args):
+    bar.update(1)
+
+
+def save_data_when_crashed(ecli):
+    ecli_df.append(ecli)
+    full_text_df.append("")
+    creator_df.append("")
+    date_decision_df.append("")
+    issued_df.append("")
+    zaaknummer_df.append("")
+    type_df.append("")
+    relations_df.append("")
+    references_df.append("")
+    subject_df.append("")
+    procedure_df.append("")
+    inhoudsindicatie_df.append("")
+    hasVersion_df.append("")
 def get_data_from_api(ecli_id):
     url = RECHTSPRAAK_METADATA_API_BASE_URL + ecli_id + return_type
-    response_code = check_api(url)
+    try:
+        response_code = check_api(url)
+    except:
+        save_data_when_crashed(ecli_id)
+        return
     global ecli_df, full_text_df, creator_df, date_decision_df, issued_df, zaaknummer_df, type_df, \
         relations_df, references_df, subject_df, procedure_df, inhoudsindicatie_df, hasVersion_df
     try:
         if response_code == 200:
             try:
-     
                 # Extract data from xml
                 xml_object = extract_data_from_xml(url)
-
                 soup = BeautifulSoup(xml_object, features='xml')
-
                 # Get the data
-               
-                creator = soup.find("dcterms:creator").text
-                date_decision = soup.find("dcterms:date").text
-                issued = soup.find("dcterms:issued").text
-                zaaknummer = soup.find("psi:zaaknummer").text
-                rs_type = soup.find("dcterms:type").text
-                subject = soup.find("dcterms:subject").text
+                creator = get_text_if_exists(soup.find("dcterms:creator"))
+                date_decision = get_text_if_exists(soup.find("dcterms:date"))
+                issued = get_text_if_exists(soup.find("dcterms:issued"))
+                zaaknummer = get_text_if_exists(soup.find("psi:zaaknummer"))
+                rs_type = get_text_if_exists(soup.find("dcterms:type"))
+                subject = get_text_if_exists(soup.find("dcterms:subject"))
                 relation = soup.findAll("dcterms:relation")
-                relatie = None
+                relatie = ''
                 for i in relation:
                     # append the string to relation
-                    relatie += i.text + "\n"
+                    text = get_text_if_exists(i)
+                    if text == '':
+                        continue
+                    else:
+                        relatie += text + "\n"
                 relations = relatie
                 reference = soup.findAll("dcterms:references")
-                ref = None
+                ref = ''
                 for u in reference:
+                    text = get_text_if_exists(u)
                     # append the string to relation
-                    ref += u.text + "\n"
+                    if text =="":
+                        continue
+                    else:
+                        ref += text + "\n"
                 references = ref    
-                procedure = soup.find("psi:procedure").text
-                inhoudsindicatie = soup.find("inhoudsindicatie").text
-                hasVersion = soup.find("dcterms:hasVersion").text
-                full_text = soup.find("uitspraak").text
+                procedure = get_text_if_exists(soup.find("psi:procedure"))
+                inhoudsindicatie = get_text_if_exists(soup.find("inhoudsindicatie"))
+                hasVersion = get_text_if_exists(soup.find("dcterms:hasVersion"))
+                full_text = get_text_if_exists(soup.find("uitspraak"))
 
                 ecli_df.append(ecli_id)
                 full_text_df.append(full_text)
@@ -120,20 +152,12 @@ def get_data_from_api(ecli_id):
 
                 urllib.request.urlcleanup()
 
-            except urllib.error.URLError as e:
-                pass
-                #print(e)
-            except urllib.error.HTTPError as e:
-                pass
-               # print(e)
             except Exception as e:
-                pass
-               #print(e)
+                save_data_when_crashed(ecli_id)
         else:
-            ecli_df.append(ecli_id)
-            full_text_df.append("API returned with error code: " + str(response_code))
-    except requests.exceptions.RequestException as e:
-        raise SystemExit(e)
+            save_data_when_crashed(ecli_id)
+    except Exception as e:
+        save_data_when_crashed(ecli_id)
 
 
 def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
@@ -223,6 +247,7 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 ecli_list = list(df.loc[:, 'id'])
 
                 # Create a temporary directory to save files
+                time.sleep(1)
                 Path('temp_rs_data').mkdir(parents=True, exist_ok=True)
                 with ThreadPoolExecutor(max_workers=max_workers) as executor:
                     for ecli in ecli_list:
@@ -245,7 +270,8 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 rsm_df['procedure'] = procedure_df
                 rsm_df['inhoudsindicatie'] = inhoudsindicatie_df
                 rsm_df['hasVersion'] = hasVersion_df
-
+                addition = rs_data[['id', 'summary']]
+                rsm_df = rsm_df.merge(addition, how='left', left_on='ecli', right_on='id').drop(['id'], axis=1)
                 # Create directory if not exists
                 Path('data').mkdir(parents=True, exist_ok=True)
 
@@ -289,14 +315,17 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
 
         # Create a temporary directory to save files
         Path('temp_rs_data').mkdir(parents=True, exist_ok=True)
-
+        time.sleep(1)
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            bar = tqdm(total=len(ecli_list), colour="GREEN",position=0, leave=True, miniters=int(len(ecli_list)/100),
+                       maxinterval=10000)
             for ecli in ecli_list:
                 threads.append(executor.submit(get_data_from_api, ecli))
-
+            for t in threads:
+                t.add_done_callback(partial(update_bar,bar))
         # Delete temporary directory
         shutil.rmtree('temp_rs_data')
-
+         # to finish unfinished?
         # global ecli_df, full_text_df, creator_df, date_decision_df, issued_df, zaaknummer_df, \
         #    relations_df, subject_df, procedure_df, inhoudsindicatie_df, hasVersion_df
 
@@ -313,7 +342,8 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
         rsm_df['procedure'] = procedure_df
         rsm_df['inhoudsindicatie'] = inhoudsindicatie_df
         rsm_df['hasVersion'] = hasVersion_df
-
+        addition = rs_data[['id','summary']]
+        rsm_df = rsm_df.merge(addition, how='left', left_on='ecli', right_on='id').drop(['id'], axis=1)
         if save_file == 'y':
             if filename is None or filename == '':
                 filename = "custom_rechtspraak_" + datetime.now().strftime("%H-%M-%S") + ".csv"
