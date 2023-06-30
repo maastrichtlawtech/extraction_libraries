@@ -115,7 +115,7 @@ def add_sections(data, threads, json_filepath=None):
     eclis = data.loc[:, 'ECLI']
     length = celex.size
     time.sleep(1)
-    bar = tqdm(total=length, colour="GREEN",miniters=int(length/100))
+    bar = tqdm(total=length, colour="GREEN", miniters=int(length/100), position=0, leave=True, maxinterval=10000)
     if length > threads:  # to avoid getting problems with small files
         at_once_threads = int(length / threads)
     else:

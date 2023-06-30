@@ -102,7 +102,7 @@ def execute_citations_webservice(dictionary_list, celexes, username, password):
     normal_celex, contains_celex = clean_celex(celexes)
     def process_queries(link, celex):
         nonlocal success,retry
-        for i in tqdm(range(0, len(celex), at_once),colour="GREEN"):
+        for i in tqdm(range(0, len(celex), at_once), colour="GREEN", position=0, leave=True, maxinterval=10000):
             curr_celex = celex[i:(i + at_once)]
             input=" OR ".join(curr_celex)
             query = link % (str(input))
