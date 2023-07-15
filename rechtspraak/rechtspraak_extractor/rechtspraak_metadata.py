@@ -238,13 +238,13 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                     print("Metadata for " + temp_file_name + ".csv already exists.")
                     continue
 
-                df = pd.read_csv(f)
-                no_of_rows = df.shape[0]
+                rs_data = pd.read_csv(f)
+                no_of_rows = rs_data.shape[0]
                 print("Getting metadata of " + str(no_of_rows) + " ECLIs from " + temp_file_name + ".csv")
                 print("Working. Please wait...")
 
                 # Get all ECLIs in a list
-                ecli_list = list(df.loc[:, 'id'])
+                ecli_list = list(rs_data.loc[:, 'id'])
 
                 # Create a temporary directory to save files
                 time.sleep(1)
