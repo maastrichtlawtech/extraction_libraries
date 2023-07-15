@@ -1,13 +1,16 @@
-import requests
-from lxml import etree
-import urllib.request
-import rdflib
-import threading
 import json
+import threading
+import time
+import urllib.request
+
 import pandas as pd
+import rdflib
+import requests
 from dotenv import load_dotenv
+from lxml import etree
 from requests.auth import HTTPBasicAuth
 from tqdm import tqdm
+
 load_dotenv()
 
 LIDO_ENDPOINT = "http://linkeddata.overheid.nl/service/get-links"
@@ -109,39 +112,14 @@ It allows us to stop the script whenever we want without loosing our data, and w
 """
 
 
-# Main method to execute LIDO API call on a list of ECLIs from a CSV file and extract the citations of each
-# Add the implementation of the incremental writing of rows
-def find_citations_for_cases(dataframe, username, password):
-    df_eclis = dataframe.reset_index(drop=True)
-
-    eclis = list(df_eclis['ecli'].dropna())
-    total_incoming = []
-    total_outgoing = []
-    total_legislations = []
-
-    for i, ecli in enumerate(eclis):
-        case_citations_incoming, case_citations_outgoing, legislation_citations = find_citations_for_case(
-            remove_spaces_from_ecli(ecli), case_citations_fieldnames, legislation_citations_fieldnames, username,
-            password)
-        if case_citations_incoming:
-            total_incoming.extend(case_citations_incoming)
-        if case_citations_outgoing:
-            total_outgoing.extend(case_citations_outgoing)
-        if legislation_citations:
-            total_legislations.extend(legislation_citations)
-    df_incoming = pd.DataFrame(total_incoming)
-    df_outgoing = pd.DataFrame(total_outgoing)
-    df_legislations = pd.DataFrame(total_legislations)
-    return df_incoming, df_outgoing, df_legislations
-
-
-def citations_multithread_single(big_incoming, big_outgoing, big_legislations, ecli, username, password, current_index,bar):
+def citations_multithread_single(big_incoming, big_outgoing, big_legislations, ecli, username, password, current_index,
+                                 bar):
     incoming_df = pd.Series([], dtype='string')
     outgoing_df = pd.Series([], dtype='string')
     legislations_df = pd.Series([], dtype='string')
     for i, ecli in enumerate(ecli):
         index = current_index + i
-        case_citations_incoming, case_citations_outgoing, legislation_citations = find_citations_for_case(
+        case_citations_incoming, case_citations_outgoing, legislation_citations = find_citations_for_case_retrying(0,
             remove_spaces_from_ecli(ecli), case_citations_fieldnames, legislation_citations_fieldnames, username,
             password)
         if case_citations_incoming:
@@ -175,11 +153,12 @@ def find_citations_for_cases_multithread(dataframe, username, password, threads)
     big_outgoing = []
     big_legislations = []
     threads = []
-    bar = tqdm(total=length, colour="GREEN",position=0, leave=True,miniters=int(length/100),maxinterval=10000)
+    bar = tqdm(total=length, colour="GREEN", position=0, leave=True, miniters=int(length / 100), maxinterval=10000)
+
     for i in range(0, length, at_once_threads):
         curr_ecli = ecli[i:(i + at_once_threads)]
         t = threading.Thread(target=citations_multithread_single,
-                             args=[big_incoming, big_outgoing, big_legislations, curr_ecli, username, password, i,bar])
+                             args=[big_incoming, big_outgoing, big_legislations, curr_ecli, username, password, i, bar])
         threads.append(t)
     for t in threads:
         t.start()
@@ -221,6 +200,17 @@ def add_legislations_no_duplicates(list, element):
     return added_sth_new
 
 
+
+def find_citations_for_case_retrying(retry, *args):
+    if retry == 5:
+        return False, False, False
+    else:
+        time.sleep(2 * retry)
+    try:
+        return find_citations_for_case(*args)
+    except:
+        return find_citations_for_case_retrying(retry + 1, *args)
+
 # Main method to execute LIDO API call on the ECLI code of the input case and extract the citations
 def find_citations_for_case(ecli, case_citations_fieldnames, legislation_citations_fieldnames, username, password):
     xml_elements = []
@@ -257,7 +247,7 @@ def find_citations_for_case(ecli, case_citations_fieldnames, legislation_citatio
                             added_sth_new = add_citations_no_duplicates(case_law_citations_incoming, sub_ref)
 
         if not added_sth_new or start_page > 15:
-            #print(start_page)
+            # print(start_page)
             end_of_pages = True
 
     # Remove duplicates empties
@@ -319,7 +309,7 @@ def get_citations(dataframe=None, username="", password="", threads=1):
         print("Incorrect arguments passed. Returning...")
         return False
     try:
-        get_lido_response(LIDO_ENDPOINT,username,password)
+        get_lido_response(LIDO_ENDPOINT, username, password)
     except:
         print('LIDO cannot be accessed with these login details. Returning...')
         return False
