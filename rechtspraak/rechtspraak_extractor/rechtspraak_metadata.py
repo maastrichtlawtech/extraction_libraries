@@ -230,7 +230,7 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                                                 'references','subject','procedure',
                                                 'inhoudsindicatie', 'hasVersion'])
 
-                temp_file_name = f.split('\\')[-1][:len(f.split('\\')[-1]) - 4]
+                temp_file_name = os.path.basename(f).replace(".csv",'')
 
                 # Check if file already exists
                 file_check = Path("data/" + temp_file_name + "_metadata.csv")
