@@ -1,9 +1,10 @@
+import re
+
+import dateparser
 import numpy as np
 import pandas as pd
-import re
-import dateparser
-from echr_extractor.clean_ref import clean_pattern
 
+from echr_extractor.clean_ref import clean_pattern
 
 
 def open_metadata(PATH_metadata):
@@ -19,49 +20,31 @@ def open_metadata(PATH_metadata):
         print("File not found. Please check the path to the metadata file.")
         return False
 
+
 def concat_metadata(df):
-    agg_func = {'itemid' : 'first', 'appno' : 'first', 'article' : 'first', 'conclusion' : 'first' , 'docname' : 'first' , 'doctype' : 'first',
-                'doctypebranch' : 'first', 'ecli' : 'first', 'importance' : 'first', 'judgementdate' : 'first', 'languageisocode' : ', '.join, 'originatingbody' : 'first',
-                'violation' : 'first', 'nonviolation' : 'first', 'extractedappno' : 'first', 'scl' : 'first'}
+    agg_func = {'itemid': 'first', 'appno': 'first', 'article': 'first', 'conclusion': 'first', 'docname': 'first',
+                'doctype': 'first',
+                'doctypebranch': 'first', 'ecli': 'first', 'importance': 'first', 'judgementdate': 'first',
+                'languageisocode': ', '.join, 'originatingbody': 'first',
+                'violation': 'first', 'nonviolation': 'first', 'extractedappno': 'first', 'scl': 'first'}
     new_df = df.groupby('ecli').agg(agg_func)
-    print(new_df)
+    # print(new_df)
     return new_df
+
 
 def get_language_from_metadata(df):
     df = concat_metadata(df)
     df.to_json('langisocode-nodes.json', orient="records")
 
-def metadata_to_nodesedgeslist(df):
-    """
-    Returns a dataframe where column 'article' only contains a certain article
 
-    param df: the complete dataframe from the metadata
-    """
-    
-    return df
-
-
-def retrieve_nodes_list(df):
-    """
-    Returns a dataframe where 'ecli' is moved to the first column.
-
-    param df: the dataframe after article filter
-    """
-    df = metadata_to_nodesedgeslist(df)
-    col = df.pop("ecli")
-    df.insert(1, col.name, col)
-    df.drop(df.columns[0], axis=1, inplace=True)
-    return df
-
-
-def retrieve_edges_list(df, df_unfiltered):
+def retrieve_edges_list(df):
     """
     Returns a dataframe consisting of 2 columns 'ecli' and 'reference' which
     indicate a reference link between cases.
 
     params:
     df -- the node list extracted from the metadata
-    df_unfiltered -- the complete dataframe from the metadata
+    df -- the complete dataframe from the metadata
     """
     edges = pd.DataFrame(columns=['ecli', 'references'])
 
@@ -73,7 +56,7 @@ def retrieve_edges_list(df, df_unfiltered):
         app_number = []
         extracted_appnos = []
         if item.extractedappno is not np.nan:
-            extracted_appnos = item.extractedappno.split(';') 
+            extracted_appnos = item.extractedappno.split(';')
 
         if item.scl is not np.nan:
             """
@@ -96,23 +79,23 @@ def retrieve_edges_list(df, df_unfiltered):
             tot_num_refs = tot_num_refs + len(ref_list)
 
             for ref in new_ref_list:
-                app_number = re.findall("[0-9]{3,5}\/[0-9]{2}", ref) ################
+                app_number = re.findall("[0-9]{3,5}\/[0-9]{2}", ref)  ################
                 if len(extracted_appnos) > 0:
                     app_number = app_number + extracted_appnos
                 # app_number = app_number + extracted_appnos
                 app_number = set(app_number)
-                
+
                 if len(app_number) > 0:
                     # get dataframe with all possible cases by application number
                     if len(app_number) > 1:
                         app_number = [';'.join(app_number)]
-                    case = lookup_app_number(app_number, df_unfiltered)
-                else: # if no application number in reference
+                    case = lookup_app_number(app_number, df)
+                else:  # if no application number in reference
                     # get dataframe with all possible cases by casename
-                    case = lookup_casename(ref, df_unfiltered)
+                    case = lookup_casename(ref, df)
 
                 if len(case) == 0:
-                    case = lookup_casename(ref, df_unfiltered)
+                    case = lookup_casename(ref, df)
 
                 components = ref.split(',')
                 # get the year of case
@@ -132,17 +115,16 @@ def retrieve_edges_list(df, df_unfiltered):
                     if i.judgementdate is np.nan:
                         continue
                     date = dateparser.parse(i.judgementdate)
-                    year_from_case = date.year
+                    if date:
+                        year_from_case = date.year
+                        if year_from_case - year_from_ref == 0:
+                            case = case[
+                                case['judgementdate'].str.contains(str(year_from_ref), regex=False, flags=re.IGNORECASE)]
 
-                    if year_from_case - year_from_ref == 0:
-                        case = case[case['judgementdate'].str.contains(str(year_from_ref), regex=False, flags=re.IGNORECASE)]
-
-                #case = metadata_to_nodesedgeslist(case)
+                # case = metadata_to_nodesedgeslist(case)
 
                 if len(case) > 0:
-                    if len(case) > 3:
-                        print("stop")
-                    for _,row in case.iterrows():
+                    for _, row in case.iterrows():
                         eclis.append(row.ecli)
                 else:
                     count = count + 1
@@ -150,23 +132,24 @@ def retrieve_edges_list(df, df_unfiltered):
 
             eclis = set(eclis)
 
-            #add ecli to edges list
+            # add ecli to edges list
             if len(eclis) == 0:
                 continue
             else:
                 edges = pd.concat(
                     [edges, pd.DataFrame.from_records([{'ecli': item.ecli, 'references': list(eclis)}])])
 
-    print("num missed cases: ", count)
-    print("total num of refs: ", tot_num_refs)
+    # print("num missed cases: ", count)
+    # print("total num of refs: ", tot_num_refs)
     missing_cases_set = set(missing_cases)
     missing_cases = list(missing_cases_set)
-    
+
     # Store missing references
     missing_df = pd.DataFrame(missing_cases)
     # missing_df.to_csv('C:/Users/Chloe/PycharmProjects/case-law-explorer/data/echr/missing_cases.csv', index=False, encoding='utf-8')
-    edges = edges.groupby('ecli', as_index=False).agg({'references' : 'sum'})
+    edges = edges.groupby('ecli', as_index=False).agg({'references': 'sum'})
     return edges
+
 
 def lookup_app_number(pattern, df):
     """
@@ -207,7 +190,7 @@ def lookup_casename(ref, df):
     James and Others --> CASE OF JAMES AND OTHERS
     """
     name = get_casename(ref)
-    
+
     # DEV note: In case, add more patterns to clean_ref.py in future
     patterns = clean_pattern
 
@@ -219,7 +202,7 @@ def lookup_casename(ref, df):
     if 'BV' in uptext:
         uptext = uptext.replace('BV', 'B.V.')
 
-    if 'v.' in name:
+    if 'V.' in name:
         uptext = uptext.replace('V.', 'v.')
         lang = 'ENG'
     else:
@@ -237,6 +220,7 @@ def lookup_casename(ref, df):
     #     print("no cases matched: ", name)
 
     return row
+
 
 def get_casename(ref):
     count = 0
@@ -259,6 +243,7 @@ def get_casename(ref):
         return name[0]
     return name
 
+
 def get_year_from_ref(ref):
     for component in ref:
         if '§' in component:
@@ -274,28 +259,29 @@ def get_year_from_ref(ref):
                 date = re.sub('-.*', '', date)
                 date = re.sub('\s.*', '', date)
                 date = dateparser.parse(date)
-   
+
     try:
         return date.year
     except:
         return 0
 
 
-
-def echr_nodes_edges(metadata_path):
+def echr_nodes_edges(metadata_path=None, data=None):
     """
     Create nodes and edges list for the ECHR data.
     """
     print('\n--- COLLECTING METADATA ---\n')
-    data = open_metadata(metadata_path)
-
+    if metadata_path:
+        data = open_metadata(metadata_path)
+    elif data is None:
+        print("No dataframe data provided. Returning...")
+        return "", ""
     print('\n--- EXTRACTING NODES LIST ---\n')
-    nodes = retrieve_nodes_list(data)
     # get_language_from_metadata(nodes)
 
     print('\n--- EXTRACTING EDGES LIST ---\n')
-    edges = retrieve_edges_list(nodes, data)
+    edges = retrieve_edges_list(data)
 
     # nodes.to_json(JSON_ECHR_NODES, orient="records")
     # edges.to_json(JSON_ECHR_EDGES, orient="records")
-    return nodes, edges
+    return data, edges

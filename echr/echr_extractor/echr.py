@@ -1,9 +1,10 @@
-from echr_extractor.ECHR_metadata_harvester import get_echr_metadata
-from echr_extractor.ECHR_html_downloader import download_full_text_main
-from echr_extractor.ECHR_nodes_edges_list_transform import echr_nodes_edges
-from pathlib import Path
-import os
 import json
+import os
+from pathlib import Path
+
+from echr_extractor.ECHR_html_downloader import download_full_text_main
+from echr_extractor.ECHR_metadata_harvester import get_echr_metadata
+from echr_extractor.ECHR_nodes_edges_list_transform import echr_nodes_edges
 
 """
 I have replaced the function definition to take all arguments n eede to call read_echr_metadata and I have also
@@ -23,7 +24,7 @@ def get_echr(start_id=0, end_id=None, start_date=None, count=None, end_date=None
         end_id = int(start_id) + count
     print(f"--- STARTING ECHR DOWNLOAD FOR  ---")
     df = get_echr_metadata(start_id=start_id, end_id=end_id, start_date=start_date, end_date=end_date,
-                                        verbose=verbose, fields=fields, link=link, language=language)
+                           verbose=verbose, fields=fields, link=link, language=language)
     if df is False:
         return False
     if save_file == "y":
@@ -83,8 +84,8 @@ def get_echr_extra(start_id=0, end_id=None, start_date=None, count=None, end_dat
         return df, json_list
 
 
-def get_nodes_edges(metadata_path, save_file='y'):
-    nodes, edges = echr_nodes_edges(metadata_path)
+def get_nodes_edges(metadata_path=None, dataframe=None, save_file='y'):
+    nodes, edges = echr_nodes_edges(metadata_path=metadata_path, data=dataframe)
     if save_file == "y":
         Path('data').mkdir(parents=True, exist_ok=True)
         edges.to_csv(os.path.join('data', 'ECHR_edges.csv'), index=False, encoding='utf-8')

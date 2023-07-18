@@ -1,6 +1,7 @@
-import requests
 from datetime import datetime
+
 import pandas as pd
+import requests
 
 
 def get_r(url, timeout, retry, verbose):
@@ -56,9 +57,15 @@ def link_to_query(link):
 
     def date_function(term, values):
         values = ['"' + i + '"' for i in values]
-        query = '(kpdate >= "first_term" AND kpdate <= "second_term")'
-        query = query.replace("first_term", values[0])
-        query = query.replace("second_term", values[1])
+        query = '(kpdate>=first_term AND kpdate<=second_term)'
+        first = values[0]
+        second = values[1]
+        if first == '""':
+            first = '"1900-01-01"'
+        if second == '""':
+            second = datetime.today().date()
+        query = query.replace("first_term", first)
+        query = query.replace("second_term", second)
         return query
 
     def advanced_function(term, values):
@@ -98,16 +105,21 @@ def link_to_query(link):
                  ' AND (NOT (doctype=PR OR doctype=HFCOMOLD OR doctype=HECOMOLD)) AND ' \
                  'inPutter&select={select}&sort=itemid%20Ascending&start={start}&length={length}'
     query_elements = list()
+    date_addition = ''
     for key in list(link_dictionary.keys()):
-        vals = link_dictionary.get(key)
-        funct = query_map.get(key)
-        query_elements.append(funct(key, vals))
+        if key == "kpdate":
+            vals = link_dictionary.get(key)
+            funct = query_map.get(key)
+            date_addition = funct(key, vals)
+        else:
+            vals = link_dictionary.get(key)
+            funct = query_map.get(key)
+            query_elements.append(funct(key, vals))
+    if date_addition:
+        query_elements.append(date_addition)
     query_total = ' AND '.join(query_elements)
     final_query = base_query.replace('inPutter', query_total)
-    # print(final_query)
-    # page = requests.get(final_query)
-    # results = eval(page.text)
-    # print(results.get('resultcount'))
+
     return final_query
 
 
@@ -166,17 +178,16 @@ def get_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date, l
             addition = ''
 
         if addition:
-            META_URL = META_URL.replace('(contentsitename=ECHR)', '(contentsitename=ECHR) AND ' + addition)
+            addition = " AND " + addition
+            META_URL = META_URL.replace('&select', addition + '&select')
 
     META_URL = META_URL.replace(' ', '%20')
     META_URL = META_URL.replace('"', '%22')
     language_input = basic_function('languageisocode', language)
     if not link:
         META_URL = META_URL.replace('lang_inputter', language_input)
-                                    
+
     META_URL = META_URL.replace('{select}', ','.join(fields))
-
-
 
     url = META_URL.format(start=0, length=1)
     print(url)
@@ -190,7 +201,7 @@ def get_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date, l
         print(f'Fetching {end_id - start_id} results from index {start_id} to index {end_id} '
               f'{f" and filtering cases after {start_date}" if start_date else ""} {f"and filtering cases before {end_date}" if end_date else "."}')
 
-    timeout = 6
+    timeout = 60
     retry = 3
     if start_id + end_id > 500:  # HUDOC does not let you fetch more than 500 items in one go.
         for i in range(start_id, end_id, 500):
