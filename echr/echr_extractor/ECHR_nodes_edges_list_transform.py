@@ -49,11 +49,9 @@ def retrieve_edges_list(df):
     edges = pd.DataFrame(columns=['ecli', 'references'])
 
     count = 0
-    tot_num_refs = 0
     missing_cases = []
     for index, item in df.iterrows():
         eclis = []
-        app_number = []
         extracted_appnos = []
         if item.extractedappno is not np.nan:
             extracted_appnos = item.extractedappno.split(';')
@@ -75,8 +73,6 @@ def retrieve_edges_list(df):
             for ref in ref_list:
                 ref = re.sub('\n', '', ref)
                 new_ref_list.append(ref)
-
-            tot_num_refs = tot_num_refs + len(ref_list)
 
             for ref in new_ref_list:
                 app_number = re.findall("[0-9]{3,5}\/[0-9]{2}", ref)  ################
@@ -114,12 +110,16 @@ def retrieve_edges_list(df):
                 for id, i in case.iterrows():
                     if i.judgementdate is np.nan:
                         continue
-                    date = dateparser.parse(i.judgementdate)
+                    try:
+                        date = dateparser.parse(i.judgementdate)
+                    except:  # I dont realy know whats going on here but its sometimes not a string
+                        date = False
                     if date:
                         year_from_case = date.year
                         if year_from_case - year_from_ref == 0:
                             case = case[
-                                case['judgementdate'].str.contains(str(year_from_ref), regex=False, flags=re.IGNORECASE)]
+                                case['judgementdate'].str.contains(str(year_from_ref), regex=False,
+                                                                   flags=re.IGNORECASE)]
 
                 # case = metadata_to_nodesedgeslist(case)
 
