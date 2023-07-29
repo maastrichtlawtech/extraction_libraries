@@ -55,9 +55,9 @@ def retrieve_edges_list(df):
         extracted_appnos = []
         if item.extractedappno is not np.nan:
             extracted_appnos = item.extractedappno.split(';')
-
-        if item.scl is not np.nan:
-            """
+        if item.scl is np.nan:
+            continue
+        """
             Split the references from the scl column i nto a list of references.
 
             Example:
@@ -68,76 +68,49 @@ def retrieve_edges_list(df):
             Decisions 1998-V", "Sevgi Erdogan v. Turkey (striking out), no. 
             28492/95, 29 April 2003"]
             """
-            ref_list = item.scl.split(';')
-            new_ref_list = []
-            for ref in ref_list:
-                ref = re.sub('\n', '', ref)
-                new_ref_list.append(ref)
+        ref_list = item.scl.split(';')
+        new_ref_list = [i.replace('\n','') for i in ref_list]
 
-            for ref in new_ref_list:
-                app_number = re.findall("[0-9]{3,5}\/[0-9]{2}", ref)  ################
-                if len(extracted_appnos) > 0:
-                    app_number = app_number + extracted_appnos
-                # app_number = app_number + extracted_appnos
-                app_number = set(app_number)
+        for ref in new_ref_list:
+            app_number = re.findall("\d{3,5}/\d{2}", ref)
 
-                if len(app_number) > 0:
+            app_number.extend(extracted_appnos)
+
+            app_number = set(app_number)
+
+            if len(app_number) > 0:
                     # get dataframe with all possible cases by application number
-                    if len(app_number) > 1:
-                        app_number = [';'.join(app_number)]
-                    case = lookup_app_number(app_number, df)
-                else:  # if no application number in reference
+                app_number = [';'.join(app_number)]
+                case = lookup_app_number(app_number, df)
+                if len(case) == 0: # if failed try name?
+                    case = lookup_casename(ref, df)
+            else:  # if no application number in reference
                     # get dataframe with all possible cases by casename
-                    case = lookup_casename(ref, df)
+                case = lookup_casename(ref, df)
 
-                if len(case) == 0:
-                    case = lookup_casename(ref, df)
-
-                components = ref.split(',')
+            components = ref.split(',')
                 # get the year of case
-                year_from_ref = get_year_from_ref(components)
+            year_from_ref = get_year_from_ref(components)
 
-                # remove cases in different language than reference
-                for id, it in case.iterrows():
-                    if 'v.' in components[0]:
-                        lang = 'ENG'
-                    else:
-                        lang = 'FRE'
+            # remove cases in different language than reference
+            case = remove_cases_based_on_language(case,components)
+            case = remove_cases_based_on_year(case,year_from_ref)
 
-                    if lang not in it.languageisocode:
-                        case = case[case['languageisocode'].str.contains(lang, regex=False, flags=re.IGNORECASE)]
 
-                for id, i in case.iterrows():
-                    if i.judgementdate is np.nan:
-                        continue
-                    try:
-                        date = dateparser.parse(i.judgementdate)
-                    except:  # I dont realy know whats going on here but its sometimes not a string
-                        date = False
-                    if date:
-                        year_from_case = date.year
-                        if year_from_case - year_from_ref == 0:
-                            case = case[
-                                case['judgementdate'].str.contains(str(year_from_ref), regex=False,
-                                                                   flags=re.IGNORECASE)]
+            if len(case) > 0:
+                for _, row in case.iterrows():
+                    eclis.append(row.ecli)
+            else:
+                count = count + 1
+                missing_cases.append(ref)
 
-                # case = metadata_to_nodesedgeslist(case)
-
-                if len(case) > 0:
-                    for _, row in case.iterrows():
-                        eclis.append(row.ecli)
-                else:
-                    count = count + 1
-                    missing_cases.append(ref)
-
-            eclis = set(eclis)
+        eclis = set(eclis)
 
             # add ecli to edges list
-            if len(eclis) == 0:
-                continue
-            else:
-                edges = pd.concat(
-                    [edges, pd.DataFrame.from_records([{'ecli': item.ecli, 'references': list(eclis)}])])
+        if len(eclis) == 0: # This should not have to happen at every iteration, concat might be slow
+            continue
+        edges = pd.concat(
+                [edges, pd.DataFrame.from_records([{'ecli': item.ecli, 'references': list(eclis)}])])
 
     # print("num missed cases: ", count)
     # print("total num of refs: ", tot_num_refs)
@@ -149,7 +122,31 @@ def retrieve_edges_list(df):
     # missing_df.to_csv('C:/Users/Chloe/PycharmProjects/case-law-explorer/data/echr/missing_cases.csv', index=False, encoding='utf-8')
     edges = edges.groupby('ecli', as_index=False).agg({'references': 'sum'})
     return edges
+def remove_cases_based_on_year(case,year_from_ref):
+    for id, i in case.iterrows():
+        if i.judgementdate is np.nan:
+            continue
+        try:
+            date = dateparser.parse(i.judgementdate)
+        except:
+            date = False
+        if date:
+            year_from_case = date.year
+            if year_from_case - year_from_ref == 0:
+                case = case[
+                    case['judgementdate'].str.contains(str(year_from_ref), regex=False,
+                                                       flags=re.IGNORECASE)]
+    return case
+def remove_cases_based_on_language(cases,components):
+    for id, it in cases.iterrows():
+        if 'v.' in components[0]:
+            lang = 'ENG'
+        else:
+            lang = 'FRE'
 
+        if lang not in it.languageisocode:
+            cases = cases[cases['languageisocode'].str.contains(lang, regex=False, flags=re.IGNORECASE)]
+    return cases
 
 def lookup_app_number(pattern, df):
     """
