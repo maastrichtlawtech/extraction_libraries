@@ -1,14 +1,16 @@
 import json
 import os
-from os.path import join
+import time
 from datetime import datetime
 from pathlib import Path
+
 from tqdm import tqdm
+
+from cellar_extractor.cellar_extra_extract import extra_cellar
 from cellar_extractor.cellar_queries import get_all_eclis, get_raw_cellar_metadata
 from cellar_extractor.json_to_csv import json_to_csv_main, json_to_csv_returning
-from cellar_extractor.cellar_extra_extract import extra_cellar
 from cellar_extractor.nodes_and_edges import get_nodes_and_edges
-import time
+
 
 def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_format='csv'):
     if not ed:
@@ -28,7 +30,7 @@ def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_forma
         return False
     all_eclis = {}
     concurrent_docs = 100
-    for i in tqdm(range(0, len(eclis), concurrent_docs),colour="GREEN"):
+    for i in tqdm(range(0, len(eclis), concurrent_docs), colour="GREEN"):
         new_eclis = get_raw_cellar_metadata(eclis[i:(i + concurrent_docs)])
         all_eclis = {**all_eclis, **new_eclis}
     if save_file == 'y':
@@ -62,23 +64,35 @@ def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", thre
     file_path = os.path.join('data', file_name + '.csv')
     if save_file == 'y':
         Path('data').mkdir(parents=True, exist_ok=True)
-        extra_cellar(data = data ,filepath=file_path, threads=threads, username=username, password=password)
+        extra_cellar(data=data, filepath=file_path, threads=threads, username=username, password=password)
         print("\n--- DONE ---")
 
     else:
-        data,json = extra_cellar(data= data, threads = threads, username= username,password=password)
+        data, json = extra_cellar(data=data, threads=threads, username=username, password=password)
         print("\n--- DONE ---")
 
-        return data,json
+        return data, json
 
-def get_nodes_and_edges_lists(df = None):
+
+def get_nodes_and_edges_lists(df=None):
     if df is None:
         print("No dataframe passed!")
         return
     else:
         try:
-            nodes,edges = get_nodes_and_edges(df)
+            nodes, edges = get_nodes_and_edges(df)
         except:
             print('Something went wrong. Nodes and edges creation unsuccessful.')
-            return False,False
-        return nodes,edges
+            return False, False
+        return nodes, edges
+
+
+def filter_subject_matter(df=None, phrase=None):
+    if df is None or phrase is None:
+        print("Incorrect input values! \n Returning... \n")
+    else:
+        try:
+            mask = df["LEGAL RESOURCE IS ABOUT SUBJECT MATTER"].str.lower().str.contains(phrase)
+            return df[mask]
+        except:
+            print("Something went wrong!\n Returning... \n")

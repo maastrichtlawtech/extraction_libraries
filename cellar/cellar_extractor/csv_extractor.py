@@ -24,6 +24,7 @@ if __name__ == '__main__':
     print("")
     print("EXTRACTION FROM CSV FILE IN DATA PROCESSED DIR STARTED")
     print("")
+    DIR_DATA_RAW=''
     csv_files = (glob.glob(DIR_DATA_RAW + "/" + "*.csv"))
     print(f"FOUND {len(csv_files)} CSV FILES")
 

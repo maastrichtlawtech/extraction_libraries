@@ -1,3 +1,4 @@
 from cellar_extractor.cellar import get_cellar
 from cellar_extractor.cellar import get_cellar_extra
 from cellar_extractor.cellar import get_nodes_and_edges_lists
+from cellar_extractor.cellar import filter_subject_matter

@@ -57,6 +57,8 @@ Python 3.9
     <li><code>get_nodes_and_edges_lists</code></li>
     Gets 2 list objects, one for the nodes and edges of the citations within the passed dataframe.
     Allows the creation of a network graph of the citations. Can only be returned in-memory.
+    <li><code>filter_subject_matter</code></li>
+    Returns a dataframe of cases only containing a certain phrase in the column containing the subject of cases.
     <br>
 </ol>
 
@@ -102,6 +104,13 @@ Python 3.9
         <li><strong>df: DataFrame object, required, default None</strong></li>
         DataFrame of cellar metadata acquired from the get_cellar_extra method with eurlex webservice credentials passed.
         This method will only work on dataframes with citations data.
+    </ul>
+    <li><code>filter_subject_matter</code></li>
+    <ul>
+        <li><strong>df: DataFrame object, required, default None</strong></li>
+        DataFrame of cellar metadata acquired from any of the cellar extraction methods listed above.
+        <li><strong>phrase: string, required, default None</strong></li>
+        The phrase which has to be present in the subject matter of cases. Case insensitive.
     </ul>
 </ol>
 
