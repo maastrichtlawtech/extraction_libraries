@@ -74,17 +74,16 @@ def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", thre
         return data, json
 
 
-def get_nodes_and_edges_lists(df=None):
+def get_nodes_and_edges_lists(df=None, only_local=False):
     if df is None:
         print("No dataframe passed!")
         return
-    else:
-        try:
-            nodes, edges = get_nodes_and_edges(df)
-        except:
-            print('Something went wrong. Nodes and edges creation unsuccessful.')
-            return False, False
-        return nodes, edges
+    try:
+        nodes, edges = get_nodes_and_edges(df,only_local)
+    except:
+        print('Something went wrong. Nodes and edges creation unsuccessful.')
+        return False, False
+    return nodes, edges
 
 
 def filter_subject_matter(df=None, phrase=None):

@@ -104,6 +104,9 @@ Python 3.9
         <li><strong>df: DataFrame object, required, default None</strong></li>
         DataFrame of cellar metadata acquired from the get_cellar_extra method with eurlex webservice credentials passed.
         This method will only work on dataframes with citations data.
+        <li><strong>only_local: boolean, optional, default False</strong></li>
+        Flag for nodes and edges generation. If set to True, the network created will only include nodes and edges between 
+        cases exclusively inside the given dataframe.
     </ul>
     <li><code>filter_subject_matter</code></li>
     <ul>
