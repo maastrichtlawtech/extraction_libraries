@@ -9,11 +9,11 @@ long_descr = p.read_text()
 setup(
     name='echr_extractor',
     packages=find_packages(include=['echr_extractor']),
-    version='1.0.25',
+    version='1.0.26',
     description='Library for extracting ECHR data',
     author='LawTech Lab',
     license='MIT',
-    install_requires=["requests~=2.26.0","pandas~=2.0.3","beautifulsoup4~=4.9.3", "dateparser"],
+    install_requires=["requests~=2.26.0","pandas","beautifulsoup4~=4.9.3", "dateparser"],
     author_email='a.gade@student.maastrichtuniversity.nl',
     keywords=['echr', 'extractor', 'european', 'convention', 'human', 'rights', 'european convention', 'human rights',
               'european convention on human rights'],
