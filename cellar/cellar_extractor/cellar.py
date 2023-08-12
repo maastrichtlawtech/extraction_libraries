@@ -91,7 +91,7 @@ def filter_subject_matter(df=None, phrase=None):
         print("Incorrect input values! \n Returning... \n")
     else:
         try:
-            mask = df["LEGAL RESOURCE IS ABOUT SUBJECT MATTER"].str.lower().str.contains(phrase,na=False)
+            mask = df["LEGAL RESOURCE IS ABOUT SUBJECT MATTER"].str.lower().str.contains(phrase.lower(), na=False)
             return df[mask]
         except Exception as e:
             print(e)

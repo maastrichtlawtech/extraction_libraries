@@ -24,7 +24,7 @@ if __name__ == '__main__':
    text = get_full_text_from_html(site)
    cits = get_citations_with_extra_info(text)
    print(cits)
-   data,d2 = get_cellar_extra(sd='2023-01-01',max_ecli=100,save_file='n')
+   data = get_cellar(sd='2023-01-01',max_ecli=100,save_file='n')
    d3 = filter_subject_matter(data, "prices")
    b=2
    pass
