@@ -1,9 +1,8 @@
 import re
-
 import dateparser
 import numpy as np
 import pandas as pd
-
+from tqdm import tqdm
 from echr_extractor.clean_ref import clean_pattern
 
 
@@ -50,7 +49,9 @@ def retrieve_edges_list(df):
 
     count = 0
     missing_cases = []
+    bar = tqdm(total=len(df.index), colour="GREEN", position=0, leave=True)
     for index, item in df.iterrows():
+        bar.update(1)
         eclis = []
         extracted_appnos = []
         if item.extractedappno is not np.nan:
