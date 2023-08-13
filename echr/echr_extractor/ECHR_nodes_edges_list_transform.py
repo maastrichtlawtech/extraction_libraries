@@ -105,7 +105,7 @@ def retrieve_edges_list(df):
                 missing_cases.append(ref)
 
         eclis = set(eclis)
-
+        eclis = [i for i in eclis if i]
         # add ecli to edges list
         if len(eclis) == 0:  # This should not have to happen at every iteration, concat might be slow
             continue
