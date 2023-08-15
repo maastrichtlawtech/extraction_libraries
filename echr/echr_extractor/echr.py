@@ -84,8 +84,8 @@ def get_echr_extra(start_id=0, end_id=None, start_date=None, count=None, end_dat
         return df, json_list
 
 
-def get_nodes_edges(metadata_path=None, dataframe=None, save_file='y'):
-    nodes, edges = echr_nodes_edges(metadata_path=metadata_path, data=dataframe)
+def get_nodes_edges(metadata_path=None, df=None, save_file='y'):
+    nodes, edges = echr_nodes_edges(metadata_path=metadata_path, data=df)
     if save_file == "y":
         Path('data').mkdir(parents=True, exist_ok=True)
         edges.to_csv(os.path.join('data', 'ECHR_edges.csv'), index=False, encoding='utf-8')

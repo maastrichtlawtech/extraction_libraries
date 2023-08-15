@@ -97,8 +97,6 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         The end publication date (yyyy-mm-dd)
         <li><strong>verbose: boolean, optional, default False</strong></li>
         This option allows for additional printing, showing live progress of the extraction process.
-        <li><strong>skip_missing_dates: boolean, optional, default False</strong></li>
-        This option makes the extraction not collect data for cases where there is no judgement date provided.
         <li><strong>fields: list of strings, optional, default all available fields</strong></li>
         This argument can be provided, to limit the metadata to be downloaded. These fields will appear as 
         different columns in the csv file / Dataframe object. The full list of fields is attached in the appendix.
@@ -151,6 +149,8 @@ On top of that downloads the full text for each case downloaded. Can be saved in
     <ul>
         <li><strong>metadata_path</strong></li>
         The path to the metadata file to read.
+        <li><strong>df</strong></li>
+        Alternative to metadata_path, user can provide a Pandas Dataframe object. In case both are given, df is ignored.
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
         Save the nodes and edges of cases in metadata as csv files in the data folder, or return them as Pandas Dataframe objects in-memory.
     </ul>
