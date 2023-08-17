@@ -8,8 +8,8 @@ def get_df_with_celexes(df,celexes):
 def get_edges_list(df,only_local):
     extraction = df[['CELEX IDENTIFIER','citing']]
     extraction.reset_index(inplace=True)
-    keys = extraction['CELEX IDENTIFIER']
-    vals = extraction['citing']
+    keys = extraction['CELEX IDENTIFIER'].tolist()
+    vals = extraction['citing'].tolist()
     nodes = set()
     edges = list()
     for i in range(len(keys)):
