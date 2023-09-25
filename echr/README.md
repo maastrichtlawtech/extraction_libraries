@@ -180,7 +180,7 @@ nodes, edges = echr.get_nodes_edges(metadata_path='data/echr_metadata.csv',save_
 [![License: Apache 2.0](https://img.shields.io/github/license/maastrichtlawtech/extraction_libraries)](https://opensource.org/licenses/Apache-2.0)
 
 Previously under the [MIT License](https://opensource.org/licenses/MIT), as of 28/10/2022 this work is licensed under a [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0).
-```
+
 Apache License, Version 2.0
 
 Copyright (c) 2022 Maastricht Law & Tech Lab
@@ -208,6 +208,12 @@ https://hudoc.echr.coe.int/eng#%20
 
 There, the user can use the tools of Advanced Search of HUDOC to search for specific cases.
 Afterwards*, the user can copy the link of the current website, and pass it on to the extraction methods. 
+
+Known issues with the 'link' method:
+
+- Using the " character in your searches will cause the extraction to fail. It will only work if that character is in the
+Text section, where it is essential for proper use of the search. In all the other search fields, please do not use the " character.
+If it is essential for you work, please raise an issue on Github, and we can try to manually fix another field.
 
 
 * It should be noted that the link only updates after the 'search' button  of the Advanced Search is clicked.

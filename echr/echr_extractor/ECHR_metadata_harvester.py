@@ -41,6 +41,22 @@ def basic_function(term, values):
 
 
 def link_to_query(link):
+
+    # fixing fulltext shenanigans - happen because of people using " in the queries.
+
+    full_text_input = ''
+    fulltext_end = -1
+    fulltext_start = link.find('fulltext')
+    if fulltext_start:
+        start = link[fulltext_start:].find('[')+fulltext_start+1
+        fulltext_end = link[fulltext_start:].find(']')+fulltext_start
+        fragment_to_fix = link[start:fulltext_end]
+        full_text_input = '('+   "".join(fragment_to_fix.rsplit('"', 1)).replace('"',"",1) +')'
+        # removing first and last " elements and saving the output to put manually later
+    if(fulltext_end):
+        to_replace = link[fulltext_start-1:fulltext_end+2]
+        link = link.replace(to_replace,'')
+
     extra_cases_map = {
         "bodyprocedure": '("PROCEDURE" ONEAR(n=1000) terms OR "PROCÉDURE" ONEAR(n=1000) terms)',
         "bodyfacts": '("THE FACTS" ONEAR(n=1000) terms OR "EN FAIT" ONEAR(n=1000) terms)',
@@ -105,6 +121,8 @@ def link_to_query(link):
                  ' AND (NOT (doctype=PR OR doctype=HFCOMOLD OR doctype=HECOMOLD)) AND ' \
                  'inPutter&select={select}&sort=itemid%20Ascending&start={start}&length={length}'
     query_elements = list()
+    if(full_text_input):
+        query_elements.append(full_text_input)
     date_addition = ''
     for key in list(link_dictionary.keys()):
         if key == "kpdate":
@@ -151,7 +169,7 @@ def get_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date, l
                   'AAMEnabledManagedProperties', 'ResultTypeId', 'rendertemplateid']
     if link:
         META_URL = link_to_query(link)
-
+        b=2
     else:
         META_URL = 'http://hudoc.echr.coe.int/app/query/results' \
                    '?query=(contentsitename=ECHR) AND ' \
