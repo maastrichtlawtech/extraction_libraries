@@ -211,7 +211,7 @@ def get_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date, l
     logging.info(url)
     r = requests.get(url)
     resultcount = r.json()['resultcount']
-    logging.info("available results: " + resultcount)
+    logging.info("available results: " + str(resultcount))
 
     if not end_id:
         end_id = resultcount
