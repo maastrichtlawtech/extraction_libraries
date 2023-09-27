@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from pathlib import Path
 
@@ -22,7 +23,7 @@ def get_echr(start_id=0, end_id=None, start_date=None, count=None, end_date=None
         language = ["ENG"]
     if count:
         end_id = int(start_id) + count
-    print(f"--- STARTING ECHR DOWNLOAD FOR  ---")
+    logging.info(f"--- STARTING ECHR DOWNLOAD FOR  ---")
     df = get_echr_metadata(start_id=start_id, end_id=end_id, start_date=start_date, end_date=end_date,
                            verbose=verbose, fields=fields, link=link, language=language)
     if df is False:
@@ -32,10 +33,10 @@ def get_echr(start_id=0, end_id=None, start_date=None, count=None, end_date=None
         Path('data').mkdir(parents=True, exist_ok=True)
         file_path = os.path.join('data', filename + '.csv')
         df.to_csv(file_path, index=False)
-        print("\n--- DONE ---")
+        logging.info("\n--- DONE ---")
         return df
     else:
-        print("\n--- DONE ---")
+        logging.info("\n--- DONE ---")
         return df
 
 
@@ -65,11 +66,11 @@ def get_echr_extra(start_id=0, end_id=None, start_date=None, count=None, end_dat
                    save_file='y', threads=10, fields=None, link=None, language=None):
     df = get_echr(start_id=start_id, end_id=end_id, start_date=start_date, end_date=end_date, verbose=verbose,
                   count=count, save_file='n', fields=fields, link=link, language=language)
-    print("Full-text download will now begin")
+    logging.info("Full-text download will now begin")
     if df is False:
         return False, False
     json_list = download_full_text_main(df, threads)
-    print("Full-text download finished")
+    logging.info("Full-text download finished")
     if save_file == "y":
         filename = determine_filename(start_id, end_id, start_date, end_date)
         filename_json = filename.replace("metadata", "full_text")

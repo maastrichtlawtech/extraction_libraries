@@ -1,8 +1,11 @@
+import logging
 import re
+
 import dateparser
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+
 from echr_extractor.clean_ref import clean_pattern
 
 
@@ -16,7 +19,7 @@ def open_metadata(PATH_metadata):
         df = pd.read_csv(PATH_metadata)  # change hard coded path
         return df
     except FileNotFoundError:
-        print("File not found. Please check the path to the metadata file.")
+        logging.warning("File not found. Please check the path to the metadata file.")
         return False
 
 
@@ -264,16 +267,16 @@ def echr_nodes_edges(metadata_path=None, data=None):
     """
     Create nodes and edges list for the ECHR data.
     """
-    print('\n--- COLLECTING METADATA ---\n')
+    logging.info('\n--- COLLECTING METADATA ---\n')
     if metadata_path:
         data = open_metadata(metadata_path)
     elif data is None:
-        print("No dataframe data provided. Returning...")
+        logging.warning("No dataframe data provided. Returning...")
         return "", ""
-    print('\n--- EXTRACTING NODES LIST ---\n')
+    logging.info('\n--- EXTRACTING NODES LIST ---\n')
     # get_language_from_metadata(nodes)
 
-    print('\n--- EXTRACTING EDGES LIST ---\n')
+    logging.info('\n--- EXTRACTING EDGES LIST ---\n')
     edges = retrieve_edges_list(data)
 
     # nodes.to_json(JSON_ECHR_NODES, orient="records")

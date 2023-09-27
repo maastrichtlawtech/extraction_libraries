@@ -1,7 +1,9 @@
 ## echr extractor
+
 This library contains functions to get ECHR data.
 
 ## Version
+
 Python 3.9
 
 ## Contributors
@@ -63,9 +65,11 @@ Python 3.9
 <!-- readme: contributors,gijsvd -end -->
 
 ## How to install?
+
 <code>pip install echr-extractor</code>
 
 ## What are the functions?
+
 <ol>
     <li><code>get_echr</code></li>
      Gets all of the available metadata for echr cases from the HUDOC database.
@@ -80,6 +84,7 @@ On top of that downloads the full text for each case downloaded. Can be saved in
 </ol>
 
 ## What are the parameters?
+
 <ol>
     <li><code>get_echr</code></li> 
     <ul>
@@ -174,6 +179,7 @@ df = echr.get_echr(start_id=1000,count=2000,save_file='n',verbose=True)
 
 nodes, edges = echr.get_nodes_edges(metadata_path='data/echr_metadata.csv',save_file='n')
 ```
+
 ```
 
 ## License
@@ -197,7 +203,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
-
 
 ## Appendix
 
@@ -230,4 +235,5 @@ fields = ['itemid','applicability','application','appno','article','conclusion',
 'sharepointid','typedescription','nonviolation','violation']
 
 ```
+
 These fields can take different values, for more information head to https://hudoc.echr.coe.int.
