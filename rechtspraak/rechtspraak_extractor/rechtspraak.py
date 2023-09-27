@@ -7,7 +7,7 @@
 
 import json
 import xmltodict
-import os
+import logging
 from datetime import date, datetime
 from rechtspraak_extractor.rechtspraak_functions import *
 
@@ -65,11 +65,11 @@ def save_csv(json_object, file_name, save_file):
         # Save CSV file
         # file_path = os.path.join('data', file_name + '.csv')
         df.to_csv('data/' + file_name + '.csv', index=False, encoding='utf8')
-        print("Data saved to CSV file successfully.")
+        logging.info("Data saved to CSV file successfully.")
     return df
 
 def get_rechtspraak(max_ecli=100, sd='1900-01-01', ed=None, save_file='y'):
-    print("Rechtspraak dump downloader API")
+    logging.info("Rechtspraak dump downloader API")
 
     amount = max_ecli
     starting_date = sd
@@ -88,15 +88,15 @@ def get_rechtspraak(max_ecli=100, sd='1900-01-01', ed=None, save_file='y'):
     # Build the URL after getting all the arguments
     url = RECHTSPRAAK_API_BASE_URL + 'max=' + str(amount) + '&date=' + starting_date + '&date=' + ending_date
 
-    print("Checking the API")
+    logging.info("Checking the API")
     # Check the working of API
     response_code = check_api(url)
     if response_code == 200:
-        print("API is working fine!")
-        print("Getting " + str(amount) + " documents from " + starting_date + " till " + ending_date)
+        logging.info("API is working fine!")
+        logging.info("Getting " + str(amount) + " documents from " + starting_date + " till " + ending_date)
 
         json_object = get_data_from_url(url)
-        print(f"Found {len(json_object)} cases!")
+        logging.info(f"Found {len(json_object)} cases!")
         if json_object:
             # Get current time
             current_time = datetime.now().strftime("%H-%M-%S")
@@ -114,4 +114,4 @@ def get_rechtspraak(max_ecli=100, sd='1900-01-01', ed=None, save_file='y'):
                 save_csv(json_object, file_name, save_file)
                 return
     else:
-        print(f"URL returned with a {response_code} error code")
+        logging.info(f"URL returned with a {response_code} error code")

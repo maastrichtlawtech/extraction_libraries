@@ -1,4 +1,4 @@
-import requests, glob, time
+import requests, glob, time, logging
 from pathlib import Path
 import pandas as pd
 
@@ -28,7 +28,7 @@ def read_csv(dir_name, exclude=None):
             if "rechtspraak" in i:
                 files.append(i)
 
-    print("Found " + str(len(files)) + " CSV file(s)\n")
+    logging.info("Found " + str(len(files)) + " CSV file(s)\n")
     return files
 
 
@@ -40,5 +40,5 @@ def get_exe_time(start_time):
     sec = sec % 60
     hours = mins // 60
     mins = mins % 60
-    print("Total execution time: {0}:{1}:{2}".format(int(hours), int(mins), round(sec, 2)))
-    print("\n")
+    logging.info("Total execution time: {0}:{1}:{2}".format(int(hours), int(mins), round(sec, 2)))
+    logging.info("\n")

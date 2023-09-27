@@ -2,7 +2,7 @@ import json
 import threading
 import time
 import urllib.request
-
+import logging
 import pandas as pd
 import rdflib
 import requests
@@ -306,17 +306,17 @@ def extract_results_legislations(list, ecli, fields, username, password):
 
 def get_citations(dataframe=None, username="", password="", threads=1):
     if dataframe is None or not username or not password:
-        print("Incorrect arguments passed. Returning...")
+        logging.warning("Incorrect arguments passed. Returning...")
         return False
     try:
         get_lido_response(LIDO_ENDPOINT, username, password)
     except:
-        print('LIDO cannot be accessed with these login details. Returning...')
+        logging.warning('LIDO cannot be accessed with these login details. Returning...')
         return False
-    print('\n--- START OF RS CITATIONS EXTRACTIONS ---\n')
+    logging.info('\n--- START OF RS CITATIONS EXTRACTIONS ---\n')
 
     # find citations, and save the file incrementally
     df = find_citations_for_cases_multithread(dataframe, username, password, threads)
 
-    print("\n--- DONE ---")
+    logging.info("\n--- DONE ---")
     return df

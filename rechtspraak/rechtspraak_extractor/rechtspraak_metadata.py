@@ -9,7 +9,7 @@ import multiprocessing
 from bs4 import BeautifulSoup
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
-import platform
+import logging
 import shutil
 from tqdm import tqdm
 from rechtspraak_extractor.rechtspraak_functions import *
@@ -47,7 +47,7 @@ def get_cores():
     max_workers = n_cores-1
     # If the main process is computationally intensive: Set to the number of logical CPU cores minus one.
 
-    print(f"Maximum " + str(max_workers) + " threads supported by your machine.")
+    logging.info(f"Maximum " + str(max_workers) + " threads supported by your machine.")
 
 
 def extract_data_from_xml(url):
@@ -162,14 +162,14 @@ def get_data_from_api(ecli_id):
 
 def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
     if dataframe is not None and filename is not None:
-        print(f"Please provide either a dataframe or a filename, but not both")
+        logging.warning(f"Please provide either a dataframe or a filename, but not both")
         return False
 
     if dataframe is None and filename is None and save_file == 'n':
-        print(f"Please provide at least a dataframe of filename when the save_file is \"n\"")
+        logging.warning(f"Please provide at least a dataframe of filename when the save_file is \"n\"")
         return False
 
-    print("Rechtspraak metadata API")
+    logging.info("Rechtspraak metadata API")
 
     start_time = time.time()  # Get start time
 
@@ -183,20 +183,20 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
             rs_data = dataframe
             no_of_rows = rs_data.shape[0]
         else:
-            print("Dataframe is corrupted or does not contain necessary information to get the metadata.")
+            logging.info("Dataframe is corrupted or does not contain necessary information to get the metadata.")
             return False
 
     # Check if filename is provided and is correct
     if filename is not None:
-        print("Reading " + filename + " from data folder")
+        logging.info("Reading " + filename + " from data folder")
         file_check = pathlib.Path("data/" + filename)
         if file_check.is_file():
-            print("File found. Checking if metadata already exists")
+            logging.info("File found. Checking if metadata already exists")
             # Check if metadata already exists
             file_check = Path("data/" + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4]
                               + "_metadata.csv")
             if file_check.is_file():
-                print("Metadata for " + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4] +
+                logging.info("Metadata for " + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4] +
                       ".csv already exists.")
                 return False
             else:
@@ -204,19 +204,19 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 if 'id' in rs_data and 'link' in rs_data:
                     no_of_rows = rs_data.shape[0]
                 else:
-                    print("File is corrupted or does not contain necessary information to get the metadata.")
+                    logging.warning("File is corrupted or does not contain necessary information to get the metadata.")
                     return False
         else:
-            print("File not found. Please check the file name.")
+            logging.info("File not found. Please check the file name.")
             return False
 
     get_cores()  # Get number of cores supported by the CPU
 
     if dataframe is None and filename is None and save_file == 'y':
-        print("No dataframe or file name is provided. Getting the metadata of all the files present in the "
+        logging.info("No dataframe or file name is provided. Getting the metadata of all the files present in the "
               "data folder")
 
-        print("Reading all CSV files in the data folder...")
+        logging.info("Reading all CSV files in the data folder...")
         csv_files = read_csv('data', "metadata")
 
         global ecli_df, full_text_df, creator_df, date_decision_df, issued_df, zaaknummer_df, \
@@ -235,13 +235,13 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 # Check if file already exists
                 file_check = Path("data/" + temp_file_name + "_metadata.csv")
                 if file_check.is_file():
-                    print("Metadata for " + temp_file_name + ".csv already exists.")
+                    logging.info("Metadata for " + temp_file_name + ".csv already exists.")
                     continue
 
                 rs_data = pd.read_csv(f)
                 no_of_rows = rs_data.shape[0]
-                print("Getting metadata of " + str(no_of_rows) + " ECLIs from " + temp_file_name + ".csv")
-                print("Working. Please wait...")
+                logging.info("Getting metadata of " + str(no_of_rows) + " ECLIs from " + temp_file_name + ".csv")
+                logging.info("Working. Please wait...")
 
                 # Get all ECLIs in a list
                 ecli_list = list(rs_data.loc[:, 'id'])
@@ -276,14 +276,14 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                 Path('data').mkdir(parents=True, exist_ok=True)
 
                 if check_if_df_empty(rsm_df):
-                    print("Metadata not found. Please check the API response; either API is under maintenance, "
+                    logging.warning("Metadata not found. Please check the API response; either API is under maintenance, "
                           "experiencing problems, or has changed. Please try again after some time or contact the "
                           "administrator.\n")
                 else:
                     # Save CSV file
-                    print("Creating CSV file...")
+                    logging.info("Creating CSV file...")
                     rsm_df.to_csv("data/" + temp_file_name + "_metadata.csv", index=False, encoding='utf8')
-                    print("CSV file " + temp_file_name + "_metadata.csv  successfully created.\n")
+                    logging.info("CSV file " + temp_file_name + "_metadata.csv  successfully created.\n")
 
                 # Clear the lists for the next file
                 ecli_df = []
@@ -308,8 +308,8 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
                                        'zaaknummer','type','relations','references', 'subject', 'procedure',
                                         'inhoudsindicatie','hasVersion'])
 
-        print("Getting metadata of " + str(no_of_rows) + " ECLIs")
-        print("Working. Please wait...")
+        logging.info("Getting metadata of " + str(no_of_rows) + " ECLIs")
+        logging.info("Working. Please wait...")
         # Get all ECLIs in a list
         ecli_list = list(rs_data.loc[:, 'id'])
 
@@ -351,15 +351,15 @@ def get_rechtspraak_metadata(save_file='n', dataframe=None, filename=None):
             Path('data').mkdir(parents=True, exist_ok=True)
 
             if check_if_df_empty(rsm_df):
-                print("Metadata not found. Please check the API response; either API is under maintenance, "
+                logging.warning("Metadata not found. Please check the API response; either API is under maintenance, "
                       "experiencing problems, or has changed. Please try again after some time or contact the "
                       "administrator.\n")
             else:
                 # Save CSV file
-                print("Creating CSV file...")
+                logging.info("Creating CSV file...")
                 rsm_df.to_csv("data/" + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4] + "_metadata.csv",
                               index=False, encoding='utf8')
-                print("CSV file " + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4] + "_metadata.csv" +
+                logging.info("CSV file " + filename.split('/')[-1][:len(filename.split('/')[-1]) - 4] + "_metadata.csv" +
                       " successfully created.\n")
 
         # Clear the lists for the next file
