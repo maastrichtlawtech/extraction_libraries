@@ -3,7 +3,7 @@ import os
 import time
 from datetime import datetime
 from pathlib import Path
-
+import logging
 from tqdm import tqdm
 
 from cellar_extractor.cellar_extra_extract import extra_cellar
@@ -17,16 +17,16 @@ def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_forma
         ed = datetime.now().isoformat(timespec='seconds')
     file_name = 'cellar_' + sd + '_' + ed
     file_name = file_name.replace(":", "_")
-    print('\n--- PREPARATION ---\n')
-    print(f'Starting from specified start date: {sd}')
-    print(f'Up until the specified end date {ed}')
+    logging.info('\n--- PREPARATION ---\n')
+    logging.info(f'Starting from specified start date: {sd}')
+    logging.info(f'Up until the specified end date {ed}')
     eclis = get_all_eclis(starting_date=sd, ending_date=ed)
-    print(f"Found {len(eclis)} ECLIs")
+    logging.info(f"Found {len(eclis)} ECLIs")
     time.sleep(1)
     if len(eclis) > max_ecli:
         eclis = eclis[:max_ecli]
     if len(eclis) == 0:
-        print(f"No data to download found between {sd} and {ed}")
+        logging.info(f"No data to download found between {sd} and {ed}")
         return False
     all_eclis = {}
     concurrent_docs = 100
@@ -48,7 +48,7 @@ def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_forma
             return df
         else:
             return all_eclis
-    print("\n--- DONE ---")
+    logging.info("\n--- DONE ---")
 
 
 def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", threads=10, username="", password=""):
@@ -56,44 +56,44 @@ def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", thre
         ed = datetime.now().isoformat(timespec='seconds')
     data = get_cellar(ed=ed, save_file='n', max_ecli=max_ecli, sd=sd, file_format='csv')
     if data is False:
-        print("Cellar extraction unsuccessful")
+        logging.warning("Cellar extraction unsuccessful")
         return False, False
-    print("\n--- START OF EXTRA EXTRACTION ---")
+    logging.info("\n--- START OF EXTRA EXTRACTION ---")
     file_name = 'cellar_extra_' + sd + '_' + ed
     file_name = file_name.replace(":", "_")
     file_path = os.path.join('data', file_name + '.csv')
     if save_file == 'y':
         Path('data').mkdir(parents=True, exist_ok=True)
         extra_cellar(data=data, filepath=file_path, threads=threads, username=username, password=password)
-        print("\n--- DONE ---")
+        logging.info("\n--- DONE ---")
 
     else:
         data, json = extra_cellar(data=data, threads=threads, username=username, password=password)
-        print("\n--- DONE ---")
+        logging.info("\n--- DONE ---")
 
         return data, json
 
 
 def get_nodes_and_edges_lists(df=None, only_local=False):
     if df is None:
-        print("No dataframe passed!")
+        logging.warning("No dataframe passed!")
         return
     try:
         nodes, edges = get_nodes_and_edges(df,only_local)
     except:
-        print('Something went wrong. Nodes and edges creation unsuccessful.')
+        logging.warning('Something went wrong. Nodes and edges creation unsuccessful.')
         return False, False
     return nodes, edges
 
 
 def filter_subject_matter(df=None, phrase=None):
     if df is None or phrase is None:
-        print("Incorrect input values! \n Returning... \n")
+        logging.info("Incorrect input values! \n Returning... \n")
     else:
         try:
             mask = df["LEGAL RESOURCE IS ABOUT SUBJECT MATTER"].str.lower().str.contains(phrase.lower(), na=False)
             return df[mask]
         except Exception as e:
-            print(e)
-            print("Something went wrong!\n Returning... \n")
+            logging.warning(e)
+            logging.warning("Something went wrong!\n Returning... \n")
             return None

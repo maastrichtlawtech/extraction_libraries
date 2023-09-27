@@ -1,6 +1,7 @@
 import csv
 import re
 import warnings
+import logging
 from bs4 import BeautifulSoup
 import sys
 import pandas as pd
@@ -90,8 +91,8 @@ def read_csv(file_path):
         data = pd.read_csv(file_path, sep=",", encoding='utf-8')
         return data
     except Exception:
-        print("Something went wrong when trying to open the csv file!")
-        print(f" The path to the file was {file_path}")
+        logging.info("Something went wrong when trying to open the csv file!")
+        logging.info(f" The path to the file was {file_path}")
         sys.exit(2)
 
 
@@ -112,10 +113,10 @@ def json_to_csv_returning(json_data):
         if final_data:
             return create_csv_returning(final_data)
         else:
-            print("Error creating dataframe. Data is empty.")
+            logging.info("Error creating dataframe. Data is empty.")
             return False
     else:
-        print("Error reading json file. Please make sure json file exists and contains data.")
+        logging.info("Error reading json file. Please make sure json file exists and contains data.")
         return False
 
 
@@ -125,9 +126,9 @@ def json_to_csv_main(json_data, filepath):
         if final_data:
             create_csv(filepath=filepath, encoding="UTF8", data=final_data)
         else:
-            print("Error creating CSV file. Data is empty.")
+            logging.info("Error creating CSV file. Data is empty.")
             return False
     else:
-        print("Error reading json file. Please make sure json file exists and contains data.")
+        logging.info("Error reading json file. Please make sure json file exists and contains data.")
         return False
     return True
