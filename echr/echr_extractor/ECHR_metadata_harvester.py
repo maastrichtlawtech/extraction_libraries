@@ -3,7 +3,7 @@ from datetime import datetime
 
 import pandas as pd
 import requests
-
+logging.basicConfig(level=logging.INFO)
 
 def get_r(url, timeout, retry, verbose):
     """
@@ -42,6 +42,15 @@ def basic_function(term, values):
 
 
 def link_to_query(link):
+    #Fixing brackets
+    link = link.replace('%7B','{')
+    link = link.replace('%7D', '}')
+    link = link.replace('%5B', '[')
+    link = link.replace('%5D', ']')
+    link = link.replace('%22', '"')
+    link = link.replace('%27', "'")
+
+
     # fixing fulltext shenanigans - happen because of people using " in the queries.
 
     full_text_input = ''
@@ -54,7 +63,7 @@ def link_to_query(link):
         full_text_input = '(' + "".join(fragment_to_fix.rsplit('"', 1)).replace('"', "", 1) + ')'
         # removing first and last " elements and saving the output to put manually later
     if (fulltext_end):
-        to_replace = link[fulltext_start - 1:fulltext_end + 2]
+        to_replace = link[fulltext_start - 1:fulltext_end + 1]
         link = link.replace(to_replace, '')
 
     extra_cases_map = {

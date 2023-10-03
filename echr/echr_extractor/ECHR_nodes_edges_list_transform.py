@@ -7,7 +7,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from echr_extractor.clean_ref import clean_pattern
-
+logging.basicConfig(level=logging.INFO)
 
 def open_metadata(PATH_metadata):
     """
