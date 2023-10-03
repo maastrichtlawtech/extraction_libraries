@@ -3,7 +3,7 @@ from datetime import datetime
 
 import pandas as pd
 import requests
-logging.basicConfig(level=logging.INFO)
+
 
 def get_r(url, timeout, retry, verbose):
     """
@@ -42,14 +42,13 @@ def basic_function(term, values):
 
 
 def link_to_query(link):
-    #Fixing brackets
-    link = link.replace('%7B','{')
+    # Fixing brackets
+    link = link.replace('%7B', '{')
     link = link.replace('%7D', '}')
     link = link.replace('%5B', '[')
     link = link.replace('%5D', ']')
     link = link.replace('%22', '"')
     link = link.replace('%27', "'")
-
 
     # fixing fulltext shenanigans - happen because of people using " in the queries.
 

@@ -1,6 +1,7 @@
+import logging
 import sys
 from os.path import abspath
-import logging
+
 import echr_extractor
 
 current_dir = (abspath(__file__))
