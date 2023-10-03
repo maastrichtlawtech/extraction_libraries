@@ -9,7 +9,7 @@ long_descr = p.read_text()
 setup(
     name='rechtspraak_extractor',
     packages=find_packages(include=['rechtspraak_extractor']),
-    version='1.1.20',
+    version='1.1.21',
     description='Library for extracting rechtspraak data',
     author='LawTech Lab',
     license='MIT',
