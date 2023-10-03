@@ -209,6 +209,7 @@ def get_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date, l
 
     META_URL = META_URL.replace(' ', '%20')
     META_URL = META_URL.replace('"', '%22')
+    META_URL = META_URL.replace('%5C','')
     language_input = basic_function('languageisocode', language)
     if not link:
         META_URL = META_URL.replace('lang_inputter', language_input)
