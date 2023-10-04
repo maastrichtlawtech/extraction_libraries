@@ -18,14 +18,14 @@ already but feel free to shoot me a message about it seeing as I did something s
 
 
 def get_echr(start_id=0, end_id=None, start_date=None, count=None, end_date=None, verbose=False, save_file='y',
-             fields=None, link=None, language=None):
+             fields=None, link=None, language=None, query_payload=None):
     if language is None:
         language = ["ENG"]
     if count:
         end_id = int(start_id) + count
     logging.info(f"--- STARTING ECHR DOWNLOAD FOR  ---")
     df = get_echr_metadata(start_id=start_id, end_id=end_id, start_date=start_date, end_date=end_date,
-                           verbose=verbose, fields=fields, link=link, language=language)
+                           verbose=verbose, fields=fields, link=link, language=language,query_payload=query_payload)
     if df is False:
         return False
     if save_file == "y":
@@ -63,9 +63,9 @@ def determine_filename(start_id, end_id, start_date, end_date):
 
 
 def get_echr_extra(start_id=0, end_id=None, start_date=None, count=None, end_date=None, verbose=False,
-                   save_file='y', threads=10, fields=None, link=None, language=None):
+                   save_file='y', threads=10, fields=None, link=None, language=None,query_payload=None):
     df = get_echr(start_id=start_id, end_id=end_id, start_date=start_date, end_date=end_date, verbose=verbose,
-                  count=count, save_file='n', fields=fields, link=link, language=language)
+                  count=count, save_file='n', fields=fields, link=link, language=language, query_payload= query_payload)
     logging.info("Full-text download will now begin")
     if df is False:
         return False, False

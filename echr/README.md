@@ -108,12 +108,18 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         <li><strong>save_file: ['y', 'n'],optional, default 'y'</strong></li>
         Save metadata as a csv file in the data folder, or return as a Pandas DataFrame object in-memory.
         <li><strong>link: string ,optional, default None </strong></li>
-        Allows the user to download results of a search from the HUDOC website. If this argument is provided, all
-        the other arguments are ignored, except for 'fields'. Further information on proper usage is in the Appendix.
+        Allows the user to download results of a search from the HUDOC website. Since the HUDOC does not provide any proper API documentation,
+        this method attempts to recreate an API call based on observer relation between the browser link and API call. 
+        This method might encounter errors, as there are possible behaviors that were not tested.
+        If this argument is provided, all the other arguments are ignored, except for 'fields'. Further information on proper usage is in the Appendix.
+        <li><strong>query_payload: string ,optional, default None </strong></li>
+        Allows the user to download results of a search from the HUDOC website. If this argument is provided, it takes priority over the 'link' parameter.
+        This method is much more robust than using the 'link' parameter. It requires the user to access the Network tab on his browser - 
+        full information on proper usage is in the Appendix.
         <li><strong>language: list of strings, optional, default ['ENG']</strong></li>
         The language of the metadata to be downloaded from the available languages.
         <br><strong>!NOTICE!</strong><br>
-        If link is provided, the language argument will not be used, as the language also appears in the link.
+        If link or query payload are provided, the language argument will not be used, as the language also appears in the link and query.
 </ul>
     <li><code>get_echr_extra</code></li>
     <ul> 
@@ -142,10 +148,16 @@ On top of that downloads the full text for each case downloaded. Can be saved in
         <li><strong>language: list of strings, optional, default ['ENG']</strong></li>
         The language of the metadata to be downloaded from the available languages.
         <br><strong>!NOTICE!</strong><br>
-        If link is provided, the language argument will not be used, as the language also appears in the link.
+        If link or query payload are provided, the language argument will not be used, as the language also appears in the link and query.
         <li><strong>link: string ,optional, default None </strong></li>
-        Allows the user to download results of a search from the HUDOC website. If this argument is provided, all
-        the other arguments are ignored, except for 'fields'. Further information on proper usage is in the Appendix.
+        Allows the user to download results of a search from the HUDOC website. Since the HUDOC does not provide any proper API documentation,
+        this method attempts to recreate an API call based on observer relation between the browser link and API call. 
+        This method might encounter errors, as there are possible behaviors that were not tested.
+        If this argument is provided, all the other arguments are ignored, except for 'fields'. Further information on proper usage is in the Appendix.
+        <li><strong>query_payload: string ,optional, default None </strong></li>
+        Allows the user to download results of a search from the HUDOC website. If this argument is provided, it takes priority over the 'link' parameter.
+        This method is much more robust than using the 'link' parameter. It requires the user to access the Network tab on his browser - 
+        full information on proper usage is in the Appendix.
         <li><strong>threads: int, optional, default: 10</strong></li>
         The full text download is a parallelizable process.
         This parameter determines the number of threads to be used in the download.
@@ -234,6 +246,30 @@ fields = ['itemid','applicability','application','appno','article','conclusion',
 'resolutiondate',resolutionnumber','respondent','respondentOrderEng','rulesofcourt','separateopinion','scl',
 'sharepointid','typedescription','nonviolation','violation']
 
+These fields can take different values, for more information head to https://hudoc.echr.coe.int.
 ```
 
-These fields can take different values, for more information head to https://hudoc.echr.coe.int.
+### Query_payload Parameter
+This section will define in a step-by-step fashion the proper usage of the 'query_payload' parameter.
+
+1. Go to the [HUDOC website](https://hudoc.echr.coe.int/eng#%20). 
+2. Input your search parameters.
+3. Right-click on the website and inspect the website elements. <br>
+![guide](inspect.png)
+4. After the tab on the right side has opened, enter the network section, which records requests made by the website. <br>
+![guide2](network.png)
+5. Here you might see some requests already present. If that is the case, press the record button twice to clear the history.
+Otherwise, continue to step 6.<br>
+![guide3](record.png)
+6. Once you are recording new requests and the history has been cleared, click the search button on the website to execute your search.
+![guide4](search.png)
+7. Now in the network tab, you should see new request records appear. Click the one on the top to inspect it.
+![guide5](grab_api.png)
+8. A tab with request information should appear. Enter the Payload section.
+![guide6](enter_payload.png)
+9. Here the query payload should be present. Copy its value, and use it as the 'query_payload' parameter in code. It should be noted that this parameter should be used as a string surrounded by the single quotation mark ( ' ) , as the query payload might include the double quotation mark ( " ) characters.
+![guide7](success.png)
+10. Now you know how to use the query_payload parameter!
+
+
+

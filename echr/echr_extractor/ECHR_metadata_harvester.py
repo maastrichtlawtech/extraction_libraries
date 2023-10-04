@@ -59,10 +59,16 @@ def link_to_query(link):
         start = link[fulltext_start:].find('[') + fulltext_start + 1
         fulltext_end = link[fulltext_start:].find(']') + fulltext_start
         fragment_to_fix = link[start:fulltext_end]
-        full_text_input = '(' + "".join(fragment_to_fix.rsplit('"', 1)).replace('"', "", 1) + ')'
+        full_text_input = '(' + "".join(fragment_to_fix.rsplit('"', 1)).replace('"', "", 1) + ')'.replace('\\','')
+        full_text_input = full_text_input.replace("\\",'')
+        b=2
         # removing first and last " elements and saving the output to put manually later
     if (fulltext_end):
-        to_replace = link[fulltext_start - 1:fulltext_end + 1]
+
+        if link[fulltext_end+1] == ',':
+            to_replace = link[fulltext_start - 1:fulltext_end + 2]
+        else:
+            to_replace = link[fulltext_start - 1:fulltext_end + 1]
         link = link.replace(to_replace, '')
 
     extra_cases_map = {
@@ -137,6 +143,8 @@ def link_to_query(link):
             vals = link_dictionary.get(key)
             funct = query_map.get(key)
             date_addition = funct(key, vals)
+        elif key == "sort":
+            continue
         else:
             vals = link_dictionary.get(key)
             funct = query_map.get(key)
@@ -148,8 +156,44 @@ def link_to_query(link):
 
     return final_query
 
+def determine_meta_url(link, query_payload,start_date,end_date):
+    if query_payload:
+        META_URL = 'http://hudoc.echr.coe.int/app/query/results' \
+                   f'?query={query_payload}' \
+                   '&select={select}' + \
+                   '&sort=itemid Ascending' + \
+                   '&start={start}&length={length}'
+    elif link:
+        META_URL = link_to_query(link)
+    else:
+        META_URL = 'http://hudoc.echr.coe.int/app/query/results' \
+                   '?query=(contentsitename=ECHR) AND ' \
+                   '(documentcollectionid2:"JUDGMENTS" OR ' \
+                   'documentcollectionid2:"COMMUNICATEDCASES" OR ' \
+                   'documentcollectionid2:"DECISIONS" OR ' \
+                   'documentcollectionid2:"CLIN") AND ' \
+                   'lang_inputter' \
+                   '&select={select}' + \
+                   '&sort=itemid Ascending' + \
+                   '&start={start}&length={length}'
+        if start_date and end_date:
+            addition = f'(kpdate>="{start_date}" AND kpdate<="{end_date}")'
+        elif start_date:
+            end_date = datetime.today().date()
+            addition = f'(kpdate>="{start_date}" AND kpdate<="{end_date}")'
+        elif end_date:
+            start_date = '1900-01-01'
+            addition = f'(kpdate>="{start_date}" AND kpdate<="{end_date}")'
+        else:
+            addition = ''
 
-def get_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date, link, language):
+        if addition:
+            addition = " AND " + addition
+            META_URL = META_URL.replace('&select', addition + '&select')
+    return META_URL
+
+
+def get_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date, link, language, query_payload):
     """
     Read ECHR metadata into a Pandas DataFrame.
     :param int start_id: The index to start the search from.
@@ -175,41 +219,16 @@ def get_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date, l
                   'WebTemplate', 'SecondaryFileExtension', 'docaclmeta', 'OriginalPath',
                   'EditorOWSUSER', 'DisplayAuthor', 'ResultTypeIdList', 'PartitionId', 'UrlZone',
                   'AAMEnabledManagedProperties', 'ResultTypeId', 'rendertemplateid']
-    if link:
-        META_URL = link_to_query(link)
-        b = 2
-    else:
-        META_URL = 'http://hudoc.echr.coe.int/app/query/results' \
-                   '?query=(contentsitename=ECHR) AND ' \
-                   '(documentcollectionid2:"JUDGMENTS" OR ' \
-                   'documentcollectionid2:"COMMUNICATEDCASES" OR ' \
-                   'documentcollectionid2:"DECISIONS" OR ' \
-                   'documentcollectionid2:"CLIN") AND ' \
-                   'lang_inputter' \
-                   '&select={select}' + \
-                   '&sort=itemid Ascending' + \
-                   '&start={start}&length={length}'
 
+    META_URL = determine_meta_url(link,query_payload,start_date,end_date)
         # An example url: "https://hudoc.echr.coe.int/app/query/results?query=(contentsitename=ECHR)%20AND%20(documentcollectionid2:%22JUDGMENTS%22%20OR%20documentcollectionid2:%22COMMUNICATEDCASES%22%20OR%20documentcollectionid2:%22DECISIONS%22%20OR%20documentcollectionid2:%22CLIN%22)&select=itemid,applicability,application,appno,article,conclusion,decisiondate,docname,documentcollectionid,%20documentcollectionid2,doctype,doctypebranch,ecli,externalsources,extractedappno,importance,introductiondate,%20isplaceholder,issue,judgementdate,kpdate,kpdateAsText,kpthesaurus,languageisocode,meetingnumber,%20originatingbody,publishedby,Rank,referencedate,reportdate,representedby,resolutiondate,%20resolutionnumber,respondent,respondentOrderEng,rulesofcourt,separateopinion,scl,sharepointid,typedescription,%20nonviolation,violation&sort=itemid%20Ascending&start=0&length=200"
 
-        if start_date and end_date:
-            addition = f'(kpdate>="{start_date}" AND kpdate<="{end_date}")'
-        elif start_date:
-            end_date = datetime.today().date()
-            addition = f'(kpdate>="{start_date}" AND kpdate<="{end_date}")'
-        elif end_date:
-            start_date = '1900-01-01'
-            addition = f'(kpdate>="{start_date}" AND kpdate<="{end_date}")'
-        else:
-            addition = ''
 
-        if addition:
-            addition = " AND " + addition
-            META_URL = META_URL.replace('&select', addition + '&select')
 
     META_URL = META_URL.replace(' ', '%20')
     META_URL = META_URL.replace('"', '%22')
     META_URL = META_URL.replace('%5C','')
+
     language_input = basic_function('languageisocode', language)
     if not link:
         META_URL = META_URL.replace('lang_inputter', language_input)
@@ -226,7 +245,7 @@ def get_echr_metadata(start_id, end_id, verbose, fields, start_date, end_date, l
         end_id = resultcount
     if verbose:
         logging.info(f'Fetching {end_id - start_id} results from index {start_id} to index {end_id} ' +
-                     f'{f" and filtering cases after {start_date}" if start_date else ""} {f"and filtering cases before {end_date}" if end_date else "."}')
+                     f'{f" and filtering cases after {start_date}" if start_date and not link and not query_payload else ""} {f"and filtering cases before {end_date}" if end_date and not link and not query_payload else "."}')
 
     timeout = 60
     retry = 3
