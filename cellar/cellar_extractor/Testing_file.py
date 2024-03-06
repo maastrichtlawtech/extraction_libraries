@@ -14,6 +14,56 @@ import time
 from eurlex_scraping import *
 from cellar import *
 from sparql import *
+import unittest
+from operative_extraction import Analyzer
+# from test import testing
+import random
+import csv
+file=open("gijs_202310_node_list.tsv","r")
+reader=csv.reader(file)
+no_of_test_cases=30
+testing=[]
+for row in reader:
+    for rows in row:
+        if "Id" not in rows:
+            testing.append(rows.split("\t")[0])
+class Test(unittest.TestCase):
+    """
+    class for unittesing operative part , it checks whether the list returns null value or has some value.
+    """
+    ids:list
+    def __init__(self,ids):
+        self.ids=ids
+
+    def test_for_celex_id(self):
+        """
+        Main function which runs the unittest Testcase .
+        """
+        count_fail:int
+        count_pass=0
+        for id in self.ids:
+            test_output=Analyzer(id)
+            test_instance=test_output()
+         
+            # self.assertFalse(len(test_instance)<=1)
+          
+            try:
+                self.assertTrue(test_instance[0],f"{id} is  not empty and has  operative part") 
+                count_pass+=1 
+                print(f"{id} --->  PASSED.")
+            except:
+                print(f"{id} --->  FAILED.") 
+        print(f"Passed {count_pass}/{len(self.ids)} times") 
+        # print(len(self.ids)-count,"were passed successfully")  
+
+new_list=[]
+for w in range(no_of_test_cases):
+    randomized=random.randint(0,len(testing)-1)
+    new_list.append(testing[randomized])
+
+
+instance=Test(new_list)
+instance.test_for_celex_id()   
 
 
 
