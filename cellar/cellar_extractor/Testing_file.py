@@ -61,15 +61,16 @@ for w in range(no_of_test_cases):
     randomized=random.randint(0,len(testing)-1)
     new_list.append(testing[randomized])
 
-
-instance=Test(new_list)
-instance.test_for_celex_id()   
+ 
 
 
 
 
 if __name__ == '__main__':
    celex = "62004CJ0292"
+    
+   instance=Test([celex])
+   instance.test_for_celex_id()  
    site = get_entire_page(celex)
    text = get_full_text_from_html(site)
    cits = get_citations_with_extra_info(text)
