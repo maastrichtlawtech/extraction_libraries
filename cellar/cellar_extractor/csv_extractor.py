@@ -2,12 +2,11 @@ import glob
 import argparse
 from cellar_extractor.json_to_csv import read_csv
 
-"""
-Method takes in a dataframe and returns a dataframe with only *number* of data rows.
-"""
-
-
 def extract_rows(data, number):
+    """
+    Method takes in a dataframe and returns a dataframe with only *number* of data rows.
+    """
+
     try:
         output = data[1:number]
     except Exception:
@@ -24,7 +23,7 @@ if __name__ == '__main__':
     print("")
     print("EXTRACTION FROM CSV FILE IN DATA PROCESSED DIR STARTED")
     print("")
-    csv_files = (glob.glob(DIR_DATA_RAW + "/" + "*.csv"))
+    csv_files = glob.glob(DIR_DATA_RAW + "/" + "*.csv")
     print(f"FOUND {len(csv_files)} CSV FILES")
 
     for i in range(len(csv_files)):
