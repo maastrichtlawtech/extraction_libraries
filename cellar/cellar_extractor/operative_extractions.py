@@ -1,155 +1,145 @@
-
+import csv
+import json
 import requests
 from bs4 import BeautifulSoup
 
-import csv
-import json
-
-
 class Analyzer():
     """
-    This class returns a list of the operative part for a given celex id . Celex id is initialized through a constructor.
+    This class returns a list of the operative part for a given celex id. 
+    Celex id is initialized through a constructor.
     """
     celex: str  # declare celex as a string
-
-    def __init__(self, celex):  # Initialize Celex id as a constructor , passed when calling the class
+    url: str  # declare url as a string
+    def __init__(self, celex):
+        # Initialize Celex id as a constructor, passed when calling the class
         self.celex = celex
-
+        self.url = "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A\
+            {self.celex}&from=EN"
     def html_page_structure_one(self) -> list:
         """
-         This function retreives operative part from documents of the respected celex id's . This function scrapes/parse the operative part from a nested
+         This function retreives operative part from documents of the respected celex id's. 
+         This function scrapes/parse the operative part from a nested
          table structure . The relevant text lies inside the coj-bold class of the span tag.
         """
-        website = requests.get(
-            f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A{self.celex}&from=EN").text
+        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         div = parser.find_all('table')  # Find all tables tag from the website
         one = []
         for divs in div:
             # Find each nested table within the table
             table = divs.find('table')
-            if table != None:
+            if table is not None:
                 # Find all p under the nested table with the coj-normal class
                 p = table.find_all('p', class_="coj-normal")
                 for x in p:
                     # Span class of coj-bold under the p tag
                     span = x.find_all('span', class_="coj-bold")
                     for y in span:
-                        if x != None and y != None:
-
+                        if x is not None and y is not None:
                             # append text from span onto a list
                             one.append(y.text)
         return one
 
     def html_page_structure_two(self) -> list:
         """
-         This function retreives operative part from documents of the respected celex id's . This function scrapes/parse the operative part from a paragraph
-         (p) structure . The relevant text lies inside the normal class of the p tag which comes after the keyword operative of the previous span tag.
+         This function retreives operative part from documents of the respected celex id's. 
+         This function scrapes/parse the operative part from a paragraph
+         (p) structure . The relevant text lies inside the normal class of the p tag which
+         comes after the keyword operative of the previous span tag.
         """
-        website = requests.get(
-            f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A{self.celex}&from=EN").text
+        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         p = parser.find_all('p')
         two = []
         for para in p:
-
             span = para.find('span')
-            if span != None:
-
+            if span is not None:
                 if "operative" in span.text.lower():
                     normal = span.find_all_next('p', class_="normal")
                     for op in normal:
-
                         two.append(op.text)
         return two
 
     def structure_three(self) -> list:
         """
-         This function retreives operative part from documents of the respected celex id's . This function scrapes/parse the operative part from a nested
-         table structure . The relevant text lies inside the coj-bold class of the span tag.
+         This function retreives operative part from documents of the respected celex id's. 
+         This function scrapes/parse the operative part from a nested
+         table structure. The relevant text lies inside the coj-bold class of the span tag.
         """
-        website = requests.get(
-            f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A{self.celex}&from=EN").text
+        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         table = parser.find_all('table')
         three = []
         for tables in table:
             interior = tables.find_all('table')
             for interiors in interior:
-                if interiors != None:
+                if interiors is not None:
                     p = interiors.find_all('p', class_="coj-normal")
                     for x in p:
                         span = x.find_all('span', class_="coj-bold")
                         for y in span:
-                            if x != None and y != None:
-
+                            if x is not None and y is not None:
                                 three.append(y.text)
         return three
 
     def structure_four(self) -> list:
         """
-         This function retreives operative part from documents of the respected celex id's . This function scrapes/parse the operative part from a paragraph
-         (p) structure . The relevant text lies inside the p  tag which comes after the keyword operative of the previous span tag.
+         This function retreives operative part from documents of the respected celex id's. 
+         This function scrapes/parse the operative part from a paragraph
+         (p) structure . The relevant text lies inside the p  tag which comes after the
+         keyword operative of the previous span tag.
         """
-        website = requests.get(
-            f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A{self.celex}&from=EN").text
+        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         p = parser.find_all('p')
         four = []
         for para in p:
-
             span = para.find('span')
-            if span != None:
-
+            if span is not None:
                 if "operative" in span.text.lower():
                     normal = span.find_all_next('table')
                     for op in normal:
                         tbody = op.find('tbody')
                         new_p = tbody.find_all('p', class_="oj-normal")
-
                         for subsequent in new_p:
-                            if subsequent != None:
-
+                            if subsequent is not None:
                                 four.append(subsequent.text)
-
         return four
 
     def structure_five(self) -> list:
         """
-         This function retreives operative part from documents of the respected celex id's . This function scrapes/parse the operative part from a paragraph
-         (p) structure . The relevant text lies inside the normal class of the p tag which comes after the keyword operative of the previous span tag.
+         This function retreives operative part from documents of the respected celex id's. 
+         This function scrapes/parse the operative part from a paragraph
+         (p) structure. The relevant text lies inside the normal class of the p tag which
+         comes after the keyword operative of the previous span tag.
         """
-        website = requests.get(
-            f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A{self.celex}&from=EN").text
+        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         p = parser.find_all('p')
         five = []
         for para in p:
 
             span = para.find('span')
-            if span != None:
-
+            if span is not None:
                 if "operative" in span.text.lower():
                     normal = span.find_all_next('table')
                     for op in normal:
                         tbody = op.find('tbody')
                         new_p = tbody.find_all('p', class_="normal")
-
                         for subsequent in new_p:
-                            if subsequent != None:
-
+                            if subsequent is not None:
                                 five.append(subsequent.text)
 
         return five
 
     def structure_six(self) -> list:
         """
-         This function retreives operative part from documents of the respected celex id's . This function scrapes/parse the operative part from a h2
-         (header) structure . The relevant text lies inside thee p tag which comes after the keyword operative part of the respective h2  tag.
+         This function retreives operative part from documents of the respected celex id's. 
+         This function scrapes/parse the operative part from a h2 (header) structure.
+         The relevant text lies inside thee p tag which comes after the keyword operative 
+         part of the respective h2  tag.
          """
-
-        website = requests.get(
-            f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A{self.celex}&from=EN").text
+        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         div = parser.find_all('h2')
         six = []
@@ -164,11 +154,12 @@ class Analyzer():
 
     def structure_seven(self) -> list:
         """
-         This function retreives operative part from documents of the respected celex id's . This function scrapes/parse the operative part from a table
-         (table) structure . The relevant text lies inside the span tag which comes after the p tag , with the class name=normal.
+         This function retreives operative part from documents of the respected celex id's.
+         This function scrapes/parse the operative part from a table
+         (table) structure. The relevant text lies inside the span tag which comes after 
+         the p tag , with the class name=normal.
         """
-        website = requests.get(
-            f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A{self.celex}&from=EN").text
+        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         div = parser.find_all('table')
         seven = []
@@ -176,68 +167,66 @@ class Analyzer():
             # find tbody within the table
             table = divs.find_all('tbody')
             for tables in table:
-                if tables != None:
+                if tables is not None:
                     # find tr within the tbody
                     p = tables.find_all('tr')
                     for x in p:
-                        if x != None:
+                        if x is not None:
                             # find td within the tr
                             td = x.find_all('td')
                             for y in td:
-                                if y != None:
+                                if y is not None:
                                     p = y.find_all('p', class_="normal")
-                                    for all in p:
-                                        if all != None:
+                                    for _all in p:
+                                        if _all is not None:
                                             # find operative part within the span
-                                            span = all.find_all(
+                                            span = _all.find_all(
                                                 'span', class_="bold")
                                             for spans in span:
-                                                # APpend it into a list and return the list when the function is called
+                                                # Append it into a list and return the
+                                                # list when the function is called
                                                 seven.append(spans.text)
         return seven
 
     def structure_eight(self) -> list:
         """
-         This function retreives operative part from documents of the respected celex id's .The text is extracted from the span tag nested inside 
+         This function retreives operative part from documents of the respected celex id's.
+         The text is extracted from the span tag nested inside 
          the tbody tag.Returns a list as output.
         """
-        website = requests.get(
-            f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A{self.celex}&from=EN").text
+        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
 
         tbody = parser.find_all('tbody')
         eight = []
-        for all in tbody:
-            if all != None:
-                tr = all.find_all('tr')
+        for _all in tbody:
+            if _all is not None:
+                tr = _all.find_all('tr')
                 for trs in tr:
-                    if trs != None:
-
+                    if trs is not None:
                         p = parser.find_all('p', class_="normal")
                         for paras in p:
-                            if paras != None:
+                            if paras is not None:
                                 if "on those grounds" in paras.text.lower():
-
                                     span = paras.find_all_next(
                                         'span', class_="bold")
                                     for spans in span:
-                                        if spans != None:
+                                        if spans is not None:
                                             eight.append(spans.text)
-
         return eight
 
     def structure_nine(self) -> list:
         """
-         This function retreives operative part from documents of the respected celex id's .The operative part is under the bold(b)
+         This function retreives operative part from documents of the respected celex id's.
+         The operative part is under the bold(b)
          tag after the p tag where the keywords "on those grounds" exist. 
         """
-        website = requests.get(
-            f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A{self.celex}&from=EN").text
+        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         nine = []
         div = parser.find_all('p')
         for divs in div:
-            if divs != None:
+            if divs is not None:
                 if "on those grounds" in divs.text.lower():
                     b = divs.find_all_next('b')
                     for bolds in b:
@@ -247,34 +236,34 @@ class Analyzer():
 
     def structure_eleven(self) -> list:
         """
-         This function retreives operative part from documents of the respected celex id's .The operative part is under the paragraph(p)
+         This function retreives operative part from documents of the respected celex id's.
+         The operative part is under the paragraph(p)
          tag after the b tag where the keywords "operative part" exist. 
         """
-        website = requests.get(
-            f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A{self.celex}&from=EN").text
+        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         bold = parser.find_all('b')
 
         eleven = []
 
         for b in bold:
-            if b != None:
+            if b is not None:
                 if "operative part" in b.text.lower():
-                    table = b.find_all_next('p')
-                    for tables in table:
-                        if tables != None:
-                            eleven.append(tables.text)
-
+                    tables = b.find_all_next('p')
+                    for table in tables:
+                        if table is not None:
+                            eleven.append(table.text)
         return eleven
 
     def structure_ten(self):
         """
-         This function retreives operative part from documents of the respected celex id's Since the ocntent is preloaded using js/client s
-         server side functions , the text from the current page is retrieved and the operative part is scraped after the occurence of the phrase
+         This function retreives operative part from documents of the respected celex id's.
+         Since the ocntent is preloaded using js/clients
+         server side functions , the text from the current page is retrieved and the 
+         operative part is scraped after the occurence of the phrase
          "On those grounds".
         """
-        website = requests.get(
-            f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A{self.celex}&from=EN").text
+        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         appender = []
         for string in parser.stripped_strings:
@@ -282,7 +271,7 @@ class Analyzer():
             appender.append(string)
 
         found = False
-        afterGrounds = []
+        after_grounds = []
 
         for x in appender:
 
@@ -291,33 +280,32 @@ class Analyzer():
 
             if found:
                 if len(x.split(" ")) > 3:
-                    afterGrounds.append(x)
-        return afterGrounds
+                    after_grounds.append(x)
+        return after_grounds
 
     def __call__(self) -> list:
         """
-        This inbuilt __call__ function loops through all the methods in the class `Analyzer` and returns  the list , with values of the operative part .
+        This inbuilt __call__ function loops through all the methods in the class 
+        `Analyzer` and returns  the list , with values of the operative part .
         """
 
-        container = [self.html_page_structure_one(), self.html_page_structure_two(), self.structure_three(), self.structure_four(), self.structure_five(),
-                     self.structure_six(), self.structure_seven(), self.structure_eight(), self.structure_nine(), self.structure_ten(), self.structure_eleven()]
+        container = [self.html_page_structure_one(), self.html_page_structure_two(),
+                     self.structure_three(), self.structure_four(), self.structure_five(),
+                     self.structure_six(), self.structure_seven(), self.structure_eight(),
+                     self.structure_nine(), self.structure_ten(), self.structure_eleven()]
 
         one: list
-        for funcs in range(len(container)):
-
+        for funcs in enumerate(container):
             one = container[funcs]
-
             if one:
                 if (len(one) != 0 or one[0] != "\n"):
                     print("here")
                     return one
-
-    
-
-
+        return None
 class Writing():
     """
-    This class has different methods , for the purpose of writing the operative part into different file formats.(Csv,txt,json)
+    This class has different methods, for the purpose of writing the operative part 
+    into different file formats.(Csv,txt,json)
     """
 
     instance: str
@@ -330,38 +318,36 @@ class Writing():
         self.x = self.instance()
 
     def to_csv(self):
-        file = open("csv/output.csv", "a+")
-        writer = csv.writer(file)
-
-        if self.x != None:
+        _file = open("csv/output.csv", "a+", encoding="utf-8")
+        writer = csv.writer(_file)
+        if self.x is not None:
             writer.writerow([self.celex, self.x])
 
     def to_json(self):
-        if self.x != None:
+        if self.x is not None:
             data = {'Celex': self.celex, "Operative part": self.x}
-            file = open('json/data.json', 'a+')
-            json.dump(data, file)
-            file.close()
+            _file = open('json/data.json', 'a+', encoding='utf-8')
+            json.dump(data, _file)
+            _file.close()
 
     def to_txt(self):
 
-        if self.x != None:
-            file = open(f"txt/{self.celex}.txt", "a")
+        if self.x is not None:
+            _file = open(f"txt/{self.celex}.txt", "a", encoding="utf-8")
             for w in self.x:
-
-                file.write(w+"\n")
-            file.close()
+                _file.write(w+"\n")
+            _file.close()
 # Sample code for reading celex id's froma tsv file
 
 
-file = open("gijs_202310_node_list.tsv", "r")
+file = open("gijs_202310_node_list.tsv", "r", encoding="utf-8")
 reader = csv.reader(file)
 testing = []
 for row in reader:
     for rows in row:
         if "Id" not in rows:
             testing.append(rows.split("\t")[0])
-for all in testing:
-    instance = Writing(all)
+for _all in testing:
+    instance = Writing(_all)
     instance.to_csv()
-    print(all)
+    print(_all)
