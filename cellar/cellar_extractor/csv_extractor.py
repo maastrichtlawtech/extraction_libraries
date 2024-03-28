@@ -1,5 +1,6 @@
 import glob
 import argparse
+import logging
 from cellar_extractor.json_to_csv import read_csv
 
 def extract_rows(data, number):
@@ -10,7 +11,7 @@ def extract_rows(data, number):
     try:
         output = data[1:number]
     except Exception:
-        print(f"The file does not have {number} entries, returning entire file.")
+        logging.info(f"The file does not have {number} entries, returning entire file.")
         output = data
     return output
 
@@ -23,7 +24,8 @@ if __name__ == '__main__':
     print("")
     print("EXTRACTION FROM CSV FILE IN DATA PROCESSED DIR STARTED")
     print("")
-    csv_files = glob.glob(DIR_DATA_RAW + "/" + "*.csv")
+    DIR_DATA_RAW=''
+    csv_files = (glob.glob(DIR_DATA_RAW + "/" + "*.csv"))
     print(f"FOUND {len(csv_files)} CSV FILES")
 
     for i in range(len(csv_files)):

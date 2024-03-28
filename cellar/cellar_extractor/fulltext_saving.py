@@ -172,6 +172,6 @@ def add_column_frow_list(data, name, list):
     """
     column = pd.Series([], dtype='string')
     for l in list:
-        column = column.append(l)
+        column = pd.concat([column,l])
     column.sort_index(inplace=True)
     data.insert(1, name, column)

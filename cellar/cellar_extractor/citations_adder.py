@@ -1,6 +1,7 @@
 import sys
 import threading
 import time
+import logging
 from io import StringIO
 from os.path import dirname, abspath
 import pandas as pd
@@ -106,8 +107,8 @@ def execute_citations_webservice(dictionary_list, celexes, username, password):
                 response = run_eurlex_webservice_query(query, username, password)
                 if response.status_code == 500 and "WS_WS_CALLS_IDLE_INTERVAL" not in response.text:
                     perc=i*100/len(celexes)
-                    print(f"Limit of web service usage reached! Citations collection\
-                          will stop here at {perc} % of citations downloaded."
+                    logging.info(f"Limit of web service usage reached! Citations collection\
+                          will stop here at {perc} % of citations downloaded." +
                           f"\nThere were {success} successful queries and {retry} retries")
                     return
                 elif "<numhits>0</numhits>" in response.text:
@@ -120,7 +121,7 @@ def execute_citations_webservice(dictionary_list, celexes, username, password):
                         failure = True
                     except:
                         retry+=1
-                        #print(response.content)
+                        #logging.info(response.content)
                         time.sleep(0.5)
             time.sleep(2)
     if len(normal_celex)>0:
@@ -208,27 +209,27 @@ def add_citations_separate_webservice(data, username, password):
     response = run_eurlex_webservice_query(query, username, password)
     if response.status_code == 500 :
         if "WS_MAXIMUM_NB_OF_WS_CALLS" in response.text:
-            print("Maximum number of calls to the eurlex webservices reached!\
+            logging.warning("Maximum number of calls to the eurlex webservices reached!\
                   The code will skip the citations download.")
             return
         else:
-            print("Incorrect username and password for eurlex webservices!\
-                  (The account login credentials and webservice) "
+            logging.warning("Incorrect username and password for eurlex webservices!\
+                  (The account login credentials and webservice) " +
               "login credentials are different)")
             sys.exit(2)
     elif response.status_code == 403:
-        print("Webservice connection was blocked, eurlex might be going\
+        logging.info("Webservice connection was blocked, eurlex might be going\
               through maintenance right now.")
         sys.exit(2)
     else:
-        print("Webservice connection was successful!")
+        logging.info("Webservice connection was successful!")
     time.sleep(1)
     dictionary_list = list()
     execute_citations_webservice(dictionary_list,celex,username,password)
     citing_dict = dict()
     for d in dictionary_list:
         citing_dict.update(d)
-    print("Webservice extraction finished, the rest of extraction will now happen.")
+    logging.info("Webservice extraction finished, the rest of extraction will now happen.")
     time.sleep(1) # It seemed to print out the length of dictionary wrong,
     # even when it was equal to 1000.
     cited_dict = reverse_citing_dict(citing_dict)
