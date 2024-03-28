@@ -1,14 +1,15 @@
 import json
 import os
-from os.path import join
+
 from datetime import datetime
 from pathlib import Path
+
+import time
 from tqdm import tqdm
 from cellar_extractor.cellar_queries import get_all_eclis, get_raw_cellar_metadata
 from cellar_extractor.json_to_csv import json_to_csv_main, json_to_csv_returning
 from cellar_extractor.cellar_extra_extract import extra_cellar
 from cellar_extractor.nodes_and_edges import get_nodes_and_edges
-import time
 
 def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_format='csv'):
     if not ed:
@@ -38,18 +39,18 @@ def get_cellar(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", file_forma
             json_to_csv_main(all_eclis, file_path)
         else:
             file_path = os.path.join('data', file_name + '.json')
-            with open(file_path, "w") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 json.dump(all_eclis, f)
     else:
         if file_format == 'csv':
             df = json_to_csv_returning(all_eclis)
             return df
-        else:
-            return all_eclis
+        return all_eclis
     print("\n--- DONE ---")
 
 
-def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", threads=10, username="", password=""):
+def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01",
+                     threads=10, username="", password=""):
     if not ed:
         ed = datetime.now().isoformat(timespec='seconds')
     data = get_cellar(ed=ed, save_file='n', max_ecli=max_ecli, sd=sd, file_format='csv')
@@ -62,14 +63,16 @@ def get_cellar_extra(ed=None, save_file='y', max_ecli=100, sd="2022-05-01", thre
     file_path = os.path.join('data', file_name + '.csv')
     if save_file == 'y':
         Path('data').mkdir(parents=True, exist_ok=True)
-        extra_cellar(data = data ,filepath=file_path, threads=threads, username=username, password=password)
+        extra_cellar(data = data ,filepath=file_path, threads=threads,
+                     username=username, password=password)
         print("\n--- DONE ---")
 
     else:
-        data,json = extra_cellar(data= data, threads = threads, username= username,password=password)
+        data,json_data = extra_cellar(data= data, threads = threads,
+                                 username= username,password=password)
         print("\n--- DONE ---")
 
-        return data,json
+        return data,json_data
 
 def get_nodes_and_edges_lists(df = None):
     if df is None:
