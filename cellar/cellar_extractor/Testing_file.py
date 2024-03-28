@@ -1,10 +1,6 @@
 """
-
 This file is purely a testing file for trying out separate parts of code, testing if everything works and such.
 Can be also used to develop future code.
-
-
-
 """
 
 from nodes_and_edges import get_nodes_and_edges
@@ -27,11 +23,14 @@ for row in reader:
     for rows in row:
         if "Id" not in rows:
             testing.append(rows.split("\t")[0])
+            
 class Test(unittest.TestCase):
     """
-    class for unittesing operative part , it checks whether the list returns null value or has some value.
+    class for unittesing operative part , it checks whether the list returns null value 
+    or has some value.
     """
     ids:list
+    
     def __init__(self,ids):
         self.ids=ids
 
@@ -48,23 +47,18 @@ class Test(unittest.TestCase):
             # self.assertFalse(len(test_instance)<=1)
           
             try:
-                self.assertTrue(test_instance[0],f"{id} is  not empty and has  operative part") 
+                self.assertTrue(test_instance[0],f"{id} is not empty and has operative part")
                 count_pass+=1 
                 print(f"{id} --->  PASSED.")
             except:
-                print(f"{id} --->  FAILED.") 
-        print(f"Passed {count_pass}/{len(self.ids)} times") 
-        # print(len(self.ids)-count,"were passed successfully")  
+                print(f"{id} --->  FAILED.")
+        print(f"Passed {count_pass}/{len(self.ids)} times")
+        # print(len(self.ids)-count,"were passed successfully")
 
 new_list=[]
 for w in range(no_of_test_cases):
     randomized=random.randint(0,len(testing)-1)
     new_list.append(testing[randomized])
-
- 
-
-
-
 
 if __name__ == '__main__':
    celex = "62004CJ0292"
