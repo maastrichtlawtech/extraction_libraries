@@ -1,4 +1,4 @@
-venv
+.venv*
 .idea
 data
 rechtspraak/rechtspraak_extractor/tests/data
@@ -21,3 +21,5 @@ build.bat
 echr_extractor-whl.zip
 echr_extractor-whl
 echr_extractor.egg-info
+
+.*DS_Store
