@@ -1,6 +1,7 @@
 import csv
 import json
 import requests
+import os
 from bs4 import BeautifulSoup
 
 class Analyzer():
