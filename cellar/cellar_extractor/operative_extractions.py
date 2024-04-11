@@ -311,6 +311,25 @@ class Writing():
     instance: str
     x: str
     parameter: str
+    txt = "txt"
+    json="json"
+    csv="csv"
+    txt_dir = os.path.join(current, txt)
+    csv_dir = os.path.join(current, csv)
+    json_dir = os.path.join(current, json)
+
+    if not os.path.exists(txt_dir):
+        os.makedirs(txt_dir)
+    if not os.path.exists(csv_dir):
+        os.makedirs(csv_dir)    
+    
+    if not os.path.exists(json_dir):
+        os.makedirs(json_dir) 
+        
+    def __init__(self, celex: str):
+        self.celex = celex
+        self.instance = Analyzer(self.celex)
+        self.x = self.instance()
 
     def __init__(self, celex: str):
         self.celex = celex
@@ -318,7 +337,7 @@ class Writing():
         self.x = self.instance()
 
     def to_csv(self):
-        _file = open("csv/output.csv", "a+", encoding="utf-8")
+        _file = open("output.csv", "a+", encoding="utf-8")
         writer = csv.writer(_file)
         if self.x is not None:
             writer.writerow([self.celex, self.x])
@@ -326,7 +345,7 @@ class Writing():
     def to_json(self):
         if self.x is not None:
             data = {'Celex': self.celex, "Operative part": self.x}
-            _file = open('json/data.json', 'a+', encoding='utf-8')
+            _file = open('data.json', 'a+', encoding='utf-8')
             json.dump(data, _file)
             _file.close()
 
@@ -337,17 +356,4 @@ class Writing():
             for w in self.x:
                 _file.write(w+"\n")
             _file.close()
-# Sample code for reading celex id's froma tsv file
 
-
-file = open("gijs_202310_node_list.tsv", "r", encoding="utf-8")
-reader = csv.reader(file)
-testing = []
-for row in reader:
-    for rows in row:
-        if "Id" not in rows:
-            testing.append(rows.split("\t")[0])
-for _all in testing:
-    instance = Writing(_all)
-    instance.to_csv()
-    print(_all)
