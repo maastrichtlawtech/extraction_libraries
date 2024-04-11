@@ -109,7 +109,7 @@ def operative_part_txt(celex):
     except Exception:
         assert False
 
-def test_for_operative_part(celex):
+def for_operative_part(celex):
       
         count_fail:int
         count_pass=0
@@ -126,8 +126,44 @@ def test_for_operative_part(celex):
             except Exception:
                 assert False
 
-operative_part_txt(celex)
-operative_part_csv(celex)
-operative_part_json(celex)
-test_for_operative_part(celex)
+
+def test_operative_part_txt():
+    celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154"]
+    celex:str
+    choice=random.randint(0,len(celex_store))
+    celex=celex_store[choice]
+    if operative_part_txt(celex):
+        assert True
+    except Exception:
+        assert False
+def test_operative_part_json():
+    celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154"]
+    celex:str
+    choice=random.randint(0,len(celex_store))
+    celex=celex_store[choice]
+    if operative_part_json(celex):
+        assert True
+    except Exception:
+        assert False
+def test_operative_part_csv():
+    celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154"]
+    celex:str
+    choice=random.randint(0,len(celex_store))
+    celex=celex_store[choice]
+    if operative_part_csv(celex):
+        assert True
+    except Exception:
+        assert False
+    
+def test_for_operative_part():
+    celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154"]
+    celex:str
+    choice=random.randint(0,len(celex_store))
+    celex=celex_store[choice]
+    if test_for_operative_part(celex):
+        assert True
+    except Exception:
+        assert False   
+    
+    
                 
