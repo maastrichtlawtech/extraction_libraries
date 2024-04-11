@@ -125,5 +125,9 @@ def test_for_operative_part(celex):
              
             except Exception:
                 assert False
-                
+
+operative_part_txt(celex)
+operative_part_csv(celex)
+operative_part_json(celex)
+test_for_operative_part(celex)
                 
