@@ -1,5 +1,4 @@
 from cellar_extractor import *
-from extraction_libraries.cellar.cellar_extractor.operative_extractions import Writing
 
 def cellar_csv_n():
     get_cellar(save_file='n', file_format='csv', sd='2022-01-01', max_ecli=100)
@@ -73,7 +72,6 @@ def test_cellar_json_n():
         assert False, "Downloading cellar as json failed."
 
 
-# from operative_extractions import Analyzer,Writing
 
 import random
 import csv
