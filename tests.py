@@ -128,8 +128,9 @@ def test_operative_part_txt():
     celex:str
     choice=random.randint(0,len(celex_store))
     celex=celex_store[choice]
-    if operative_part_txt(celex):
-        assert True
+    try:
+        if operative_part_txt(celex):
+            assert True
     except Exception:
         assert False
 def test_operative_part_json():
@@ -137,8 +138,9 @@ def test_operative_part_json():
     celex:str
     choice=random.randint(0,len(celex_store))
     celex=celex_store[choice]
-    if operative_part_json(celex):
-        assert True
+    try:
+        if operative_part_json(celex):
+            assert True
     except Exception:
         assert False
 def test_operative_part_csv():
@@ -146,8 +148,9 @@ def test_operative_part_csv():
     celex:str
     choice=random.randint(0,len(celex_store))
     celex=celex_store[choice]
-    if operative_part_csv(celex):
-        assert True
+    try:
+        if operative_part_csv(celex):
+            assert True
     except Exception:
         assert False
     
@@ -156,8 +159,9 @@ def test_for_operative_part():
     celex:str
     choice=random.randint(0,len(celex_store))
     celex=celex_store[choice]
-    if test_for_operative_part(celex):
-        assert True
+    try:
+        if test_for_operative_part(celex):
+            assert True
     except Exception:
         assert False   
     
