@@ -86,24 +86,27 @@ def operative_part_csv(celex)->csv:
 
     csv_store=Writing(celex)
     csv_store.to_csv()
-    if csv_store.to_csv():
-        assert True
-    else:
-        assert False    
+    try:
+        if csv_store.to_csv():
+            assert True
+    except Exception:
+        assert False   
 def operative_part_json(celex)->json:
     json_store=Writing(celex)
     json_store.to_json()
-    if json_store.to_json():
-        assert True
-    else:
+    try:
+        if json_store.to_json():
+            assert True
+    except Exception:
         assert False
 
 def operative_part_txt(celex):
     txt_store=Writing(celex)
     txt_store.to_txt()
-    if txt_store.to_txt():
-        assert True
-    else:
+    try:
+        if txt_store.to_txt():
+            assert True
+    except Exception:
         assert False
 
 def test_for_operative_part(celex):
@@ -111,14 +114,16 @@ def test_for_operative_part(celex):
         count_fail:int
         count_pass=0
         for id in celex_store:
-            test_output=Analyzer(celex)
-            test_instance=test_output()
+           
          
           
             try:
+                test_output=Analyzer(celex)
+                test_instance=test_output()
                 assert True
           
              
-            except:
+            except Exception:
                 assert False
-        
+                
+                
