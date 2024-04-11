@@ -110,7 +110,7 @@ def test_for_operative_part(celex):
       
         count_fail:int
         count_pass=0
-        for id in self.ids:
+        for id in celex_store:
             test_output=Analyzer(celex)
             test_instance=test_output()
          
