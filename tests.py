@@ -1,5 +1,7 @@
 from cellar_extractor import *
-
+import random
+import csv
+import json 
 def cellar_csv_n():
     get_cellar(save_file='n', file_format='csv', sd='2022-01-01', max_ecli=100)
 
@@ -73,15 +75,9 @@ def test_cellar_json_n():
 
 
 
-import random
-import csv
-import json 
 
-celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154"]
 
-celex:str
-choice=random.randint(0,len(celex_store))
-celex=celex_store[choice]
+
 def operative_part_csv(celex)->csv:
 
     csv_store=Writing(celex)
