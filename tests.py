@@ -105,3 +105,20 @@ def operative_part_txt(celex):
         assert True
     else:
         assert False
+
+ def test_for_celex_id(celex):
+      
+        count_fail:int
+        count_pass=0
+        for id in self.ids:
+            test_output=Analyzer(celex)
+            test_instance=test_output()
+         
+          
+            try:
+                assert True
+          
+             
+            except:
+                assert False
+        
