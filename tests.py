@@ -106,7 +106,7 @@ def operative_part_txt(celex):
     else:
         assert False
 
- def test_for_celex_id(celex):
+def test_for_operative_part(celex):
       
         count_fail:int
         count_pass=0
