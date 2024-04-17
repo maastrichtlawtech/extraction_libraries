@@ -1,7 +1,7 @@
 import csv
 import json
-import requests
 import os
+import requests
 from bs4 import BeautifulSoup
 
 class Analyzer():
@@ -330,10 +330,6 @@ class Writing():
         self.instance = Analyzer(self.celex)
         self.x = self.instance()
 
-    def __init__(self, celex: str):
-        self.celex = celex
-        self.instance = Analyzer(self.celex)
-        self.x = self.instance()
 
     def to_csv(self):
         _file = open("output.csv", "a+", encoding="utf-8")
