@@ -16,6 +16,7 @@ class Analyzer():
         self.celex = celex
         self.url = "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A\
             {self.celex}&from=EN"
+        
     def html_page_structure_one(self) -> list:
         """
          This function retreives operative part from documents of the respected celex id's. 
@@ -295,13 +296,14 @@ class Analyzer():
                      self.structure_nine(), self.structure_ten(), self.structure_eleven()]
 
         one: list
-        for funcs in enumerate(container):
+        for funcs in range(len(container)):
             one = container[funcs]
             if one:
                 if (len(one) != 0 or one[0] != "\n"):
                     print("here")
                     return one
         return None
+    
 class Writing():
     """
     This class has different methods, for the purpose of writing the operative part 
