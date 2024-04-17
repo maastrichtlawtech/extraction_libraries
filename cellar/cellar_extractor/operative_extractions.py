@@ -231,7 +231,6 @@ class Analyzer():
                 if "on those grounds" in divs.text.lower():
                     b = divs.find_all_next('b')
                     for bolds in b:
-                        # print(bolds.text)
                         nine.append(bolds.text)
         return nine
 
@@ -308,16 +307,15 @@ class Writing():
     This class has different methods, for the purpose of writing the operative part 
     into different file formats.(Csv,txt,json)
     """
-
     instance: str
     x: str
     parameter: str
-    txt = "txt"
-    json="json"
-    csv="csv"
-    txt_dir = os.path.join(current, txt)
-    csv_dir = os.path.join(current, csv)
-    json_dir = os.path.join(current, json)
+
+    current_dir = os.getcwd()
+
+    txt_dir = os.path.join(current_dir, "txt")
+    csv_dir = os.path.join(current_dir, "csv")
+    json_dir = os.path.join(current_dir, "json")
 
     if not os.path.exists(txt_dir):
         os.makedirs(txt_dir)
@@ -351,7 +349,6 @@ class Writing():
             _file.close()
 
     def to_txt(self):
-
         if self.x is not None:
             _file = open(f"txt/{self.celex}.txt", "a", encoding="utf-8")
             for w in self.x:
