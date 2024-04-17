@@ -1,7 +1,9 @@
-from cellar_extractor import *
-import random
 import csv
-import json 
+import json
+import random
+from cellar_extractor import *
+from cellar_extractor.operative_extractions import *
+
 def cellar_csv_n():
     get_cellar(save_file='n', file_format='csv', sd='2022-01-01', max_ecli=100)
 
@@ -73,7 +75,7 @@ def test_cellar_json_n():
     except Exception:
         assert False, "Downloading cellar as json failed."
 
-def operative_part_csv(celex)->csv:
+def operative_part_csv(celex):
     csv_store=Writing(celex)
     try:
         csv_store.to_csv()
@@ -81,7 +83,7 @@ def operative_part_csv(celex)->csv:
     except Exception:
         assert False, "Downloading and storing as csv failed for operative part"
        
-def operative_part_json(celex)->json:
+def operative_part_json(celex):
     json_store=Writing(celex)
     try:
         json_store.to_json()
@@ -99,7 +101,7 @@ def operative_part_txt(celex):
 
 def for_operative_part(celex):
         try:
-            test_output=Analyzer(id)
+            test_output=Analyzer(celex)
             test_output()
             assert True            
         except Exception:
@@ -126,6 +128,7 @@ def test_operative_part_json():
         assert True
     except Exception:
         assert False, "Cannot extract operative text"
+
 def test_operative_part_csv():
     celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154"]
     celex:str
@@ -143,7 +146,7 @@ def test_for_operative_part():
     choice=random.randint(0,len(celex_store))
     celex=celex_store[choice]
     try:
-        test_for_operative_part(celex)
+        for_operative_part(celex)
         assert True
     except Exception:
         assert False, "Cannot extract operative part"
