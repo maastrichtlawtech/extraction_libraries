@@ -2,7 +2,6 @@ import csv
 import json
 import random
 from cellar_extractor import *
-from cellar_extractor.operative_extractions import *
 
 def cellar_csv_n():
     get_cellar(save_file='n', file_format='csv', sd='2022-01-01', max_ecli=100)
