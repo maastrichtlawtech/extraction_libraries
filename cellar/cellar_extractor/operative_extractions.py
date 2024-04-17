@@ -9,13 +9,13 @@ class Analyzer():
     This class returns a list of the operative part for a given celex id. 
     Celex id is initialized through a constructor.
     """
-    celex: str  # declare celex as a string
-    url: str  # declare url as a string
+    celex: str=""  # declare celex as a string
+    # declare url as a string
+    url:str=""
     def __init__(self, celex):
         # Initialize Celex id as a constructor, passed when calling the class
         self.celex = celex
-        self.url = "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A\
-            {self.celex}&from=EN"
+        self.url = f"https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX%3A{self.celex}&from=EN"    
         
     def html_page_structure_one(self) -> list:
         """
@@ -23,7 +23,7 @@ class Analyzer():
          This function scrapes/parse the operative part from a nested
          table structure . The relevant text lies inside the coj-bold class of the span tag.
         """
-        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
+        website = requests.get(self.url, timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         div = parser.find_all('table')  # Find all tables tag from the website
         one = []
@@ -49,7 +49,7 @@ class Analyzer():
          (p) structure . The relevant text lies inside the normal class of the p tag which
          comes after the keyword operative of the previous span tag.
         """
-        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
+        website = requests.get(self.url, timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         p = parser.find_all('p')
         two = []
@@ -68,7 +68,7 @@ class Analyzer():
          This function scrapes/parse the operative part from a nested
          table structure. The relevant text lies inside the coj-bold class of the span tag.
         """
-        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
+        website = requests.get(self.url, timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         table = parser.find_all('table')
         three = []
@@ -91,7 +91,7 @@ class Analyzer():
          (p) structure . The relevant text lies inside the p  tag which comes after the
          keyword operative of the previous span tag.
         """
-        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
+        website = requests.get(self.url, timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         p = parser.find_all('p')
         four = []
@@ -115,7 +115,7 @@ class Analyzer():
          (p) structure. The relevant text lies inside the normal class of the p tag which
          comes after the keyword operative of the previous span tag.
         """
-        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
+        website = requests.get(self.url, timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         p = parser.find_all('p')
         five = []
@@ -141,7 +141,7 @@ class Analyzer():
          The relevant text lies inside thee p tag which comes after the keyword operative 
          part of the respective h2  tag.
          """
-        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
+        website = requests.get(self.url, timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         div = parser.find_all('h2')
         six = []
@@ -161,7 +161,7 @@ class Analyzer():
          (table) structure. The relevant text lies inside the span tag which comes after 
          the p tag , with the class name=normal.
         """
-        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
+        website = requests.get(self.url, timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         div = parser.find_all('table')
         seven = []
@@ -196,7 +196,7 @@ class Analyzer():
          The text is extracted from the span tag nested inside 
          the tbody tag.Returns a list as output.
         """
-        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
+        website = requests.get(self.url, timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
 
         tbody = parser.find_all('tbody')
@@ -223,7 +223,7 @@ class Analyzer():
          The operative part is under the bold(b)
          tag after the p tag where the keywords "on those grounds" exist. 
         """
-        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
+        website = requests.get(self.url, timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         nine = []
         div = parser.find_all('p')
@@ -241,7 +241,7 @@ class Analyzer():
          The operative part is under the paragraph(p)
          tag after the b tag where the keywords "operative part" exist. 
         """
-        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
+        website = requests.get(self.url, timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         bold = parser.find_all('b')
 
@@ -264,7 +264,7 @@ class Analyzer():
          operative part is scraped after the occurence of the phrase
          "On those grounds".
         """
-        website = requests.get(self.url.replace("{self.celex}", self.celex), timeout=60).text
+        website = requests.get(self.url, timeout=60).text
         parser = BeautifulSoup(website, 'lxml')
         appender = []
         for string in parser.stripped_strings:
@@ -300,10 +300,9 @@ class Analyzer():
             one = container[funcs]
             if one:
                 if (len(one) != 0 or one[0] != "\n"):
-                    print("here")
+               
                     return one
-        return None
-    
+
 class Writing():
     """
     This class has different methods, for the purpose of writing the operative part 
@@ -352,4 +351,3 @@ class Writing():
             for w in self.x:
                 _file.write(w+"\n")
             _file.close()
-
