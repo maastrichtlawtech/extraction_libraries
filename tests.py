@@ -132,7 +132,7 @@ def test_operative_part_csv():
     choice=random.randint(0,len(celex_store))
     celex=celex_store[choice]
     try:
-        operative_part_csv(celex):
+        operative_part_csv(celex)
         assert True
     except Exception:
         assert False, "Cannot extract operative text"
@@ -146,5 +146,5 @@ def test_for_operative_part():
         test_for_operative_part(celex)
         assert True
     except Exception:
-        assert False, "Cannot extract operative part"    
-                
+        assert False, "Cannot extract operative part"
+            
