@@ -73,55 +73,37 @@ def test_cellar_json_n():
     except Exception:
         assert False, "Downloading cellar as json failed."
 
-
-
-
-
-
 def operative_part_csv(celex)->csv:
-
     csv_store=Writing(celex)
-    csv_store.to_csv()
     try:
-        if csv_store.to_csv():
-            assert True
+        csv_store.to_csv()
+        assert True
     except Exception:
-        assert False   
+        assert False, "Downloading and storing as csv failed for operative part"
+       
 def operative_part_json(celex)->json:
     json_store=Writing(celex)
-    json_store.to_json()
     try:
-        if json_store.to_json():
-            assert True
+        json_store.to_json()
+        assert True
     except Exception:
-        assert False
+        assert False, "Downloading and storing as json failed for operative part"
 
 def operative_part_txt(celex):
     txt_store=Writing(celex)
-    txt_store.to_txt()
     try:
-        if txt_store.to_txt():
-            assert True
+        txt_store.to_txt()
+        assert True
     except Exception:
-        assert False
+        assert False, "Downloading and storing as txt failed for operative part"
 
 def for_operative_part(celex):
-      
-        count_fail:int
-        count_pass=0
-        for id in celex_store:
-           
-         
-          
-            try:
-                test_output=Analyzer(celex)
-                test_instance=test_output()
-                assert True
-          
-             
-            except Exception:
-                assert False
-
+        try:
+            test_output=Analyzer(id)
+            test_output()
+            assert True            
+        except Exception:
+            assert False, "Cannot extract for celex"
 
 def test_operative_part_txt():
     celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154"]
@@ -129,30 +111,31 @@ def test_operative_part_txt():
     choice=random.randint(0,len(celex_store))
     celex=celex_store[choice]
     try:
-        if operative_part_txt(celex):
-            assert True
+        operative_part_txt(celex)
+        assert True
     except Exception:
-        assert False
+        assert False, "Cannot extract operative text"
+
 def test_operative_part_json():
     celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154"]
     celex:str
     choice=random.randint(0,len(celex_store))
     celex=celex_store[choice]
     try:
-        if operative_part_json(celex):
-            assert True
+        operative_part_json(celex)
+        assert True
     except Exception:
-        assert False
+        assert False, "Cannot extract operative text"
 def test_operative_part_csv():
     celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154"]
     celex:str
     choice=random.randint(0,len(celex_store))
     celex=celex_store[choice]
     try:
-        if operative_part_csv(celex):
-            assert True
+        operative_part_csv(celex):
+        assert True
     except Exception:
-        assert False
+        assert False, "Cannot extract operative text"
     
 def test_for_operative_part():
     celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154"]
@@ -160,10 +143,8 @@ def test_for_operative_part():
     choice=random.randint(0,len(celex_store))
     celex=celex_store[choice]
     try:
-        if test_for_operative_part(celex):
-            assert True
+        test_for_operative_part(celex)
+        assert True
     except Exception:
-        assert False   
-    
-    
+        assert False, "Cannot extract operative part"    
                 
