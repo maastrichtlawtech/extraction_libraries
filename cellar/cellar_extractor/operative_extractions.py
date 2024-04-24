@@ -333,7 +333,7 @@ class Writing():
 
 
     def to_csv(self):
-        _file = open("output.csv", "a+", encoding="utf-8")
+        _file = open("csv/output.csv", "a+", encoding="utf-8")
         writer = csv.writer(_file)
         if self.x is not None:
             writer.writerow([self.celex, self.x])
@@ -341,7 +341,7 @@ class Writing():
     def to_json(self):
         if self.x is not None:
             data = {'Celex': self.celex, "Operative part": self.x}
-            _file = open('data.json', 'a+', encoding='utf-8')
+            _file = open('json/data.json', 'a+', encoding='utf-8')
             json.dump(data, _file)
             _file.close()
 
