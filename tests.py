@@ -107,7 +107,7 @@ def for_operative_part(celex):
 def test_operative_part_txt():
     celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154"]
     celex:str
-    choice=random.randint(0,len(celex_store))
+    choice=random.randint(0,len(celex_store)-1)
     celex=celex_store[choice]
     try:
         operative_part_txt(celex)
@@ -118,7 +118,7 @@ def test_operative_part_txt():
 def test_operative_part_json():
     celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154"]
     celex:str
-    choice=random.randint(0,len(celex_store))
+    choice=random.randint(0,len(celex_store)-1)
     celex=celex_store[choice]
     try:
         operative_part_json(celex)
@@ -129,7 +129,7 @@ def test_operative_part_json():
 def test_operative_part_csv():
     celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154"]
     celex:str
-    choice=random.randint(0,len(celex_store))
+    choice=random.randint(0,len(celex_store)-1)
     celex=celex_store[choice]
     try:
         operative_part_csv(celex)
@@ -140,7 +140,7 @@ def test_operative_part_csv():
 def test_for_operative_part():
     celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154"]
     celex:str
-    choice=random.randint(0,len(celex_store))
+    choice=random.randint(0,len(celex_store)-1)
     celex=celex_store[choice]
     try:
         for_operative_part(celex)
