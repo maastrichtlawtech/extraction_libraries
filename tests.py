@@ -1,7 +1,9 @@
-import csv
-import json
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import random
-from cellar_extractor import *
+from cellar.cellar_extractor.cellar import *
+from cellar.cellar_extractor.operative_extractions import *
 
 def cellar_csv_n():
     get_cellar(save_file='n', file_format='csv', sd='2022-01-01', max_ecli=100)
