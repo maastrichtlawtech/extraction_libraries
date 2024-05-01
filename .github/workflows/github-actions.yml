@@ -20,7 +20,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libxml2-dev libxslt1-dev
           sudo apt-get install libxml2-dev libxslt1-dev
-          rm -rf build/
+          pip install Cython
           python -m pip install --force-reinstall lxml
           python -m pip install --upgrade pip setuptools wheel
           pip install -e cellar/
