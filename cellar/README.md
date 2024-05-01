@@ -132,6 +132,15 @@ Python 3.9
         <li><strong>phrase: string, required, default None</strong></li>
         The phrase which has to be present in the subject matter of cases. Case insensitive.
     </ul>
+     <li><code>Analyzer</code></li>
+    <ul>
+        <li><strong>celex: str, required</strong></li>
+    </ul>
+    <li><code>Writing</code></li>
+        <ul>
+        <li><strong>celex: str, required</strong></li>
+    </ul>
+    
 </ol>
 
 
