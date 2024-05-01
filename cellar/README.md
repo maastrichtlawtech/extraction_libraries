@@ -66,6 +66,10 @@ Python 3.9
     Allows the creation of a network graph of the citations. Can only be returned in-memory.
     <li><code>filter_subject_matter</code></li>
     Returns a dataframe of cases only containing a certain phrase in the column containing the subject of cases.
+    <li><code>Analyzer</code></li>
+    A class whose instance(declaration) when called returns a list of the all the text contained within the operative part for each European Case law case(En-English only).
+    <li><code>Writing</code></li>
+    A class which writes the text for the operative part for each European Case law case(En-English only) into csv,json and txt files(Generated upon initialization).
     <br>
 </ol>
 
