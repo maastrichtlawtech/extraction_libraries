@@ -134,11 +134,11 @@ Python 3.9
     </ul>
      <li><code>Analyzer</code></li>
     <ul>
-        <li><strong>celex: str, required</strong></li>
+        <li><strong>celex id: str, required</strong></li>
     </ul>
     <li><code>Writing</code></li>
         <ul>
-        <li><strong>celex: str, required</strong></li>
+        <li><strong>celex id: str, required</strong></li>
     </ul>
     
 </ol>
