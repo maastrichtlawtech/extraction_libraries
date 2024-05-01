@@ -37,6 +37,13 @@ Python 3.9
             <sub><b>gijsvd</b></sub>
         </a>
     </td>
+       <td align="center">
+        <a href="https://github.com/venvis">
+            <img src="https://avatars.githubusercontent.com/venvis" width="100;" alt="venvis"/>
+            <br />
+            <sub><b>venvis</b></sub>
+        </a>
+    </td>
 </tr>
 </table>
 <!-- readme: contributors,gijsvd -end -->
