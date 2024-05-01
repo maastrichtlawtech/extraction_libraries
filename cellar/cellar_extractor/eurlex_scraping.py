@@ -1,8 +1,9 @@
-from bs4 import BeautifulSoup
-import requests
 import time
-import xmltodict
 import re
+import requests
+import xmltodict
+
+from bs4 import BeautifulSoup
 
 LINK_SUMMARY_INF = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere&from=EN'
 LINK_SUMJURE = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere_SUM&from=EN'
@@ -17,31 +18,25 @@ Method for detecting code-words for case law directory codes for cellar.
 def is_code(word):
     return word.replace(".", "0").replace("-", "0")[1:].isdigit()
 
-
-"""
-Wrapped method for requests.get().
-After 10 retries, it gives up and returns a "404" string.
-"""
-
-
 def response_wrapper(link, num=1):
+    """
+    Wrapped method for requests.get().
+    After 10 retries, it gives up and returns a "404" string.
+    """
     if num == 10:
         return "404"
     try:
-        response = requests.get(link)
+        response = requests.get(link, timeout=60)
         return response
     except Exception:
         time.sleep(0.5 * num)
         return response_wrapper(link, num + 1)
 
-
-"""
-This method returns the html of a summary page.
-Cellar specific, works for celex id's starting a 6 and 8.
-"""
-
-
 def get_summary_html(celex):
+    """
+    This method returns the html of a summary page.
+    Cellar specific, works for celex id's starting a 6 and 8.
+    """
     if celex == celex:  # nan check
         if ";" in celex:
             idss = celex.split(";")
@@ -82,18 +77,16 @@ def get_summary_html(celex):
         else:
             return "No summary available"
 
-
-"""
-Method used to extract the summary from a html page.
-Cellar specific, uses get_words_from_keywords.
-Currently only walking for celex id's starting with a 6 ( EU cases).
-"""
-
-
 def get_summary_from_html(html, starting):
+    """
+    Method used to extract the summary from a html page.
+    Cellar specific, uses get_words_from_keywords.
+    Currently only walking for celex id's starting with a 6 ( EU cases).
+
     # This method turns the html code from the summary page into text
     # It has different cases depending on the first character of the CELEX ID
     # Should only be used for summaries extraction
+    """
     text = get_full_text_from_html(html)
     if starting == "8":
         return "No summary available"
@@ -107,17 +100,14 @@ def get_summary_from_html(html, starting):
             return text
     return text
 
-
-"""
-Method used to extract the keywords from a html page.
-Cellar specific, uses get_words_from_keywords.
-"""
-
-
 def get_keywords_from_html(html, starting):
+    """
+    Method used to extract the keywords from a html page.
+    Cellar specific, uses get_words_from_keywords.
     # This method turns the html code from the summary page into text
     # It has different cases depending on the first character of the CELEX ID
     # Should only be used for summaries extraction
+    """
     text = get_full_text_from_html(html)
     if starting == "8":
         text = "No keywords available"
@@ -125,22 +115,18 @@ def get_keywords_from_html(html, starting):
     elif starting == "6":
         return get_words_from_keywords(text)
 
-
-"""
-
-Method used for citations extraction from eurlex webservices.
-It reads the SOAP response from the webservices, and adds values to the dictionary based on the results.
-Dictionary is using the celex id of a work as key and a list of celex id's of works cited as value.
-
-"""
-
-
 def extract_dictionary_from_webservice_query(response):
+    """
+    Method used for citations extraction from eurlex webservices.
+    It reads the SOAP response from the webservices, and adds values to the 
+    dictionary based on the results. Dictionary is using the celex id of a 
+    work as key and a list of celex id's of works cited as value.
+    """
     text = response.text
     read = xmltodict.parse(text)
     results = read['S:Envelope']['S:Body']['searchResults']['result']
     dictionary = dict()
-    if type(results) == list:
+    if isinstance(results, list):
         for result in results:
             celex, citing = extract_citations_from_soap(result)
             dictionary[celex] = citing
@@ -149,16 +135,11 @@ def extract_dictionary_from_webservice_query(response):
         dictionary[celex] = citing
     return dictionary
 
-
-"""
-
-Method used for citations extraction from eurlex webservices.
-Reads the individual celex id and documents cited from a single result.
-
-"""
-
-
 def extract_citations_from_soap(results):
+    """
+    Method used for citations extraction from eurlex webservices.
+    Reads the individual celex id and documents cited from a single result.
+    """
     main_content = results['content']['NOTICE']['WORK']
     celex = main_content['ID_CELEX'].get('VALUE')
     try:
@@ -166,7 +147,7 @@ def extract_citations_from_soap(results):
     except KeyError:
         return celex, ""
     citing_list = list()
-    if type(citing) == list:
+    if isinstance(citing, list):
         for cited in citing:
             celex_of_citation = get_citation_celex(cited)
             if celex_of_citation != "":
@@ -175,20 +156,16 @@ def extract_citations_from_soap(results):
     else:
         return celex, get_citation_celex(citing)
 
-
-"""
-
-Method used for citations extraction from eurlex webservices.
-Goes thru all of the different id's of the document cited, and returns the one that is a celex id.
-
-"""
-
-
 def get_citation_celex(cited):
+    """
+    Method used for citations extraction from eurlex webservices.
+    Goes thru all of the different id's of the document cited, 
+    and returns the one that is a celex id.
+    """
     identifiers = cited['SAMEAS']
-    if type(identifiers) == list:
-        for id in identifiers:
-            ident = id['URI']['IDENTIFIER']
+    if isinstance(identifiers, list):
+        for _id in identifiers:
+            ident = _id['URI']['IDENTIFIER']
             if is_celex_id(ident):
                 return ident
     else:
@@ -197,31 +174,22 @@ def get_citation_celex(cited):
             return ident
     return ""
 
-
-"""
-
-Method checking if the id passed is a celex id, using regex.
-
-"""
-
-
-def is_celex_id(id):
-    if id is None:
+def is_celex_id(_id):
+    """
+    Method checking if the id passed is a celex id, using regex.
+    """
+    if _id is None:
         return False
-    if prog.match(id):
+    if prog.match(_id):
         return True
     else:
         return False
 
-
-"""
-This method tries to extract only they keywords from a part of html page containing it.
-They keywords on the page are always separated by " - " or other types of dashes.
-
-"""
-
-
 def get_words_from_keywords_em(text):
+    """
+    This method tries to extract only they keywords from a part of html page containing it.
+    They keywords on the page are always separated by " - " or other types of dashes.
+    """
     lines = text.split(sep="\n")
     returner = set()
     for line in lines:
@@ -242,15 +210,10 @@ def get_words_from_keywords_em(text):
             returner.update(line.split(sep=" - "))
     return ";".join(returner)
 
-
-"""
-
-One of the methods used to extract keywords from summary text.
-
-"""
-
-
 def get_words_from_keywords(text):
+    """
+    One of the methods used to extract keywords from summary text.
+    """
     if "Keywords" in text:
         try:
             index = text.find("Keywords")
@@ -269,15 +232,12 @@ def get_words_from_keywords(text):
             text = text[:index]
     return get_words_from_keywords_em(text)
 
-
-"""
-  This method turns the html code from the summary page into text.
-  It has different cases depending on the first character of the CELEX ID.
-  Universal method, also replaces all "," with "_".
-"""
-
-
 def get_full_text_from_html(html_text):
+    """
+    This method turns the html code from the summary page into text.
+    It has different cases depending on the first character of the CELEX ID.
+    Universal method, also replaces all "," with "_".
+    """
     # This method turns the html code from the summary page into text
     # It has different cases depending on the first character of the CELEX ID
     # Should only be used for summaries extraction
@@ -294,15 +254,12 @@ def get_full_text_from_html(html_text):
     text = text.replace(",", "_")
     return text
 
-
-"""
-This method is a wrapped for the get_html_by_celex_id method imported from eurlex.
-Sometimes thew websites do not load because of too many connections at once,
-this method waits a bit and tries again for up to 5 tries.
-"""
-
-
 def get_html_text_by_celex_id(id):
+    """
+    This method is a wrapped for the get_html_by_celex_id method imported from eurlex.
+    Sometimes thew websites do not load because of too many connections at once,
+    this method waits a bit and tries again for up to 5 tries.
+    """
     link = "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:cIdHere&from=EN"
     final = id
     if id == id:  # nan check
@@ -321,14 +278,12 @@ def get_html_text_by_celex_id(id):
     else:
         return html.text
 
-
-"""
-This method gets the page containing all document details for extracting the subject matter and
-the case law directory codes. Uses the celex identifier of a case.
-"""
-
-
 def get_entire_page(celex):
+    """
+    This method gets the page containing all document details for extracting 
+    the subject matter and
+    the case law directory codes. Uses the celex identifier of a case.
+    """
     link = 'https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:cIdHere'
     if celex == celex:  # nan check
         if ";" in celex:
@@ -353,14 +308,11 @@ def get_entire_page(celex):
     except Exception:
         return "No data available"
 
-
-"""
-This Method gets the subject matter from a fragment of code containing them.
-Used for extracting subject matter for cellar cases only.
-"""
-
-
 def get_subject(text):
+    """
+    This Method gets the subject matter from a fragment of code containing them.
+    Used for extracting subject matter for cellar cases only.
+    """
     try:
         index_matter = text.index("Subject matter:")
         try:
@@ -375,14 +327,11 @@ def get_subject(text):
         subject = ""
     return subject
 
-
-"""
-This Method extracts all eurovocs, from a fragment containing them.
-Used for extracting eurovoc for cellar cases.
-"""
-
-
 def get_eurovoc(text):
+    """
+    This Method extracts all eurovocs, from a fragment containing them.
+    Used for extracting eurovoc for cellar cases.
+    """
     try:
         start = text.find("EUROVOC")
         try:
@@ -408,14 +357,11 @@ def get_eurovoc(text):
     except Exception:
         return ""
 
-
-"""
-Method for getting all of the case directory codes for each cellar case.
-Extracts them from a string containing the eurlex website containing all document information.
-"""
-
-
 def get_codes(text):
+    """
+    Method for getting all of the case directory codes for each cellar case.
+    Extracts them from a string containing the eurlex website containing all document information.
+    """
     try:
         index_codes = text.index("Case law directory code:")
         index_end = text.index("Miscellaneous information")
@@ -431,11 +377,8 @@ def get_codes(text):
             index_start = indexes[x]
             getting_ending = extracting[index_start:]
             words_here = getting_ending.split()
-
             for words in words_here:
-
                 if words is not words_here[0]:
-
                     if is_code(words):
                         ending = getting_ending[2:].find(words)
                         done = True
@@ -444,13 +387,11 @@ def get_codes(text):
                 code_text = getting_ending[:ending]
             else:
                 code_text = getting_ending
-
             codes_result.append(code_text.replace("\n", ""))
         code = ";".join(codes_result)
     except Exception:
         code = ""
     return code
-
 
 def get_advocate_or_judge(text, phrase):
     """
@@ -475,7 +416,8 @@ def get_advocate_or_judge(text, phrase):
 def get_case_affecting(text):
     """
     :param text: full text of the info page of a case from eur-lex website
-    :return: The celex id's of case affecting listed + entire string data with more information about the case affecting
+    :return: The celex id's of case affecting listed + entire string data with 
+    more information about the case affecting
     """
     phrase = 'Case affecting:'
     try:
@@ -523,6 +465,5 @@ def get_citations_with_extra_info(text):
                 data_list.append(fixed_line)
             else:
                 return ";".join(data_list)
-
     except:
         return ''

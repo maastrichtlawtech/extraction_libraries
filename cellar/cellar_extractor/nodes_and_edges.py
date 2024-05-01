@@ -1,7 +1,9 @@
 import pandas as pd
+
 def extract_containing_subject_matter(df,phrase):
     returner = df[df["LEGAL RESOURCE IS ABOUT SUBJECT MATTER"].str.contains(phrase, na=False)]
     return returner
+
 def get_df_with_celexes(df,celexes):
     returner = df[df['CELEX IDENTIFIER'].isin(celexes)]
     return returner
@@ -12,7 +14,7 @@ def get_edges_list(df,only_local):
     vals = extraction['citing'].tolist()
     nodes = set()
     edges = list()
-    for i in range(len(keys)):
+    for i in enumerate(keys):
         k = keys[i]
         val = vals[i]
         if val != val:

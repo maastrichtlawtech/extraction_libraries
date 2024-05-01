@@ -3,12 +3,11 @@ import argparse
 import logging
 from cellar_extractor.json_to_csv import read_csv
 
-"""
-Method takes in a dataframe and returns a dataframe with only *number* of data rows.
-"""
-
-
 def extract_rows(data, number):
+    """
+    Method takes in a dataframe and returns a dataframe with only *number* of data rows.
+    """
+
     try:
         output = data[1:number]
     except Exception:

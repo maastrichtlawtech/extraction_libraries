@@ -37,6 +37,13 @@ Python 3.9
             <sub><b>gijsvd</b></sub>
         </a>
     </td>
+       <td align="center">
+        <a href="https://github.com/venvis">
+            <img src="https://avatars.githubusercontent.com/venvis" width="100;" alt="venvis"/>
+            <br />
+            <sub><b>venvis</b></sub>
+        </a>
+    </td>
 </tr>
 </table>
 <!-- readme: contributors,gijsvd -end -->
@@ -59,6 +66,16 @@ Python 3.9
     Allows the creation of a network graph of the citations. Can only be returned in-memory.
     <li><code>filter_subject_matter</code></li>
     Returns a dataframe of cases only containing a certain phrase in the column containing the subject of cases.
+    <li><code>Analyzer</code></li>
+    A class whose instance(declaration) when called returns a list of the all the text contained within the operative part for each European Court of Justice (CJEU, formerly known as European Court of Justice (ECJ)) judgement (English only).
+    <li><code>Writing</code></li>
+    A class which writes the text for the operative part for each European Case law case(En-English only) into csv,json and txt files(Generated upon initialization).<br>
+    the <code>Writing</code> class has three functions : <br><br>
+    <ul>
+        <li><code>to_csv()</code> - Writes the operative part along with celex id into a csv file</li>
+        <li><code>to_json()</code> - Writes the operative part along with celex id into a json file</li>
+        <li><code>to_txt()</code> - Writes the operative part along with celex id into a txt file</li>
+    </ul>
     <br>
 </ol>
 
@@ -115,11 +132,22 @@ Python 3.9
         <li><strong>phrase: string, required, default None</strong></li>
         The phrase which has to be present in the subject matter of cases. Case insensitive.
     </ul>
+     <li><code>Analyzer</code></li>
+    <ul>
+        <li><strong>celex id: str, required</strong></li>
+        <li>Pass as a constructor upon initializing the class</li>
+    </ul>
+    <li><code>Writing</code></li>
+        <ul>
+        <li><strong>celex id: str, required</strong></li>
+            <li>Pass as a constructor upon initializing the class</li>
+    </ul>
+    
 </ol>
 
 
 ## Examples
-```
+```python
 import cellar_extractor as cell
 
 Below are examples for in-file saving:
@@ -132,7 +160,26 @@ Below are examples for in-memory saving:
 df = cell.get_cellar(save_file='n', file_format='csv', sd='2022-01-01', max_ecli=1000)
 df,json = cell.get_cellar_extra(save_file='n', max_ecli=100, sd='2022-01-01', threads=10)
 ```
+<p>Create a callback of the instance of the class initiated and pass a list as it's value.</p>
 
+```python
+import cellar_extractor as cell
+instance=cell.Analyzer(celex_id:str)
+output_list=instance()
+print(output_list) # prints operative part of the Case as a list
+```
+
+
+<p>The Writing Class also takes a celex id , upon initializing the class , through the means of the constructor and writes the content of its operative part into different files , depending on the function called</p>
+
+```python
+import cellar_extractor as cell
+instance=cell.Writing(celex_id:str)
+output=instance.to_csv()#for csv
+output=instance.to_txt()#for txt
+output=instance.to_json()#for json
+
+```
 
 ## License
 [![License: Apache 2.0](https://img.shields.io/github/license/maastrichtlawtech/extraction_libraries)](https://opensource.org/licenses/Apache-2.0)

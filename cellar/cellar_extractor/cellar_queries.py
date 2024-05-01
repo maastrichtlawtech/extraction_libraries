@@ -48,18 +48,23 @@ def get_all_eclis(starting_date=None, ending_date=None):
     return eclis
 
 
-def get_raw_cellar_metadata(eclis, get_labels=True, force_readable_cols=True, force_readable_vals=False):
+def get_raw_cellar_metadata(eclis, get_labels=True, force_readable_cols=True,
+                            force_readable_vals=False):
     """Gets cellar metadata
 
     :param eclis: The ECLIs for which to retrieve metadata
     :type eclis: list[str]
-    :param get_labels: Flag to get human-readable labels for the properties, defaults to True
+    :param get_labels: Flag to get human-readable labels for the properties, 
+    defaults to True
     :type get_labels: bool, optional
-    :param force_readable_cols: Flag to remove any non-labelled properties from the resulting dict, defaults to True
+    :param force_readable_cols: Flag to remove any non-labelled properties 
+    from the resulting dict, defaults to True
     :type force_readable_cols: bool, optional
-    :param force_readable_vals: Flag to remove any non-labelled values from the resulting dict, defaults to False
+    :param force_readable_vals: Flag to remove any non-labelled values from 
+    the resulting dict, defaults to False
     :type force_readable_vals: bool, optional
-    :return: Dictionary containing metadata. Top-level keys are ECLIs, second level are property names
+    :return: Dictionary containing metadata. Top-level keys are ECLIs, second 
+    level are property names
     :rtype: Dict[str, Dict[str, list[str]]]
     """
 
@@ -100,8 +105,8 @@ def get_raw_cellar_metadata(eclis, get_labels=True, force_readable_cols=True, fo
     for ecli in eclis:
         metadata[ecli] = {}
 
-    # Take each triple, check which source doc it belongs to, key/value pair into its dict derived from the p and o in
-    # the query
+    # Take each triple, check which source doc it belongs to, key/value pair
+    # into its dict derived from the p and o in the query
     for res in ret['results']['bindings']:
         ecli = res['ecli']['value']
         # We only want cdm predicates
@@ -125,8 +130,9 @@ def get_raw_cellar_metadata(eclis, get_labels=True, force_readable_cols=True, fo
         else:
             val = res['o']['value']
 
-        # We store the values for each property in a list. For some properties this is not necessary,
-        # but if a property can be assigned multiple times, this is important. Notable, for example is citations.b
+        # We store the values for each property in a list. For some properties
+        # this is not necessary, but if a property can be assigned multiple
+        # times, this is important. Notable, for example is citations.
         if key in metadata[ecli]:
             metadata[ecli][key].append(val)
         else:
