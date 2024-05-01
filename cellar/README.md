@@ -70,7 +70,7 @@ Python 3.9
     A class whose instance(declaration) when called returns a list of the all the text contained within the operative part for each European Case law case(En-English only).
     <li><code>Writing</code></li>
     A class which writes the text for the operative part for each European Case law case(En-English only) into csv,json and txt files(Generated upon initialization).<br>
-    the <code>Writing</code> has three functions : <br>
+    the <code>Writing</code> class has three functions : <br><br>
     <ul>
         <li><code>to_csv()</code> - Writes the operative part along with celex id into a csv file</li>
         <li><code>to_json()</code> - Writes the operative part along with celex id into a json file</li>
