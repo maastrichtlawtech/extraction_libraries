@@ -135,10 +135,12 @@ Python 3.9
      <li><code>Analyzer</code></li>
     <ul>
         <li><strong>celex id: str, required</strong></li>
+        <li>Pass as a constructor upon initializing the class</li>
     </ul>
     <li><code>Writing</code></li>
         <ul>
         <li><strong>celex id: str, required</strong></li>
+            <li>Pass as a constructor upon initializing the class</li>
     </ul>
     
 </ol>
