@@ -19,6 +19,9 @@ jobs:
           python -m pip install --upgrade pip
           sudo apt-get update
           sudo apt-get install -y libxml2-dev libxslt1-dev
+          sudo apt-get install libxml2-dev libxslt1-dev
+          rm -rf build/
+          python -m pip install --force-reinstall lxml
           pip install -e cellar/
           
      # pip install echr-extractor
