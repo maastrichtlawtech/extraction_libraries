@@ -147,7 +147,7 @@ Python 3.9
 
 
 ## Examples
-```
+```python
 import cellar_extractor as cell
 
 Below are examples for in-file saving:
