@@ -160,17 +160,21 @@ Below are examples for in-memory saving:
 df = cell.get_cellar(save_file='n', file_format='csv', sd='2022-01-01', max_ecli=1000)
 df,json = cell.get_cellar_extra(save_file='n', max_ecli=100, sd='2022-01-01', threads=10)
 ```
-```python
-instance=Analyzer(celex_id:str)
-output_list=instance()
-print(output_list)
-```
 <p>Create a callback of the instance of the class initiated and pass a list as it's value.</p>
+
+```python
+import cellar_extractor as cell
+instance=cell.Analyzer(celex_id:str)
+output_list=instance()
+print(output_list) # prints operative part of the Case as a list
+```
+
 
 <p>The Writing Class also takes a celex id , upon initializing the class , through the means of the constructor and writes the content of its operative part into different files , depending on the function called</p>
 
 ```python
-instance=Writing(celex_id:str)
+import cellar_extractor as cell
+instance=cell.Writing(celex_id:str)
 output=instance.to_csv()#for csv
 output=instance.to_txt()#for txt
 output=instance.to_json()#for json
