@@ -24,7 +24,7 @@ class Analyzer():
          table structure . The relevant text lies inside the coj-bold class of the span tag.
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         div = parser.find_all('table')  # Find all tables tag from the website
         one = []
         for divs in div:
@@ -50,7 +50,7 @@ class Analyzer():
          comes after the keyword operative of the previous span tag.
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         p = parser.find_all('p')
         two = []
         for para in p:
@@ -69,7 +69,7 @@ class Analyzer():
          table structure. The relevant text lies inside the coj-bold class of the span tag.
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         table = parser.find_all('table')
         three = []
         for tables in table:
@@ -92,7 +92,7 @@ class Analyzer():
          keyword operative of the previous span tag.
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         p = parser.find_all('p')
         four = []
         for para in p:
@@ -116,7 +116,7 @@ class Analyzer():
          comes after the keyword operative of the previous span tag.
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         p = parser.find_all('p')
         five = []
         for para in p:
@@ -142,7 +142,7 @@ class Analyzer():
          part of the respective h2  tag.
          """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         div = parser.find_all('h2')
         six = []
         for h2 in div:
@@ -162,7 +162,7 @@ class Analyzer():
          the p tag , with the class name=normal.
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         div = parser.find_all('table')
         seven = []
         for divs in div:
@@ -197,7 +197,7 @@ class Analyzer():
          the tbody tag.Returns a list as output.
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
 
         tbody = parser.find_all('tbody')
         eight = []
@@ -224,7 +224,7 @@ class Analyzer():
          tag after the p tag where the keywords "on those grounds" exist. 
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         nine = []
         div = parser.find_all('p')
         for divs in div:
@@ -242,7 +242,7 @@ class Analyzer():
          tag after the b tag where the keywords "operative part" exist. 
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         bold = parser.find_all('b')
 
         eleven = []
@@ -265,7 +265,7 @@ class Analyzer():
          "On those grounds".
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         appender = []
         for string in parser.stripped_strings:
 
