@@ -2,7 +2,11 @@
 This library contains two functions to get cellar case law data from eurlex.
 
 ## Version
-Python 3.9
+Python 3.9 onwards * 
+
+## Tests
+![Workflow Status](https://github.com/maastrichtlawtech/extraction_libraries/actions/workflows/github-actions.yml/badge.svg)
+
 
 ## Contributors
 
