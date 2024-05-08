@@ -1,4 +1,4 @@
-name: Extraction Libraries
+name: Extraction Libraries &  Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
 run-name: ${{ github.actor }} is testing out Extraction Libraries using GitHub Actions 🚀
 on: [push]
 jobs:
@@ -40,7 +40,6 @@ jobs:
           pip install pytest-cov
           pytest tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
 
-name: Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
 
 on:
   push:
