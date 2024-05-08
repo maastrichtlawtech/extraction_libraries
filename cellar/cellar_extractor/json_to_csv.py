@@ -76,7 +76,7 @@ def json_to_csv(json_data):
             # Making commas as the only value separator in the dataset
             value = re.sub(r",", ";", str(value))
             # Remove HTML tags
-            value = BeautifulSoup(value, "lxml").text
+            value = BeautifulSoup(value, "html.parser").text
 
             for j in [j for j, x in enumerate(COLS) if x == title]:
                 data[j] = value
