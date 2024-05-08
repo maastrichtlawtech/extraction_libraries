@@ -14,7 +14,7 @@ setup(
     description='Library for extracting cellar data',
     author='LawTech Lab',
     license='MIT',
-    install_requires=['bs4','SPARQLWrapper==2.0.0', 'requests==2.26.0', 'pandas','lxml==4.6.3','xmltodict==0.13.0','tqdm'],
+    install_requires=['bs4','SPARQLWrapper==2.0.0', 'requests==2.26.0', 'pandas','xmltodict==0.13.0','tqdm'],
     author_email='p.lewandowski@student.maastrichtuniversity.nl',
     keywords=['cellar', 'extractor'],
     long_description=long_descr,
