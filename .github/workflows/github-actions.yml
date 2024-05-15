@@ -1,120 +1,137 @@
-name: Extraction Libraries &  Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
-run-name: ${{ github.actor }} is testing out Extraction Libraries using GitHub Actions 🚀
-on: [push]
+name: Build, Test, Lint & Upload to TestPypi and Pypi for Cellar_Extractor
+on: 
+  push:
+    branches: [ cellar ]
+  pull_request:
+    branches: [ cellar ]
+
 jobs:
-  Explore-Extraction-Libraries:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: [3.9, '3.10', '3.11', '3.12']
+
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
         with:
-          python-version: '3.12'
-      - name: Install dependencies
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies and cibuildwheen
         run: |
           python -m pip install --upgrade pip
-          sudo apt-get update
-          sudo apt-get install python3-dev
-          sudo apt-get install -y libxml2-dev libxslt1-dev
-          sudo apt-get install libxml2-dev libxslt1-dev
-          pip install Cython
-          python -m pip install --force-reinstall lxml
-          export CFLAGS="-I/path/to/python/include"
-          python -m pip install --upgrade pip setuptools wheel
-          pip install -e cellar/
-          
-     # pip install echr-extractor
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
+          # If requirements.txt exists, install from it
+          if [ -f requriments.txt ]; pip install -r requirements.txt; fi
+          python -m pip install cibuildwheel==2.18.0
+          # Install the package from setup.py
+          python -m pip install .
+
+      - name: Install ruff
         run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
-      - name: Test with pytest
+          pip install ruff
+
+      - name: Lint with ruff
+        run: |
+          ruff .
+
+      - name: Run tests with pytest
         run: |
           pip install pytest
           pip install pytest-cov
           pytest tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
-
-
-on:
-  push:
-    branches:
-      - 'cellar'
-      - 'cellar_github_workflows'
-
-jobs:
-  build:
-    name: Build distribution 📦
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.9, 3.10, 3.11, 3.12"
-      - name: Install pypa/build
+      
+      - name: Build wheels
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install bump2version twine build
-      - name: Bump version
-        run: bump2version patch --no-tag --no-commit
-      - name: Build a binary wheel and a source tarball
-        run: python3 -m build
-      - name: Store the distribution packages
-        uses: actions/upload-artifact@v3
+          python -m cibuildwheel --output-dir wheelhouse
+      
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
         with:
-          name: python-package-distributions
-          path: dist/
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: '${{ github.workspace }}/wheelhouse/*.whl'
+        
+  testpypi-publish:
+    name: Build and publish to TestPyPI
+    needs: 
+      - build
+    runs-on: ubuntu-latest
+    environment: 
+      name: testpypi
+      url: https://test.pypi.org/project/cellar-extractor/    
+    permissions:
+      id-token: write
+    
+    steps:
+      - name: Download the wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: cibw-wheels-ubuntu-latest-0
+          path: ./wheelhouse/
+      - name: Publish distribution to TestPyPi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository_url: https://test.pypi.org/legacy/
 
-  publish-to-pypi:
-    name: Publish Python 🐍 distribution 📦 to PyPI
-    if: |
-      github.ref_type == 'tag' && github.ref == 'refs/tags/cellar'
+  pypi-publish:
+    name: Build and publish to PyPI
     needs:
       - build
+      - testpypi-publish
     runs-on: ubuntu-latest
     environment:
       name: pypi
       url: https://pypi.org/project/cellar-extractor/
     permissions:
       id-token: write
-
+    
     steps:
-      - name: Download all the dists
-        uses: actions/download-artifact@v3
+      - name: Download the wheels
+        uses: actions/download-artifact@v4
         with:
-          name: python-package-distributions
-          path: dist/
-      - name: Publish distribution 📦 to PyPI
+          name: cibw-wheels-ubuntu-latest-0
+          path: ./wheelhouse/      
+      - name: Publish distribution to PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
-
-  publish-to-testpypi:
-    name: Publish Python 🐍 distribution 📦 to TestPyPI
-    if: |
-      github.ref_type == 'tag' && github.ref == 'refs/tags/cella_github_workflows'
+  
+  github-release:
+    name: Sign the Python distribution with Sigstore and upload them to GitHub Releases
     needs:
-      - build
+      - pypi-publish
     runs-on: ubuntu-latest
-    environment:
-      name: testpypi
-      url: https://test.pypi.org/project/cellar-extractor/
+
     permissions:
       id-token: write
-
+      contents: write
+    
     steps:
-      - name: Download all the dists
-        uses: actions/download-artifact@v3
+      - name: Download the wheels
+        uses: actions/download-artifact@v4
         with:
-          name: python-package-distributions
-          path: dist/
-      - name: Publish distribution 📦 to TestPyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+          name: cibw-wheels-ubuntu-latest-0
+          path: ./wheelhouse/
+      - name: Sign the Python distribution with Sigstore
+        uses: sigstore/gh-action-sigstore-python@v2.1.1
         with:
-          repository-url: https://test.pypi.org/project/cellar-extractor/ 
-
+          inputs: >-
+            ./wheelhouse/*.whl
+            ./wheelhouse/*.tar.gz
+      - name: Create Github release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create
+          '${{ github.ref_name }}'
+          --repo '${{ github.repository }}'
+          --notes ""
+      - name: Upload artifact signaturees to Github release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release upload
+          '${{ github.ref_name }}' ./wheelhouse/**
+          --repo '${{ github.repository }}'
