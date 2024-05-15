@@ -25,8 +25,7 @@ jobs:
       - name: Install dependencies and cibuildwheen
         run: |
           python -m pip install --upgrade pip
-          # If requirements.txt exists, install from it
-          if [ -f requriments.txt ]; pip install -r requirements.txt; fi
+          pip install -r requirements.txt
           python -m pip install cibuildwheel==2.18.0
           # Install the package from setup.py
           python -m pip install .
