@@ -25,6 +25,7 @@ jobs:
       - name: Install dependencies and cibuildwheel
         run: |
           python -m pip install --upgrade pip
+          pip install setuptools
           pip install -r requirements.txt
           python -m pip install cibuildwheel==2.18.0
           # Install the package from setup.py
