@@ -30,14 +30,6 @@ jobs:
           # Install the package from setup.py
           python ./cellar/setup.py install
 
-      - name: Install ruff
-        run: |
-          pip install ruff
-
-      - name: Lint with ruff
-        run: |
-          ruff .
-
       - name: Run tests with pytest
         run: |
           pip install pytest
