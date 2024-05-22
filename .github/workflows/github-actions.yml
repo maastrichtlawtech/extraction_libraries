@@ -28,7 +28,7 @@ jobs:
           pip install setuptools
           pip install -r requirements.txt
           python -m pip install cibuildwheel==2.18.0
-          # Install the package from setup.py
+          # Install package locally
           pip install -e cellar/
 
       - name: Run tests with pytest
@@ -39,7 +39,7 @@ jobs:
       
       - name: Build wheels
         run: |
-          python -m cibuildwheel --output-dir wheelhouse
+          python -m cibuildwheel --input-dir cellar/setup.py --output-dir wheelhouse
       
       - name: Upload wheels
         uses: actions/upload-artifact@v4
