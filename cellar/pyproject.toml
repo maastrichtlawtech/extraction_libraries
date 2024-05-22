@@ -17,7 +17,6 @@ dependencies = [
     "SPARQLWrapper==2.0.0",
     "requests==2.26.0",
     "pandas",
-    "lxml==4.6.3",
     "xmltodict==0.13.0",
     "tqdm"
 ]
