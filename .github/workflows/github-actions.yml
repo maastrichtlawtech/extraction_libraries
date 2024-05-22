@@ -39,7 +39,7 @@ jobs:
       
       - name: Build wheels
         run: |
-          python -m cibuildwheel --input-dir cellar/setup.py --output-dir wheelhouse
+          python -m cibuildwheel package_dir cellar/setup.py --output-dir wheelhouse
       
       - name: Upload wheels
         uses: actions/upload-artifact@v4
