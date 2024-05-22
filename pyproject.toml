@@ -11,7 +11,6 @@ authors = [
     { name = "LawTech Lab", email = "law-techlab@maastrichtuniversity.nl" }
 ]
 license = { text = "MIT" }
-readme = { file = "README.md", content-type = "text/markdown" }
 keywords = ["cellar", "extractor"]
 dependencies = [
     "bs4",
