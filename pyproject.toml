@@ -4,7 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cellar_extractor"
-dynamic = ["version", "readme"]
+dynamic = ["readme"]
+version = "1.0.61"
 requires-python = ">= 3.9"
 description = "Library for extracting cellar data"
 authors = [
@@ -31,5 +32,4 @@ include = ["cellar_extractor", "cellar_extractor.operative_extractions"]
 namespaces = false
 
 [tool.setuptools.dynamic]
-version = {attr = "cellar_extractor.VERSION"}
 readme = {file = ["README.md"]}
