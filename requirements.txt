@@ -1,5 +1,8 @@
-# For rechtspraak extractor
+# For cellar extractor extractor
 xmltodict
 requests
 bs4
-lxml
+tqdm
+SPARQLWrapper
+pandas
+
