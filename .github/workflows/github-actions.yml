@@ -39,7 +39,7 @@ jobs:
       
       - name: Build wheels
         run: |
-          python -m cibuildwheel --config-file cellar/pyproject.toml --output-dir wheelhouse
+          python -m cibuildwheel --config-file ./cellar/pyproject.toml --output-dir wheelhouse
       
       - name: Upload wheels
         uses: actions/upload-artifact@v4
