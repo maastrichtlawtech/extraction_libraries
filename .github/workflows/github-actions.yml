@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
         python-version: [3.9, '3.10', '3.11', '3.12']
 
     steps:
@@ -36,11 +36,10 @@ jobs:
           pip install pytest
           pip install pytest-cov
           pytest tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
-      
-      - name: Build wheels
-        run: |
-          python -m cibuildwheel --config-file ./cellar/pyproject.toml --output-dir wheelhouse
-      
+
+      - name: Build wheels on ${{ matrix.os }}-${{ matrix.python-version }}
+        uses: pypa/cibuildwheel@v2.18.1
+
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -48,7 +47,7 @@ jobs:
           path: '${{ github.workspace }}/wheelhouse/*.whl'
         
   testpypi-publish:
-    name: Build and publish to TestPyPI
+    name: Publish to TestPyPI
     needs: 
       - build
     runs-on: ubuntu-latest
@@ -70,7 +69,7 @@ jobs:
           repository_url: https://test.pypi.org/legacy/
 
   pypi-publish:
-    name: Build and publish to PyPI
+    name: Publish to PyPI
     needs:
       - build
       - testpypi-publish
@@ -85,8 +84,8 @@ jobs:
       - name: Download the wheels
         uses: actions/download-artifact@v4
         with:
-          name: cibw-wheels-ubuntu-latest-0
-          path: ./wheelhouse/      
+          pattern: cibw-*
+          path: '${{ github.workspace }}/wheelhouse/'      
       - name: Publish distribution to PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
   
