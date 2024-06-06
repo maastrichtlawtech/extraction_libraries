@@ -6,28 +6,87 @@ on:
     branches: [ cellar ]
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
-
+  build_sdist:
+    name: Build sdist
+    runs-on: ubuntu-latest
+    outputs:
+      SDIST_NAME: ${{ steps.sdist.outputs.SDIST_NAME }}
+    
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4
 
-      # - name: Set up Python ${{ matrix.python-version }}
-      #   uses: actions/setup-python@v2
-      #   with:
-      #     python-version: ${{ matrix.python-version }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
 
-      - name: Install dependencies and cibuildwheel
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install setuptools
           pip install -r requirements.txt
-          # python -m pip install cibuildwheel==2.18.0
-          # Install package locally
+
+      - name: Build sdist
+        id: sdist
+        run: |
+          python -m build --sdist
+          python setup.py sdist --formats=gztar
+          echo "::set-output name=SDIST_NAME::$(ls dist/*.tar.gz)"
+
+      - name: Upload sdist
+        uses: actions/upload-artifact@v4
+        with:
+          name: cibw-sdist
+          path: dist/*.tar.gz
+          if-no-files-found: error
+
+  build:
+    needs: build_sdist
+    name: Build wheels on ${{ matrix.os }} for ${{ matrix.cibw_archs }}
+    runs-on: ${{ matrix.os }}
+    env:
+      CIBW_BEFORE_BUILD: rm -rf {package}/build
+      CIBW_BEFORE_BUILD_WINDOWS: pip install delvewheel && rm -rf {package}/build
+      CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair -w {dest_dir} {wheel}
+      CIBW_AFTER_BUILD: twine check {wheel}
+      CIBW_CONFIG_SETTINGS: setup-args="--vsenv"
+      CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+      CIBW_SKIP: "*-musllinux_aarch64"
+    
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            cibw_archs: "x86_64"
+          - os: ubuntu-latest
+            cibw_archs: "aarch64"
+          - os: windows-latest
+            cibw_archs: "auto64"
+          - os: macos-12
+            cibw_archs: "x86_64"
+          - os: macos-14
+            cibw_archs: "arm64"
+    
+    steps:
+      - name: Setup QEMU
+        if: matrix.cibw_archs == 'aarch64'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+      
+      - name: Download sdist
+        uses: actions/download-artifact@v4
+        with:
+          name: cibw-sdist
+          path: dist/
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Install package for testing
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
           pip install -e cellar/
 
       - name: Run tests with pytest
@@ -35,18 +94,45 @@ jobs:
           pip install pytest
           pip install pytest-cov
           pytest tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
-
-      - name: Build wheels on ${{ matrix.os }}
+      
+      - name: Build wheels for CPython 3.12
         uses: pypa/cibuildwheel@v2.18.1
         with:
-          output-dir: wheelhouse
-          build: ${{ matrix.os }}
+          package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
+        env:
+          CIBW_BUILD: "cp312-*"
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+
+      - name: Build wheels for CPython 3.11
+        uses: pypa/cibuildwheel@v2.18.1
+        with:
+          package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
+        env:
+          CIBW_BUILD: "cp311-*"
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+        
+      - name: Build wheels for CPython 3.10
+        uses: pypa/cibuildwheel@v2.18.1
+        with:
+          package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
+        env:
+          CIBW_BUILD: "cp310-*"
+          CIBW_ARCHS: ${{ matrix.cibw_archs }} 
+          
+      - name: Build wheels for CPython 3.9
+        uses: pypa/cibuildwheel@v2.18.1
+        with:
+          package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
+        env:
+          CIBW_BUILD: "cp39-*"
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          name: cibw-wheels-${{ runner.os }}-${{ matrix.cibw_archs }}
           path: '${{ github.workspace }}/wheelhouse/*.whl'
+          if-no-files-found: error
         
   testpypi-publish:
     name: Publish to TestPyPI
