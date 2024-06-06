@@ -31,7 +31,7 @@ jobs:
         id: sdist
         run: |
           python -m build --sdist
-          python setup.py sdist --formats=gztar
+          python ${{ github.workspace }}/cellar/setup.py sdist --formats=gztar
           echo "::set-output name=SDIST_NAME::$(ls dist/*.tar.gz)"
 
       - name: Upload sdist
