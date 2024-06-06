@@ -33,3 +33,33 @@ namespaces = false
 
 [tool.setuptools.dynamic]
 readme = {file = ["README.md"]}
+
+[tool.cibuildwheel]
+before-all = "uname -a"
+test-requires = "pytest"
+test-command = "pytest tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html"
+build = ["cp39", "cp310", "cp311", "cp312", "cp313"]
+build-verbosity = 1
+container-engine = "docker"
+
+manylinux-x86_64-image = "manylinux2014"
+manylinux-i686-image = "manylinux2014"
+manylinux-aarch64-image = "manylinux2014"
+manylinux-ppc64le-image = "manylinux2014"
+manylinux-s390x-image = "manylinux2014"
+manylinux-pypy_x86_64-image = "manylinux2014"
+manylinux-pypy_i686-image = "manylinux2014"
+manylinux-pypy_aarch64-image = "manylinux2014"
+
+musllinux-x86_64-image = "musllinux_1_2"
+musllinux-i686-image = "musllinux_1_2"
+musllinux-aarch64-image = "musllinux_1_2"
+musllinux-ppc64le-image = "musllinux_1_2"
+musllinux-s390x-image = "musllinux_1_2"
+
+
+[tool.cibuildwheel.macos]
+archs = ["x86_64", "universal2", "arm64"]
+
+[tool.cibuildwheel.linux]
+archs = ["auto", "aarch64"]
