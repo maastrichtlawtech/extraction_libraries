@@ -6,117 +6,54 @@ on:
     branches: [ cellar ]
 
 jobs:
-  build_sdist:
-    name: Build sdist
-    runs-on: ubuntu-latest
-    outputs:
-      SDIST_NAME: ${{ steps.sdist.outputs.SDIST_NAME }}
-    
+  build:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install setuptools build
+          pip install setuptools wheel
           pip install -r requirements.txt
-
-      - name: Build sdist
-        id: sdist
-        run: |
-          python -m build --sdist
-          python ${{ github.workspace }}/cellar/setup.py sdist --formats=gztar
-          echo "${{ github.workspace }}/dist/*.tar.gz is the path"
-          echo "SDIST_NAME=$(ls ${{ github.workspace }}/dist/*.tar.gz)" >> "$GITHUB_ENV"
-
-      - name: Upload sdist
-        uses: actions/upload-artifact@v4
-        with:
-          name: cibw-sdist
-          path: ${{ github.workspace }}/dist/*.tar.gz
-          if-no-files-found: error
-
-  build:
-    needs: build_sdist
-    name: Build wheels on ${{ matrix.os }} for ${{ matrix.cibw_archs }}
-    runs-on: ${{ matrix.os }}
-    env:
-      CIBW_BEFORE_BUILD: rm -rf {package}/build
-      CIBW_BEFORE_BUILD_WINDOWS: pip install delvewheel && rm -rf {package}/build
-      CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair -w {dest_dir} {wheel}
-      CIBW_AFTER_BUILD: twine check {wheel}
-      CIBW_CONFIG_SETTINGS: setup-args="--vsenv"
-      CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-      CIBW_SKIP: "*-musllinux_aarch64"
-    
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            cibw_archs: "x86_64"
-          - os: ubuntu-latest
-            cibw_archs: "aarch64"
-          - os: windows-latest
-            cibw_archs: "auto64"
-          - os: macos-12
-            cibw_archs: "x86_64"
-          - os: macos-14
-            cibw_archs: "arm64"
-    
-    steps:
-      - name: Setup QEMU
-        if: matrix.cibw_archs == 'aarch64'
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-      
-      - name: Download sdist
-        uses: actions/download-artifact@v4
-        with:
-          name: cibw-sdist
-          path: dist/
-      - name: Check out the repository
-        uses: actions/checkout@v4
 
       - name: Install package for testing
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
           pip install -e cellar/
 
       - name: Run tests with pytest
         run: |
-          pip install pytest
-          pip install pytest-cov
+          pip install pytest pytest-cov
           pytest tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
-      
-      - name: Build wheels
-        uses: pypa/buildwheels@v1
-        with:
-          package-dir: ${{ steps.sdist.outputs.SDIST_NAME }}
-        env:
-          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-*"
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
+      - name: Build wheels
+        run: |
+          python setup.py sdist bdist_wheel
+          
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: cibw-wheels-${{ runner.os }}-${{ matrix.cibw_archs }}
+          name: python-${{ matrix.python-version }}-${{ matrix.os }}-wheels
           path: |
-            ${{ github.workspace }}/wheelhouse/*.whl
-            ${{ github.workspace }}/dist/*.tar.gz
+            dist/*.whl
+            dist/*.tar.gz
           if-no-files-found: error
         
   testpypi-publish:
     name: Publish to TestPyPI
-    needs: 
-      - build
+    needs: build
     runs-on: ubuntu-latest
     environment: 
       name: testpypi
@@ -125,15 +62,16 @@ jobs:
       id-token: write
     
     steps:
-      - name: Download the wheels
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: cibw-wheels-ubuntu-latest-0
-          path: ./wheelhouse/
+          path: dist
+
       - name: Publish distribution to TestPyPi
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository_url: https://test.pypi.org/legacy/
+          packages_dir: dist/*/
 
   pypi-publish:
     name: Publish to PyPI
@@ -148,36 +86,38 @@ jobs:
       id-token: write
     
     steps:
-      - name: Download the wheels
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: cibw-*
-          path: '${{ github.workspace }}/wheelhouse/'      
+          path: dist
+
       - name: Publish distribution to PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages_dir: dist/*/
   
   github-release:
     name: Sign the Python distribution with Sigstore and upload them to GitHub Releases
     needs:
       - pypi-publish
     runs-on: ubuntu-latest
-
     permissions:
       id-token: write
       contents: write
     
     steps:
-      - name: Download the wheels
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: cibw-wheels-ubuntu-latest-0
-          path: ./wheelhouse/
+          path: dist
+
       - name: Sign the Python distribution with Sigstore
         uses: sigstore/gh-action-sigstore-python@v2.1.1
         with:
           inputs: >-
-            ./wheelhouse/*.whl
-            ./wheelhouse/*.tar.gz
+            ./dist/**/*.whl
+            ./dist/**/*.tar.gz
+
       - name: Create Github release
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -186,10 +126,11 @@ jobs:
           '${{ github.ref_name }}'
           --repo '${{ github.repository }}'
           --notes ""
-      - name: Upload artifact signaturees to Github release
+
+      - name: Upload artifact signatures to Github release
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: >-
           gh release upload
-          '${{ github.ref_name }}' ./wheelhouse/**
+          '${{ github.ref_name }}' ./dist/**/*
           --repo '${{ github.repository }}'
