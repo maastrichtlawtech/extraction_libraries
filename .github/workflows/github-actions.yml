@@ -96,43 +96,21 @@ jobs:
           pip install pytest-cov
           pytest tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
       
-      - name: Build wheels for CPython 3.12
-        uses: pypa/cibuildwheel@v2.18.1
+      - name: Build wheels
+        uses: pypa/buildwheels@v1
         with:
           package-dir: ${{ steps.sdist.outputs.SDIST_NAME }}
         env:
-          CIBW_BUILD: "cp312-*"
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
-
-      - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@v2.18.1
-        with:
-          package-dir: ${{ steps.sdist.outputs.SDIST_NAME }}
-        env:
-          CIBW_BUILD: "cp311-*"
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
-        
-      - name: Build wheels for CPython 3.10
-        uses: pypa/cibuildwheel@v2.18.1
-        with:
-          package-dir: ${{ steps.sdist.outputs.SDIST_NAME }}
-        env:
-          CIBW_BUILD: "cp310-*"
-          CIBW_ARCHS: ${{ matrix.cibw_archs }} 
-          
-      - name: Build wheels for CPython 3.9
-        uses: pypa/cibuildwheel@v2.18.1
-        with:
-          package-dir: ${{ steps.sdist.outputs.SDIST_NAME }}
-        env:
-          CIBW_BUILD: "cp39-*"
+          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ runner.os }}-${{ matrix.cibw_archs }}
-          path: '${{ github.workspace }}/wheelhouse/*.whl'
+          path: |
+            ${{ github.workspace }}/wheelhouse/*.whl
+            ${{ github.workspace }}/dist/*.tar.gz
           if-no-files-found: error
         
   testpypi-publish:
