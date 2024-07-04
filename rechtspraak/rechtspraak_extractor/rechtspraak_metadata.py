@@ -87,11 +87,15 @@ def save_data_when_crashed(ecli):
     procedure_df.append("")
     inhoudsindicatie_df.append("")
     hasVersion_df.append("")
-def get_data_from_api(ecli_id):
+
+
+def get_data_from_api(ecli_id, bespoke_extraction='n', only_full_text='n', format='text'):
     url = RECHTSPRAAK_METADATA_API_BASE_URL + ecli_id + return_type
     try:
         response_code = check_api(url)
+        logging.info("Getting data from " + url)
     except:
+        logging.warning("API is not responding. Please check the API or your internet connection.")
         save_data_when_crashed(ecli_id)
         return
     global ecli_df, full_text_df, creator_df, date_decision_df, issued_df, zaaknummer_df, type_df, \
@@ -133,6 +137,20 @@ def get_data_from_api(ecli_id):
                 inhoudsindicatie = get_text_if_exists(soup.find("inhoudsindicatie"))
                 hasVersion = get_text_if_exists(soup.find("dcterms:hasVersion"))
                 full_text = get_text_if_exists(soup.find("uitspraak"))
+
+                # Check if bespoke extraction is required
+                if bespoke_extraction == 'y':
+                    logging.info("Data extracted for " + ecli_id)
+                    # Return the extracted data
+                    if only_full_text == 'y':
+                        # Return full_text as html file
+                        return pd.DataFrame({'ecli': [ecli_id], 'full_text': [full_text]})
+                    else:
+                        return pd.DataFrame({'ecli': [ecli_id], 'full_text': [full_text], 'creator': [creator],
+                                             'date_decision': [date_decision], 'issued': [issued], 'zaaknummer': [zaaknummer],
+                                             'type': [rs_type], 'relations': [relations], 'references': [references],
+                                             'subject': [subject], 'procedure': [procedure], 'inhoudsindicatie': [inhoudsindicatie],
+                                             'hasVersion': [hasVersion]})
 
                 ecli_df.append(ecli_id)
                 full_text_df.append(full_text)
