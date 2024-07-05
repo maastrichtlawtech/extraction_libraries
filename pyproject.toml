@@ -32,4 +32,4 @@ include = ["cellar_extractor", "cellar_extractor.operative_extractions"]
 namespaces = false
 
 [tool.setuptools.dynamic]
-readme = {file = ["README.md"]}
+readme = {file = ["cellar/README.md"]}
