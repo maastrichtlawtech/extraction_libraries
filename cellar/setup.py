@@ -4,7 +4,7 @@
 from setuptools import find_packages, setup
 from pathlib import Path
 
-p = Path("cellar/README.md")
+p = Path("README.md")
 long_descr = p.read_text()
 
 setup(
