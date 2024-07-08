@@ -10,7 +10,7 @@ long_descr = p.read_text()
 setup(
     name='cellar_extractor',
     packages=find_packages(include=['cellar_extractor', 'cellar_extractor.operative_extractions']),
-    version='1.1.2',
+    version='1.1.3',
     description='Library for extracting cellar data',
     author='LawTech Lab',
     license='MIT',
