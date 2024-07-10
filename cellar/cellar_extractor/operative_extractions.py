@@ -4,7 +4,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-class Analyzer():
+class FetchOperativePart():
     """
     This class returns a list of the operative part for a given celex id. 
     Celex id is initialized through a constructor.
@@ -328,7 +328,7 @@ class Writing():
         
     def __init__(self, celex: str):
         self.celex = celex
-        self.instance = Analyzer(self.celex)
+        self.instance = FetchOperativePart(self.celex)
         self.x = self.instance()
 
 
