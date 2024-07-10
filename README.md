@@ -70,8 +70,54 @@ Python 3.9 onwards *
     Allows the creation of a network graph of the citations. Can only be returned in-memory.
     <li><code>filter_subject_matter</code></li>
     Returns a dataframe of cases only containing a certain phrase in the column containing the subject of cases.
+    
+</ol>
+## What are the Classes?
+<ol>
     <li><code>Analyzer</code></li>
-    A class whose instance(declaration) when called returns a list of the all the text contained within the operative part for each European Court of Justice (CJEU, formerly known as European Court of Justice (ECJ)) judgement (English only).
+    A class whose instance(declaration) when called returns a list of the all the text contained within the operative part for each European Court of Justice (CJEU, formerly known as European Court of Justice (ECJ)) judgement (English only).  The <code>FetchOperativePart </code>class has eleven functions - each function scrapes for the operative part depending on the html structure of the page :
+    <ul>
+        <li><code>html_page_structure_one</code> -  This function retreives operative part from documents of the respected celex id's. 
+         This function scrapes/parse the operative part from a nested
+         table structure . The relevant text lies inside the coj-bold class of the span tag.</li>
+        <li><code>html_page_structure_two</code> - This function retreives operative part from documents of the respected celex id's. 
+         This function scrapes/parse the operative part from a paragraph
+         (p) structure . The relevant text lies inside the normal class of the p tag which
+         comes after the keyword operative of the previous span tag.</li>
+        <li><code>structure_three</code> - This function retreives operative part from documents of the respected celex id's. 
+         This function scrapes/parse the operative part from a nested
+         table structure. The relevant text lies inside the coj-bold class of the span tag.</li>
+        <li><code>structure_four</code> - This function retreives operative part from documents of the respected celex id's. 
+         This function scrapes/parse the operative part from a paragraph
+         (p) structure . The relevant text lies inside the p  tag which comes after the
+         keyword operative of the previous span tag.</li>
+        <li><code>structure_five</code> - This function retreives operative part from documents of the respected celex id's. 
+         This function scrapes/parse the operative part from a paragraph
+         (p) structure. The relevant text lies inside the normal class of the p tag which
+         comes after the keyword operative of the previous span tag.</li>
+        <li><code>structure_six</code> - This function retreives operative part from documents of the respected celex id's. 
+         This function scrapes/parse the operative part from a h2 (header) structure.
+         The relevant text lies inside thee p tag which comes after the keyword operative 
+         part of the respective h2  tag.</li>
+        <li><code>strcuture_seven</code> -  This function retreives operative part from documents of the respected celex id's.
+         This function scrapes/parse the operative part from a table
+         (table) structure. The relevant text lies inside the span tag which comes after 
+         the p tag , with the class name=normal.</li>
+        <li><code>structure_eight</code> - This function retreives operative part from documents of the respected celex id's.
+         The text is extracted from the span tag nested inside 
+         the tbody tag.Returns a list as output. </li>
+        <li><code>structure_nine</code> -  This function retreives operative part from documents of the respected celex id's.
+         The operative part is under the bold(b)
+         tag after the p tag where the keywords "on those grounds" exist. </li>
+        <li><code>structure_ten</code> -  This function retreives operative part from documents of the respected celex id's.
+         Since the ocntent is preloaded using js/clients
+         server side functions , the text from the current page is retrieved and the 
+         operative part is scraped after the occurence of the phrase
+         "On those grounds".</li>
+        <li><code>structure_eleven</code> -  This function retreives operative part from documents of the respected celex id's.
+         The operative part is under the paragraph(p)
+         tag after the b tag where the keywords "operative part" exist. </li>
+    </ul>
     <li><code>Writing</code></li>
     A class which writes the text for the operative part for each European Case law case(En-English only) into csv,json and txt files(Generated upon initialization).<br>
     the <code>Writing</code> class has three functions : <br><br>
@@ -82,7 +128,6 @@ Python 3.9 onwards *
     </ul>
     <br>
 </ol>
-
 ## What are the parameters?
 <ol>
     <li><code>get_cellar</code></li>
