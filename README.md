@@ -75,7 +75,7 @@ Python 3.9 onwards *
 <br>
 <h2> What are the classes?</h2>
 <ol>
-    <li><code>Analyzer</code></li>
+    <li><code>FetchOperativePart</code></li>
     A class whose instance(declaration) when called returns a list of the all the text contained within the operative part for each European Court of Justice (CJEU, formerly known as European Court of Justice (ECJ)) judgement (English only).  The <code>FetchOperativePart </code>class has eleven functions - each function scrapes for the operative part depending on the html structure of the page :
     <ul>
         <li><code>html_page_structure_one</code> -  This function retreives operative part from documents of the respected celex id's. 
