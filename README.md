@@ -214,7 +214,7 @@ df,json = cell.get_cellar_extra(save_file='n', max_ecli=100, sd='2022-01-01', th
 
 ```python
 import cellar_extractor as cell
-instance=cell.Analyzer(celex_id:str)
+instance=cell.FetchOperativePart(celex_id:str)
 output_list=instance()
 print(output_list) # prints operative part of the Case as a list
 ```
