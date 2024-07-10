@@ -72,7 +72,8 @@ Python 3.9 onwards *
     Returns a dataframe of cases only containing a certain phrase in the column containing the subject of cases.
     
 </ol>
-## What are the Classes?
+<br>
+<h2> What are the classes?</h2>
 <ol>
     <li><code>Analyzer</code></li>
     A class whose instance(declaration) when called returns a list of the all the text contained within the operative part for each European Court of Justice (CJEU, formerly known as European Court of Justice (ECJ)) judgement (English only).  The <code>FetchOperativePart </code>class has eleven functions - each function scrapes for the operative part depending on the html structure of the page :
