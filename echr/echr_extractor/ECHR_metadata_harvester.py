@@ -129,8 +129,25 @@ def link_to_query(link):
         "languageisocode": basic_function
 
     }
+    
     start = link.index("{")
-    link_dictionary = eval(link[start:])
+    end = link.rindex("}")
+    json_str = link[start:end+1].replace("'", '"')  
+    
+    try:
+        link_dictionary = json.loads(json_str)
+    except json.JSONDecodeError:
+     
+        print(f"Failed to parse JSON: {json_str}")
+        link_dictionary = {}
+        pairs = json_str.strip('{}').split(',')
+        for pair in pairs:
+            key, value = pair.split(':', 1)
+            key = key.strip().strip('"')
+            value = value.strip().strip('[]').split(',')
+            link_dictionary[key] = [v.strip().strip('"') for v in value]
+
+ 
     base_query = 'https://hudoc.echr.coe.int/app/query/results?query=contentsitename:ECHR' \
                  ' AND (NOT (doctype=PR OR doctype=HFCOMOLD OR doctype=HECOMOLD)) AND ' \
                  'inPutter&select={select}&sort=itemid%20Ascending&start={start}&length={length}'
