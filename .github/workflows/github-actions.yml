@@ -29,10 +29,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install setuptools wheel pytest pytest-cov
           pip install -r requirements.txt
-
-      - name: Set release version
-        run: echo "RELEASE_VERSION=$(python -c 'from cellar import __version__; print(__version__)')" >> $GITHUB_ENV
-
+      
       - name: Install package for testing
         run: |
           pip install -e cellar/
@@ -40,6 +37,9 @@ jobs:
       - name: Run tests with pytest
         run: |
           pytest tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=cellar --cov-report=xml --cov-report=html
+
+      - name: Set release version
+        run: echo "RELEASE_VERSION=$(python -c 'from cellar import __version__; print(__version__)')" >> $GITHUB_ENV
 
   build:
     needs: test
