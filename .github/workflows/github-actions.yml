@@ -64,7 +64,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-package-distributions
-          path: dist/*
+          path: dist/
 
   testpypi-publish:
     name: Publish to TestPyPI
@@ -109,8 +109,6 @@ jobs:
 
       - name: Publish distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: dist/
 
   github-release:
     name: Sign the Python distribution with Sigstore and upload them to GitHub Releases
