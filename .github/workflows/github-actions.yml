@@ -1,34 +1,151 @@
-name: Extraction Libraries
-run-name: ${{ github.actor }} is testing out Extraction Libraries using GitHub Actions 🚀
-on: [push]
+name: Build, Test, Lint & Upload to TestPyPI and PyPI for Rechtspraak Extractor
+
+on:
+  push:
+    branches: [ rechtspraak ]
+  pull_request:
+    branches: [ rechtspraak_github_workflows ]
+
 jobs:
-  Explore-Extraction-Libraries:
-    runs-on: ubuntu-latest
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v4
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: ${{ matrix.python-version }}
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install cellar-extractor
-          pip install rechtspraak-extractor
-          pip install echr-extractor
-     # pip install echr-extractor
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
+          pip install setuptools wheel pytest pytest-cov
+          pip install -r requirements.txt
+      
+      - name: Install package for testing
         run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
-      - name: Test with pytest
+          pip install -e rechtspraak/
+
+      - name: Run tests with pytest
         run: |
-          pip install pytest
-          pip install pytest-cov
-          pytest tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+          pytest tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=cellar --cov-report=xml --cov-report=html
+
+      - name: Set release version
+        run: echo "RELEASE_VERSION=$(python -c 'from rechtspraak-extractor import __version__; print(__version__)')" >> $GITHUB_ENV
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install setuptools wheel
+
+      - name: Build package
+        run: |
+          python -m build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+  testpypi-publish:
+    name: Publish to TestPyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/rechtspraak-extractor/
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download all the artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Publish distribution to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: dist/
+
+  pypi-publish:
+    name: Publish to PyPI
+    needs:
+      - testpypi-publish
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/rechtspraak-extractor/
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download all the artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Publish distribution to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    name: Sign the Python distribution with Sigstore and upload them to GitHub Releases
+    needs:
+      - pypi-publish
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - name: Download all the artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Sign the Python distribution with Sigstore
+        uses: sigstore/gh-action-sigstore-python@v2.1.1
+        with:
+          inputs: >-
+            ./dist/**/*.whl
+            ./dist/**/*.tar.gz
+
+      - name: Create Github release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create
+          'rechtspraak-extractor-${{ env.RELEASE_VERSION }}'
+          --repo '${{ github.repository }}'
+          --notes ""
+
+      - name: Upload artifact signatures to Github release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release upload
+          'rechtspraak-extractor-${{ env.RELEASE_VERSION }}' ./dist/**/*
+          --repo '${{ github.repository }}'
