@@ -27,9 +27,8 @@ dependencies = [
 "Build Source" = "https://github.com/maastrichtlawtech/extraction_libraries"
 
 [tool.setuptools.packages.find]
-where = ["cellar"]
-include = ["cellar_extractor", "cellar_extractor.operative_extractions"]
+include = ["cellar_extractor"]
 namespaces = false
 
 [tool.setuptools.dynamic]
-readme = {file = ["cellar/README.md"]}
+readme = {file = ["README.md"]}
