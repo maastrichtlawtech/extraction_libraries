@@ -40,7 +40,8 @@ jobs:
           pytest tests/test_cellar.py --doctest-modules --junitxml=junit/test-results.xml --cov=cellar_extractor --cov-report=xml --cov-report=html
 
       - name: Set release version
-        run: echo "RELEASE_VERSION=$(python -c 'import importlib.metadata; print(importlib.metadata.version(\"cellar_extractor\"))')" >> $GITHUB_ENV
+        run: echo "RELEASE_VERSION=$(python -c 'import importlib.metadata; print(importlib.metadata.version('cellar_extractor'))')" >> $GITHUB_ENV
+        shell: bash
 
   build:
     needs: test
@@ -68,6 +69,7 @@ jobs:
           path: dist/
 
   testpypi-publish:
+    if: github.event_name == 'pull_request'
     name: Publish to TestPyPI
     needs: build
     runs-on: ubuntu-latest
@@ -91,6 +93,7 @@ jobs:
           packages-dir: dist/
 
   pypi-publish:
+    if: github.event_name == 'push'
     name: Publish to PyPI
     needs:
       - testpypi-publish
@@ -112,6 +115,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
 
   github-release:
+    if: github.event_name == 'push'
     name: Sign the Python distribution with Sigstore and upload them to GitHub Releases
     needs:
       - pypi-publish
