@@ -1,7 +1,7 @@
 from SPARQLWrapper import JSON, SPARQLWrapper
 from bs4 import BeautifulSoup
 
-class Extra:
+class CellarSparqlQuery:
 
     def get_endorsements(self,number):
         sparql = SPARQLWrapper('https://publications.europa.eu/webapi/rdf/sparql')
