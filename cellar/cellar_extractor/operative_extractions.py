@@ -3,6 +3,8 @@ import json
 import os
 import requests
 from bs4 import BeautifulSoup
+from SPARQLWrapper import JSON, SPARQLWrapper
+
 
 class FetchOperativePart():
     """
@@ -16,6 +18,36 @@ class FetchOperativePart():
         # Initialize Celex id as a constructor, passed when calling the class
         self.celex = celex
         self.url = f"https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX%3A{self.celex}&from=EN"    
+
+    def get_operative_sparql(self) -> str:
+        """
+        Attempts to get the operative part using SPARQL query.
+        Returns None if query fails or returns no results.
+        """
+        try:
+            sparql = SPARQLWrapper('https://publications.europa.eu/webapi/rdf/sparql')
+            sparql.setReturnFormat(JSON)
+            sparql.setQuery("""
+            PREFIX cdm: <http://publications.europa.eu/ontology/cdm#> 
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT ?operative
+            WHERE { 
+                ?doc cdm:manifestation_case-law_operative_part ?operative ;
+                     owl:sameAs ?w .
+                FILTER (?w = <http://publications.europa.eu/resource/celex/%s.ENG.txt>)
+            }
+            """ % self.celex)
+            
+            ret = sparql.queryAndConvert()
+            
+            if ret['results']['bindings']:
+                operative = ret['results']['bindings'][0]['operative']['value']
+                parser = BeautifulSoup(operative.strip(), 'html.parser')
+                return parser.text
+            return None
+            
+        except Exception:
+            return None
         
     def html_page_structure_one(self) -> list:
         """
@@ -290,18 +322,29 @@ class FetchOperativePart():
         `Analyzer` and returns  the list , with values of the operative part .
         """
 
-        container = [self.html_page_structure_one(), self.html_page_structure_two(),
-                     self.structure_three(), self.structure_four(), self.structure_five(),
-                     self.structure_six(), self.structure_seven(), self.structure_eight(),
-                     self.structure_nine(), self.structure_ten(), self.structure_eleven()]
+        sparql_result = self.get_operative_sparql()
+        if sparql_result:
+            return [sparql_result] 
 
-        one: list
-        for funcs in range(len(container)):
-            one = container[funcs]
-            if one:
-                if (len(one) != 0 or one[0] != "\n"):
-               
-                    return one
+        container = [
+            self.html_page_structure_one(),
+            self.html_page_structure_two(),
+            self.structure_three(),
+            self.structure_four(),
+            self.structure_five(),
+            self.structure_six(),
+            self.structure_seven(),
+            self.structure_eight(),
+            self.structure_nine(),
+            self.structure_ten(),
+            self.structure_eleven()
+        ]
+
+        for result in container:
+            if result and (len(result) != 0 and result[0] != "\n"):
+                return result
+                
+        return []
 
 class Writing():
     """
