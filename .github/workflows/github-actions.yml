@@ -145,11 +145,11 @@ jobs:
       - name: Check if version is already published on PyPI
         id: check-version
         run: |
-          if curl -s https://pypi.org/pypi/cellar-extractor/$RELEASE_VERSION/json; then
-            echo "Version $RELEASE_VERSION is already published on PyPI."
+          if curl -s https://pypi.org/pypi/cellar-extractor/${{ env.RELEASE_VERSION }}/json; then
+            echo "Version ${{ env.RELEASE_VERSION }} is already published on PyPI."
             exit 0
           else
-            echo "Version $RELEASE_VERSION is not published on PyPI."
+            echo "Version ${{ env.RELEASE_VERSION }} is not published on PyPI."
           fi
 
       - name: Publish distribution to PyPI
