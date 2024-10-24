@@ -2,7 +2,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON, POST
 
 
 def get_all_eclis(starting_date=None, ending_date=None):
-    """Gets a list of all ECLIs in CELLAR. If this needs to be picked up 
+    """Gets a list of all ECLIs in CELLAR. If this needs to be picked up
     from a previous run,
     the last ECLI parsed in that run can be used as starting point for this run
 
@@ -25,18 +25,19 @@ def get_all_eclis(starting_date=None, ending_date=None):
 
     sparql.setQuery(
         """
-        prefix cdm: <http://publications.europa.eu/ontology/cdm#> 
-        select 
+        prefix cdm: <http://publications.europa.eu/ontology/cdm#>
+        select
         distinct ?ecli
-        where { 
+        where {
             ?doc cdm:case-law_ecli ?ecli .
-            ?doc <http://publications.europa.eu/ontology/cdm/cmr#lastModificationDate> ?date .
+            ?doc <%s> ?date .
             %s
             %s
         }
         order by asc(?ecli)
     """
         % (
+            "http://publications.europa.eu/ontology/cdm/dateLastModification",
             f'FILTER(STR(?date) >= "{starting_date}")' if starting_date else "",
             f'FILTER(STR(?date) <= "{ending_date}")' if ending_date else "",
         )
@@ -73,18 +74,18 @@ def get_raw_cellar_metadata(
     :rtype: Dict[str, Dict[str, list[str]]]
     """
 
-    # Find every outgoing edge from an ECLI document and return it 
+    # Find every outgoing edge from an ECLI document and return it
     # (essentially giving s -p> o)
-    # Also get labels for p/o (optionally) and then make sure to only return 
+    # Also get labels for p/o (optionally) and then make sure to only return
     # distinct triples
     endpoint = "https://publications.europa.eu/webapi/rdf/sparql"
     query = """
-        prefix cdm: <http://publications.europa.eu/ontology/cdm#> 
+        prefix cdm: <http://publications.europa.eu/ontology/cdm#>
         prefix skos: <http://www.w3.org/2004/02/skos/core#>
         prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        select 
+        select
         distinct ?ecli ?p ?o ?plabel ?olabel
-        where { 
+        where {
             ?doc cdm:case-law_ecli ?ecli .
             FILTER(STR(?ecli) in ("%s"))
             ?doc ?p ?o .
