@@ -3,7 +3,58 @@ import json
 import os
 import requests
 from bs4 import BeautifulSoup
-from SPARQLWrapper import JSON, SPARQLWrapper
+from SPARQLWrapper import JSON, SPARQLWrapper,POST
+
+
+def get_celex(eclis, get_labels=True, force_readable_cols=True, force_readable_vals=False):
+    """Gets cellar metadata
+
+    :param eclis: The ECLIs for which to retrieve metadata
+    :type eclis: list[str]
+    :param get_labels: Flag to get human-readable labels for the properties, defaults to True
+    :type get_labels: bool, optional
+    :param force_readable_cols: Flag to remove any non-labelled properties from the resulting dict, defaults to True
+    :type force_readable_cols: bool, optional
+    :param force_readable_vals: Flag to remove any non-labelled values from the resulting dict, defaults to False
+    :type force_readable_vals: bool, optional
+    :return: Dictionary containing metadata. Top-level keys are ECLIs, second level are property names
+    :rtype: Dict[str, Dict[str, list[str]]]
+    """
+
+    # Find every outgoing edge from an ECLI document and return it (essentially giving s -p> o)
+    # Also get labels for p/o (optionally) and then make sure to only return distinct triples
+    endpoint = 'https://publications.europa.eu/webapi/rdf/sparql'
+    query = '''
+        prefix cdm: <http://publications.europa.eu/ontology/cdm#>
+        prefix skos: <http://www.w3.org/2004/02/skos/core#>
+        prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        select
+        distinct ?ecli ?p ?o ?plabel ?olabel
+        where {
+            ?doc cdm:case-law_ecli ?ecli .
+            FILTER(STR(?ecli) in ("%s"))
+            ?doc ?p ?o .
+            OPTIONAL {
+                ?p rdfs:label ?plabel
+            }
+            OPTIONAL {
+                ?o skos:prefLabel ?olabel .
+                FILTER(lang(?olabel) = "en") .
+            }
+        }
+    ''' % ("".join(eclis))
+
+    sparql = SPARQLWrapper(endpoint)
+
+    sparql.setReturnFormat(JSON)
+    sparql.setMethod(POST)
+    sparql.setQuery(query)
+    results = sparql.query().convert()
+    for result in results["results"]["bindings"]:
+        x=result["o"]["value"]
+        if "celex:" in x.lower():
+            return x[6:]
+
 
 
 class FetchOperativePart:
@@ -17,8 +68,12 @@ class FetchOperativePart:
     url: str = ""
 
     def __init__(self, celex):
-        # Initialize Celex id as a constructor, passed when calling the class
-        self.celex = celex
+        self.celex=celex
+        if not self.celex.startswith("6"):
+           
+            self.celex = get_celex(self.celex) 
+        else:
+            self.celex = celex
         self.url = f"https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX%3A{self.celex}&from=EN"
         self.sparql = SPARQLWrapper("https://publications.europa.eu/webapi/rdf/sparql")
 
