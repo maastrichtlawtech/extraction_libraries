@@ -126,7 +126,8 @@ jobs:
       url: https://pypi.org/project/cellar-extractor/
     permissions:
       id-token: write
-
+    outputs:
+      version_exists: ${{ steps.check-version.outputs.version_exists }}
     steps:
       - name: Download all the artifacts
         uses: actions/download-artifact@v4
@@ -139,15 +140,15 @@ jobs:
         run: |
           if curl -s https://pypi.org/pypi/cellar-extractor/${{ env.RELEASE_VERSION }}/json; then
             echo "Version ${{ env.RELEASE_VERSION }} is already published on PyPI."
-            echo "version_exists=true >> $GITHUB_OUTPUT"
+            echo "version_exists=true" >> "$GITHUB_OUTPUT"
             exit 0
           else
             echo "Version ${{ env.RELEASE_VERSION }} is not published on PyPI."
-            echo "version_exists=false >> $GITHUB_OUTPUT"
+            echo "version_exists=false">> "$GITHUB_OUTPUT"
           fi
 
       - name: Publish distribution to PyPI
-        if: steps.check-version.outputs.version_exists != 'true'
+        if: ${{steps.check-version.outputs.version_exists}} != 'true'
         uses: pypa/gh-action-pypi-publish@release/v1
 
   github-release:
