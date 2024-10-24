@@ -170,17 +170,18 @@ jobs:
 
       - name: Create Github release
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: >-
-          gh release create
-          'cellar-extractor-${{ env.RELEASE_VERSION }}'
-          --repo '${{ github.repository }}'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create \
+          'cellar-extractor-${{ env.RELEASE_VERSION }}' \
+          --repo '${{ github.repository }}' \
+          --target 'cellar' \
           --notes ""
 
       - name: Upload artifact signatures to Github release
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: >-
-          gh release upload
-          'cellar-extractor-${{ env.RELEASE_VERSION }}' ./dist/*.tar.gz ./dist/*.whl
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload \
+          'cellar-extractor-${{ env.RELEASE_VERSION }}' ./dist/*.tar.gz ./dist/*.whl \
           --repo '${{ github.repository }}'
