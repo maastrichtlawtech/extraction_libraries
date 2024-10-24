@@ -24,7 +24,7 @@ jobs:
         uses: py-actions/flake8@v2
         with:
           ignore: E501,F401
-          exclude: "tests/"
+          exclude: "tests"
           path: "cellar_extractor"
           plugins: "flake8-bugbear==22.1.11 flake8-black"
 
@@ -182,5 +182,5 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: >-
           gh release upload
-          'cellar-extractor-${{ env.RELEASE_VERSION }}' ./dist/
+          'cellar-extractor-${{ env.RELEASE_VERSION }}' ./dist/*.tar.gz ./dist/*.whl
           --repo '${{ github.repository }}'
