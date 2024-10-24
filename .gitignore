@@ -21,5 +21,9 @@ build.bat
 echr_extractor-whl.zip
 echr_extractor-whl
 echr_extractor.egg-info
-
 .*DS_Store
+*.egg-info
+junit
+.vscode
+.pytest_cache
+tests/*/

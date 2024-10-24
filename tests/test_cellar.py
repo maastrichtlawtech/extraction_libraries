@@ -99,7 +99,7 @@ def operative_part_txt(celex):
 
 def for_operative_part(celex):
         try:
-            test_output=Analyzer(celex)
+            test_output=FetchOperativePart(celex)
             test_output()
             assert True            
         except Exception:

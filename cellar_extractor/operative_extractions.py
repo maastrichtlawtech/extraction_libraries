@@ -3,8 +3,10 @@ import json
 import os
 import requests
 from bs4 import BeautifulSoup
+from SPARQLWrapper import JSON, SPARQLWrapper
 
-class Analyzer():
+
+class FetchOperativePart():
     """
     This class returns a list of the operative part for a given celex id. 
     Celex id is initialized through a constructor.
@@ -16,6 +18,36 @@ class Analyzer():
         # Initialize Celex id as a constructor, passed when calling the class
         self.celex = celex
         self.url = f"https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX%3A{self.celex}&from=EN"    
+
+    def get_operative_sparql(self) -> str:
+        """
+        Attempts to get the operative part using SPARQL query.
+        Returns None if query fails or returns no results.
+        """
+        try:
+            sparql = SPARQLWrapper('https://publications.europa.eu/webapi/rdf/sparql')
+            sparql.setReturnFormat(JSON)
+            sparql.setQuery("""
+            PREFIX cdm: <http://publications.europa.eu/ontology/cdm#> 
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT ?operative
+            WHERE { 
+                ?doc cdm:manifestation_case-law_operative_part ?operative ;
+                     owl:sameAs ?w .
+                FILTER (?w = <http://publications.europa.eu/resource/celex/%s.ENG.txt>)
+            }
+            """ % self.celex)
+            
+            ret = sparql.queryAndConvert()
+            
+            if ret['results']['bindings']:
+                operative = ret['results']['bindings'][0]['operative']['value']
+                parser = BeautifulSoup(operative.strip(), 'html.parser')
+                return parser.text
+            return None
+            
+        except Exception:
+            return None
         
     def html_page_structure_one(self) -> list:
         """
@@ -24,7 +56,7 @@ class Analyzer():
          table structure . The relevant text lies inside the coj-bold class of the span tag.
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         div = parser.find_all('table')  # Find all tables tag from the website
         one = []
         for divs in div:
@@ -50,7 +82,7 @@ class Analyzer():
          comes after the keyword operative of the previous span tag.
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         p = parser.find_all('p')
         two = []
         for para in p:
@@ -69,7 +101,7 @@ class Analyzer():
          table structure. The relevant text lies inside the coj-bold class of the span tag.
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         table = parser.find_all('table')
         three = []
         for tables in table:
@@ -92,7 +124,7 @@ class Analyzer():
          keyword operative of the previous span tag.
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         p = parser.find_all('p')
         four = []
         for para in p:
@@ -116,7 +148,7 @@ class Analyzer():
          comes after the keyword operative of the previous span tag.
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         p = parser.find_all('p')
         five = []
         for para in p:
@@ -142,7 +174,7 @@ class Analyzer():
          part of the respective h2  tag.
          """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         div = parser.find_all('h2')
         six = []
         for h2 in div:
@@ -162,7 +194,7 @@ class Analyzer():
          the p tag , with the class name=normal.
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         div = parser.find_all('table')
         seven = []
         for divs in div:
@@ -197,7 +229,7 @@ class Analyzer():
          the tbody tag.Returns a list as output.
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
 
         tbody = parser.find_all('tbody')
         eight = []
@@ -224,7 +256,7 @@ class Analyzer():
          tag after the p tag where the keywords "on those grounds" exist. 
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         nine = []
         div = parser.find_all('p')
         for divs in div:
@@ -242,7 +274,7 @@ class Analyzer():
          tag after the b tag where the keywords "operative part" exist. 
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         bold = parser.find_all('b')
 
         eleven = []
@@ -265,7 +297,7 @@ class Analyzer():
          "On those grounds".
         """
         website = requests.get(self.url, timeout=60).text
-        parser = BeautifulSoup(website, 'lxml')
+        parser = BeautifulSoup(website, 'html.parser')
         appender = []
         for string in parser.stripped_strings:
 
@@ -290,18 +322,29 @@ class Analyzer():
         `Analyzer` and returns  the list , with values of the operative part .
         """
 
-        container = [self.html_page_structure_one(), self.html_page_structure_two(),
-                     self.structure_three(), self.structure_four(), self.structure_five(),
-                     self.structure_six(), self.structure_seven(), self.structure_eight(),
-                     self.structure_nine(), self.structure_ten(), self.structure_eleven()]
+        sparql_result = self.get_operative_sparql()
+        if sparql_result:
+            return [sparql_result] 
 
-        one: list
-        for funcs in range(len(container)):
-            one = container[funcs]
-            if one:
-                if (len(one) != 0 or one[0] != "\n"):
-               
-                    return one
+        container = [
+            self.html_page_structure_one(),
+            self.html_page_structure_two(),
+            self.structure_three(),
+            self.structure_four(),
+            self.structure_five(),
+            self.structure_six(),
+            self.structure_seven(),
+            self.structure_eight(),
+            self.structure_nine(),
+            self.structure_ten(),
+            self.structure_eleven()
+        ]
+
+        for result in container:
+            if result and (len(result) != 0 and result[0] != "\n"):
+                return result
+                
+        return []
 
 class Writing():
     """
@@ -328,7 +371,7 @@ class Writing():
         
     def __init__(self, celex: str):
         self.celex = celex
-        self.instance = Analyzer(self.celex)
+        self.instance = FetchOperativePart(self.celex)
         self.x = self.instance()
 
 
