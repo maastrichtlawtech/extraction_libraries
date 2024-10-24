@@ -34,7 +34,8 @@ if __name__ == "__main__":
     print(f"FOUND {len(csv_files)} CSV FILES")
 
     for i in range(len(csv_files)):
-        # Approach for manual extraction of a specific file in a specific directory
+        # Approach for manual extraction of a specific file in a
+        # specific directory
         if "clean" not in csv_files[i]:
             print("")
             print(f"EXTRACTING FROM {csv_files[i]} ")
