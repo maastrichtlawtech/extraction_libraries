@@ -6,26 +6,40 @@ from cellar_extractor.eurlex_scraping import *
 from tqdm import tqdm
 
 
-def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full,
-                             list_codes, list_eurovoc, list_adv, list_judge,
-                             list_affecting_id, list_affecting_str,list_citations_extra,
-                             progress_bar):
+def execute_sections_threads(
+    celex,
+    eclis,
+    start,
+    list_sum,
+    list_key,
+    list_full,
+    list_codes,
+    list_eurovoc,
+    list_adv,
+    list_judge,
+    list_affecting_id,
+    list_affecting_str,
+    list_citations_extra,
+    progress_bar,
+):
     """
-    This is the method executed by individual threads by the add_sections method.
-    The big dataset is divided in parts, each thread gets its portion of work to do.
+    This is the method executed by individual threads by the add_sections
+    method.
+    The big dataset is divided in parts, each thread gets its portion of work
+    to do.
     They add their portions of columns to corresponding lists,
     after all the threads are done the individual parts are put together.
     """
-    _sum = pd.Series([], dtype='string')
-    key = pd.Series([], dtype='string')
+    _sum = pd.Series([], dtype="string")
+    key = pd.Series([], dtype="string")
     full = list()
-    case_codes = pd.Series([], dtype='string')
-    eurovocs = pd.Series([], dtype='string')
-    adv_general = pd.Series([], dtype='string')
-    judge_rapporteur = pd.Series([], dtype='string')
-    affecting_id = pd.Series([], dtype='string')
-    affecting_str = pd.Series([], dtype='string')
-    citations_extra = pd.Series([], dtype='string')
+    case_codes = pd.Series([], dtype="string")
+    eurovocs = pd.Series([], dtype="string")
+    adv_general = pd.Series([], dtype="string")
+    judge_rapporteur = pd.Series([], dtype="string")
+    affecting_id = pd.Series([], dtype="string")
+    affecting_str = pd.Series([], dtype="string")
+    citations_extra = pd.Series([], dtype="string")
     for i in range(len(celex)):
         j = start + i
         _id = celex[j]
@@ -33,18 +47,10 @@ def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full,
         html = get_html_text_by_celex_id(_id)
         if html != "404":
             text = get_full_text_from_html(html)
-            json_text = {
-                'celex': str(_id),
-                'ecli': ecli,
-                'text': text
-            }
+            json_text = {"celex": str(_id), "ecli": ecli, "text": text}
             full.append(json_text)
         else:
-            json_text = {
-                'celex': str(_id),
-                'ecli': ecli,
-                'text': ""
-            }
+            json_text = {"celex": str(_id), "ecli": ecli, "text": ""}
             full.append(json_text)
         summary = get_summary_html(_id)
         if summary != "No summary available":
@@ -93,10 +99,11 @@ def execute_sections_threads(celex, eclis, start, list_sum, list_key, list_full,
     list_affecting_str.append(affecting_str)
     list_citations_extra.append(citations_extra)
 
+
 def add_sections(data, threads, json_filepath=None):
     """
-    This method adds the following sections to a pandas dataframe, as separate columns:
-
+    This method adds the following sections to a pandas dataframe,
+    as separate columns:
     Full Text
     Case law directory codes
     Keywords
@@ -106,16 +113,23 @@ def add_sections(data, threads, json_filepath=None):
     Case affecting (CELEX ID)
     Case affecting string (entire str with more info)
 
-    Method is cellar-specific, scraping html from https://eur-lex.europa.eu/homepage.html.
-    It operates with multiple threads, using that feature is recommended as it speeds up 
-    the entire process.
+    Method is cellar-specific, scraping html from
+    https://eur-lex.europa.eu/homepage.html.
+    It operates with multiple threads, using that feature is recommended
+    as it speeds up the entire process.
     """
-    celex = data.loc[:, 'CELEX IDENTIFIER']
-    eclis = data.loc[:, 'ECLI']
+    celex = data.loc[:, "CELEX IDENTIFIER"]
+    eclis = data.loc[:, "ECLI"]
     length = celex.size
     time.sleep(1)
-    _bar = tqdm(total=length, colour="GREEN", miniters=int(length/100),
-                position=0, leave=True, maxinterval=10000)
+    _bar = tqdm(
+        total=length,
+        colour="GREEN",
+        miniters=int(length / 100),
+        position=0,
+        leave=True,
+        maxinterval=10000,
+    )
     if length > threads:  # to avoid getting problems with small files
         at_once_threads = int(length / threads)
     else:
@@ -132,14 +146,27 @@ def add_sections(data, threads, json_filepath=None):
     list_affecting_str = []
     list_citations_extra = []
     for i in range(0, length, at_once_threads):
-        curr_celex = celex[i:(i + at_once_threads)]
-        curr_ecli = eclis[i:(i + at_once_threads)]
-        t = threading.Thread(target=execute_sections_threads,
-                             args=(
-                                 curr_celex, curr_ecli, i, list_sum, list_key, list_full,
-                                 list_codes, list_eurovoc, list_adv, list_judge,
-                                 list_affecting_id, list_affecting_str,
-                                 list_citations_extra, _bar))
+        curr_celex = celex[i: (i + at_once_threads)]
+        curr_ecli = eclis[i: (i + at_once_threads)]
+        t = threading.Thread(
+            target=execute_sections_threads,
+            args=(
+                curr_celex,
+                curr_ecli,
+                i,
+                list_sum,
+                list_key,
+                list_full,
+                list_codes,
+                list_eurovoc,
+                list_adv,
+                list_judge,
+                list_affecting_id,
+                list_affecting_str,
+                list_citations_extra,
+                _bar,
+            ),
+        )
         threads.append(t)
     for t in threads:
         t.start()
@@ -149,29 +176,30 @@ def add_sections(data, threads, json_filepath=None):
     add_column_frow_list(data, "celex_keywords", list_key)
     add_column_frow_list(data, "celex_eurovoc", list_eurovoc)
     add_column_frow_list(data, "celex_directory_codes", list_codes)
-    add_column_frow_list(data, 'advocate_general', list_adv)
-    add_column_frow_list(data, 'judge_rapporteur', list_judge)
-    add_column_frow_list(data, 'affecting_ids', list_affecting_id)
-    add_column_frow_list(data, 'affecting_strings', list_affecting_str)
-    add_column_frow_list(data, 'citations_extra_info',list_citations_extra)
+    add_column_frow_list(data, "advocate_general", list_adv)
+    add_column_frow_list(data, "judge_rapporteur", list_judge)
+    add_column_frow_list(data, "affecting_ids", list_affecting_id)
+    add_column_frow_list(data, "affecting_strings", list_affecting_str)
+    add_column_frow_list(data, "citations_extra_info", list_citations_extra)
     if json_filepath:
-        with open(json_filepath, 'w', encoding='utf-8') as f:
-            for l in list_full:
-                if len(l) > 0:
-                    json.dump(l, f)
+        with open(json_filepath, "w", encoding="utf-8") as f:
+            for _item in list_full:
+                if len(_item) > 0:
+                    json.dump(_item, f)
     else:
         json_file = []
-        for l in list_full:
-            if len(l) > 0:
-                json_file.extend(l)
+        for _item in list_full:
+            if len(_item) > 0:
+                json_file.extend(_item)
         return json_file
+
 
 def add_column_frow_list(data, name, list):
     """
     Used for adding columns easier to a dataframe for add_sections().
     """
-    column = pd.Series([], dtype='string')
-    for l in list:
-        column = pd.concat([column,l])
+    column = pd.Series([], dtype="string")
+    for _item in list:
+        column = pd.concat([column, _item])
     column.sort_index(inplace=True)
     data.insert(1, name, column)

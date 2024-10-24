@@ -1,9 +1,10 @@
 from SPARQLWrapper import SPARQLWrapper, JSON, CSV, POST
 import requests
 
-def run_eurlex_webservice_query(query_input,username,password):
+
+def run_eurlex_webservice_query(query_input, username, password):
     target = "https://eur-lex.europa.eu/EURLexWebService?wsdl"
-    query = '''<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:sear="http://eur-lex.europa.eu/search">
+    query = """<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:sear="http://eur-lex.europa.eu/search">
       <soap:Header>
         <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" soap:mustUnderstand="true">
           <wsse:UsernameToken xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="UsernameToken-1">
@@ -20,26 +21,36 @@ def run_eurlex_webservice_query(query_input,username,password):
           <sear:searchLanguage>en</sear:searchLanguage>
         </sear:searchRequest>
       </soap:Body>
-    </soap:Envelope>''' % (username, password,query_input)
-    return  requests.request("POST", target, data=query, allow_redirects=True)
+    </soap:Envelope>""" % (
+        username,
+        password,
+        query_input,
+    )
+    return requests.request("POST", target, data=query, allow_redirects=True)
+
 
 def get_citations(source_celex, cites_depth=1, cited_depth=1):
     """
-    Method acquired from a different law and tech project for getting the citations of a 
+    Method acquired from a different law and tech project
+    for getting the citations of a
     source_celex.
-    Unlike get_citations_csv, only works for one source celex at once. Returns a set 
-    containing all the works cited by the source celex.
+    Unlike get_citations_csv, only works for one source celex at once.
+    Returns a set containing all the works cited by the source celex.
     Gets all the citations one to X steps away. Hops can be specified as either
-    the source document citing another (defined by `cites_depth`) or another document
-    citing it (`cited_depth`). Any numbers higher than 1 denote that new source document
+    the source document citing another (defined by `cites_depth`)
+    or another document
+    citing it (`cited_depth`). Any numbers higher than 1 denote that
+    new source document
     citing a document of its own.
 
-    This specific implementation does not care about intermediate steps, it simply finds
+    This specific implementation does not care about intermediate steps,
+    it simply finds
     anything X or fewer hops away without linking those together.
     """
-    sparql = SPARQLWrapper('https://publications.europa.eu/webapi/rdf/sparql')
+    sparql = SPARQLWrapper("https://publications.europa.eu/webapi/rdf/sparql")
     sparql.setReturnFormat(JSON)
-    sparql.setQuery('''
+    sparql.setQuery(
+        """
         prefix cdm: <https://publications.europa.eu/ontology/cdm#>
         prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 
@@ -58,28 +69,33 @@ def get_citations(source_celex, cites_depth=1, cited_depth=1):
                 ?cited cdm:resource_legal_id_celex ?name2 .
             }
         }
-        }''' % (source_celex, cites_depth, source_celex, cited_depth))
+        }"""
+        % (source_celex, cites_depth, source_celex, cited_depth)
+    )
     try:
         ret = sparql.queryAndConvert()
     except Exception:
         return get_citations(source_celex)
     targets = set()
-    for bind in ret['results']['bindings']:
-        target = bind['name2']['value']
+    for bind in ret["results"]["bindings"]:
+        target = bind["name2"]["value"]
         targets.add(target)
     # Filters the list. Filter type: '3'=legislation, '6'=case law.
     targets = set([el for el in list(targets)])
     return targets
 
+
 def get_citations_csv(celex):
     """
-    Method sending a query to the endpoint, which asks for cited works for each celex.
-    The celex variable in the method is a list of all the celex identifiers of the 
+    Method sending a query to the endpoint,
+    which asks for cited works for each celex.
+    The celex variable in the method is a list of
+    all the celex identifiers of the
     cases we need the citations of.
     The query returns a csv, containing all of the data needed."""
-    endpoint = 'https://publications.europa.eu/webapi/rdf/sparql'
+    endpoint = "https://publications.europa.eu/webapi/rdf/sparql"
     input_celex = '", "'.join(celex)
-    query = '''
+    query = """
            prefix cdm: <https://publications.europa.eu/ontology/cdm#>
  prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 
@@ -101,7 +117,10 @@ def get_citations_csv(celex):
             }
         }
 }
-       ''' % (input_celex, input_celex)
+       """ % (
+        input_celex,
+        input_celex,
+    )
 
     sparql = SPARQLWrapper(endpoint)
     sparql.setReturnFormat(CSV)
@@ -114,10 +133,10 @@ def get_citations_csv(celex):
     return ret.decode("utf-8")
 
 
-def get_citing(celex,cites_depth):
-    endpoint = 'https://publications.europa.eu/webapi/rdf/sparql'
+def get_citing(celex, cites_depth):
+    endpoint = "https://publications.europa.eu/webapi/rdf/sparql"
     input_celex = '", "'.join(celex)
-    query = '''
+    query = """
            prefix cdm: <https://publications.europa.eu/ontology/cdm#>
  prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 
@@ -128,9 +147,12 @@ def get_citing(celex,cites_depth):
                  FILTER(STR(?celex) in ("%s")).
                 ?doc cdm:work_cites_work{1,%i} ?cited .
                 ?cited cdm:resource_legal_id_celex ?citedD .
-            }  
+            }
 }
-       ''' % (input_celex, cites_depth)
+       """ % (
+        input_celex,
+        cites_depth,
+    )
 
     sparql = SPARQLWrapper(endpoint)
     sparql.setReturnFormat(CSV)
@@ -139,14 +161,14 @@ def get_citing(celex,cites_depth):
     try:
         ret = sparql.queryAndConvert()
     except Exception:
-        return get_citing(celex,cites_depth)
+        return get_citing(celex, cites_depth)
     return ret.decode("utf-8")
 
 
-def get_cited(celex,cited_depth):
-    endpoint = 'https://publications.europa.eu/webapi/rdf/sparql'
+def get_cited(celex, cited_depth):
+    endpoint = "https://publications.europa.eu/webapi/rdf/sparql"
     input_celex = '", "'.join(celex)
-    query = '''
+    query = """
            prefix cdm: <https://publications.europa.eu/ontology/cdm#>
  prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 
@@ -159,7 +181,10 @@ def get_cited(celex,cited_depth):
                 ?cited cdm:resource_legal_id_celex ?citedD .
             }
 }
-       ''' % (input_celex, cited_depth)
+       """ % (
+        input_celex,
+        cited_depth,
+    )
 
     sparql = SPARQLWrapper(endpoint)
     sparql.setReturnFormat(CSV)
@@ -168,5 +193,5 @@ def get_cited(celex,cited_depth):
     try:
         ret = sparql.queryAndConvert()
     except Exception:
-        return get_cited(celex,cited_depth)
+        return get_cited(celex, cited_depth)
     return ret.decode("utf-8")

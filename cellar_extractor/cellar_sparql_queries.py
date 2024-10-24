@@ -6,7 +6,7 @@ class CellarSparqlQuery:
 
     def __init__(self):
         # Set the SPARQL endpoint
-        _url = 'https://publications.europa.eu/webapi/rdf/sparql'
+        _url = "https://publications.europa.eu/webapi/rdf/sparql"
         self.sparql = SPARQLWrapper(_url)
         self.sparql.setReturnFormat(JSON)
 
@@ -20,7 +20,8 @@ class CellarSparqlQuery:
             str: A string containing the endorsements text, parsed from HTML.
         """
 
-        self.sparql.setQuery(f"""
+        self.sparql.setQuery(
+            f"""
         PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
         SELECT ?Endorsements
@@ -30,15 +31,16 @@ class CellarSparqlQuery:
             FILTER (?w = <http://publications.europa.eu/resource/celex/{number}.ENG.txt>)
         }}
         LIMIT 100
-        """)
+        """
+        )
 
         ret = self.sparql.queryAndConvert()
         print(ret)
         endorsements = ""
-        for result in ret['results']['bindings']:
-            endorsements += result['Endorsements']['value']
+        for result in ret["results"]["bindings"]:
+            endorsements += result["Endorsements"]["value"]
 
-        return BeautifulSoup(endorsements, 'html.parser').text
+        return BeautifulSoup(endorsements, "html.parser").text
 
     def get_grounds(self, number):
         """
@@ -48,7 +50,8 @@ class CellarSparqlQuery:
         Returns:
             str: The grounds of the case-law document as plain text.
         """
-        self.sparql.setQuery(f"""
+        self.sparql.setQuery(
+            f"""
         PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
         SELECT ?Grounds
@@ -58,15 +61,16 @@ class CellarSparqlQuery:
             FILTER (?w = <http://publications.europa.eu/resource/celex/{number}.ENG.txt>)
         }}
         LIMIT 100
-        """)
+        """
+        )
 
         ret = self.sparql.queryAndConvert()
 
         grounds = ""
-        for result in ret['results']['bindings']:
-            grounds += result['Grounds']['value']
+        for result in ret["results"]["bindings"]:
+            grounds += result["Grounds"]["value"]
 
-        return BeautifulSoup(grounds, 'html.parser').text
+        return BeautifulSoup(grounds, "html.parser").text
 
     def get_keywords(self, number):
         """
@@ -82,7 +86,8 @@ class CellarSparqlQuery:
             Exception: If there is an issue with the SPARQL query or the
             endpoint.
         """
-        self.sparql.setQuery(f"""
+        self.sparql.setQuery(
+            f"""
         PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
         SELECT ?Keywords
@@ -92,15 +97,16 @@ class CellarSparqlQuery:
             FILTER (?w = <http://publications.europa.eu/resource/celex/{number}.ENG.txt>)
         }}
         LIMIT 100
-        """)
+        """
+        )
 
         ret = self.sparql.queryAndConvert()
 
         keywords = ""
-        for result in ret['results']['bindings']:
-            keywords += result['Keywords']['value']
+        for result in ret["results"]["bindings"]:
+            keywords += result["Keywords"]["value"]
 
-        return BeautifulSoup(keywords, 'html.parser').text
+        return BeautifulSoup(keywords, "html.parser").text
 
     def get_parties(self, number):
         """
@@ -115,7 +121,8 @@ class CellarSparqlQuery:
             case-law document, with HTML tags removed.
         """
 
-        self.sparql.setQuery(f"""
+        self.sparql.setQuery(
+            f"""
         PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
         SELECT ?Parties
@@ -125,14 +132,15 @@ class CellarSparqlQuery:
             FILTER (?w = <http://publications.europa.eu/resource/celex/{number}.ENG.txt>)
         }}
         LIMIT 100
-        """)
+        """
+        )
 
         ret = self.sparql.queryAndConvert()
         parties = ""
-        for result in ret['results']['bindings']:
-            parties += result['Parties']['value']
+        for result in ret["results"]["bindings"]:
+            parties += result["Parties"]["value"]
 
-        return BeautifulSoup(parties, 'html.parser').text
+        return BeautifulSoup(parties, "html.parser").text
 
     def get_subjects(self, number):
         """
@@ -146,7 +154,8 @@ class CellarSparqlQuery:
             str: A string containing the subjects related to the
             given CELEX number, parsed from HTML.
         """
-        self.sparql.setQuery(f"""
+        self.sparql.setQuery(
+            f"""
         PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
         SELECT ?Subjects
@@ -156,15 +165,16 @@ class CellarSparqlQuery:
             FILTER (?w = <http://publications.europa.eu/resource/celex/{number}.ENG.txt>)
         }}
         LIMIT 100
-        """)
+        """
+        )
 
         ret = self.sparql.queryAndConvert()
 
         subjects = ""
-        for result in ret['results']['bindings']:
-            subjects += result['Subjects']['value']
+        for result in ret["results"]["bindings"]:
+            subjects += result["Subjects"]["value"]
 
-        return BeautifulSoup(subjects, 'html.parser').text
+        return BeautifulSoup(subjects, "html.parser").text
 
     def get_citations(self, source_celex, cites_depth=1, cited_depth=1):
         """
@@ -176,7 +186,8 @@ class CellarSparqlQuery:
         it simply finds anything X or fewer hops away without linking those
         together.
         """
-        self.sparql.setQuery('''
+        self.sparql.setQuery(
+            """
             prefix cdm: <http://publications.europa.eu/ontology/cdm#>
             prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 
@@ -195,12 +206,14 @@ class CellarSparqlQuery:
                     ?cited cdm:resource_legal_id_celex ?name2 .
                 }
             }
-            }''' % (source_celex, cites_depth, source_celex, cited_depth))
+            }"""
+            % (source_celex, cites_depth, source_celex, cited_depth)
+        )
         ret = self.sparql.queryAndConvert()
 
         targets = set()
-        for bind in ret['results']['bindings']:
-            target = bind['name2']['value']
+        for bind in ret["results"]["bindings"]:
+            target = bind["name2"]["value"]
             targets.add(target)
         targets = list(set([el for el in list(targets)]))
 
