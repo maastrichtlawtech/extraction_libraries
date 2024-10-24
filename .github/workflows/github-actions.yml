@@ -19,12 +19,18 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
+      
+      - name: Format with black
+        uses: psf/black@stable
+        with:
+          options: "--check --verbose"
+          src: "cellar_extractor"
+          version: "~= 22.0"
 
       - name: Lint with flake8
         uses: py-actions/flake8@v2
         with:
           ignore: E501,F401
-          exclude: "tests"
           path: "cellar_extractor"
           plugins: "flake8-bugbear==22.1.11 flake8-black"
 
