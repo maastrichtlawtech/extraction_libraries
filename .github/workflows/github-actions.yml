@@ -146,9 +146,10 @@ jobs:
             echo "Version ${{ env.RELEASE_VERSION }} is not published on PyPI."
             echo "version_exists=false">> "$GITHUB_OUTPUT"
           fi
+          echo "Checking the output from previous step ${{ steps.check-version.outputs.version_exists }}"
 
       - name: Publish distribution to PyPI
-        if: ${{steps.check-version.outputs.version_exists}} != 'true'
+        if: ${{ steps.check-version.outputs.version_exists }} != true
         uses: pypa/gh-action-pypi-publish@release/v1
 
   github-release:
