@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ cellar ]
 env:
-  RELEASE_VERSION: 1.2.0
+  RELEASE_VERSION: 1.2.1
 
 jobs:
   lint:
@@ -126,8 +126,6 @@ jobs:
       url: https://pypi.org/project/cellar-extractor/
     permissions:
       id-token: write
-    outputs:
-      version_exists: ${{ steps.check-version.outputs.version_exists }}
     steps:
       - name: Download all the artifacts
         uses: actions/download-artifact@v4
