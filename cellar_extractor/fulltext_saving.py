@@ -2,7 +2,18 @@ import json
 import threading
 import time
 import pandas as pd
-from cellar_extractor.eurlex_scraping import *
+from cellar_extractor.eurlex_scraping import (get_html_text_by_celex_id,
+                                              get_full_text_from_html,
+                                              get_summary_html,
+                                              get_keywords_from_html,
+                                              get_summary_from_html,
+                                              get_entire_page,
+                                              get_codes,
+                                              get_eurovoc,
+                                              get_advocate_or_judge,
+                                              get_case_affecting,
+                                              get_citations_with_extra_info
+                                              )
 from tqdm import tqdm
 
 
