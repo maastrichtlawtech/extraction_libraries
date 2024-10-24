@@ -202,9 +202,9 @@ def is_celex_id(_id):
 
 def get_words_from_keywords_em(text):
     """
-    This method tries to extract only they keywords from a part of 
+    This method tries to extract only they keywords from a part of
     html page containing it.
-    They keywords on the page are always separated by " - " or other 
+    They keywords on the page are always separated by " - " or other
     types of dashes.
     """
     lines = text.split(sep="\n")
@@ -235,7 +235,7 @@ def get_words_from_keywords(text):
     if "Keywords" in text:
         try:
             index = text.find("Keywords")
-            if "Summary" in text[index:index+25]:
+            if "Summary" in text[index:index + 25]:
                 text2 = text.replace("Summary", "", 1)
                 try:
                     indexer = text2.find("Summary")
@@ -278,7 +278,7 @@ def get_html_text_by_celex_id(id):
     """
     This method is a wrapped for the get_html_by_celex_id
     method imported from eurlex.
-    Sometimes thew websites do not load because of too many 
+    Sometimes thew websites do not load because of too many
     connections at once,
     this method waits a bit and tries again for up to 5 tries.
     """
@@ -336,7 +336,7 @@ def get_entire_page(celex):
 
 def get_subject(text):
     """
-    This Method gets the subject matter from a fragment 
+    This Method gets the subject matter from a fragment
     of code containing them.
     Used for extracting subject matter for cellar cases only.
     """
@@ -348,7 +348,7 @@ def get_subject(text):
             )  # if this fails then miscellaneous
         except Exception:
             index_end = text.index("Miscellaneous information")
-        extracting = text[index_matter + 16 : index_end]
+        extracting = text[index_matter + 16:index_end]
         subject_mat = extracting.split(sep="\n")
         subject = ";".join(subject_mat)
         subject = subject[: len(subject) - 1]
@@ -391,13 +391,13 @@ def get_eurovoc(text):
 def get_codes(text):
     """
     Method for getting all of the case directory codes for each cellar case.
-    Extracts them from a string containing the eurlex website containing 
+    Extracts them from a string containing the eurlex website containing
     all document information.
     """
     try:
         index_codes = text.index("Case law directory code:")
         index_end = text.index("Miscellaneous information")
-        extracting = text[index_codes + 20 : index_end]
+        extracting = text[index_codes + 20:index_end]
         extracting = extracting.rstrip()
         words = extracting.split()
         codes = [x for x in words if is_code(x)]
@@ -429,9 +429,10 @@ def get_codes(text):
 def get_advocate_or_judge(text, phrase):
     """
     :param text: full text of the info page of a case from eur-lex website
-    :param phrase: Phrase to search for, works for Advocate General 
+    :param phrase: Phrase to search for, works for Advocate General
     and Judge-Rapporteur
-    :return: The name of the person with the title of phrase param ( if listed on page)
+    :return: The name of the person with the title of phrase param
+    ( if listed on page)
     """
     try:
         index_matter = text.index(phrase)
@@ -440,7 +441,7 @@ def get_advocate_or_judge(text, phrase):
         ending = extracting.find("\n")
         extracting = extracting[:ending]
         # In case they ever change it to delimiter
-        extracting.replace(",", "_") 
+        extracting.replace(",", "_")
         subject_mat = extracting.split(sep="_")
         subject_mat = [i.strip() for i in subject_mat]
         return ";".join(subject_mat)
@@ -501,5 +502,5 @@ def get_citations_with_extra_info(text):
                 data_list.append(fixed_line)
             else:
                 return ";".join(data_list)
-    except:
+    except Exception:
         return ""
