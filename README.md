@@ -64,6 +64,15 @@ A class which writes the text for the operative part for each European Case law 
     - ``to_csv()`` - Writes the operative part along with celex id into a csv file.
     - ``to_json()`` - Writes the operative part along with celex id into a json file.
     - ``to_txt()`` - Writes the operative part along with celex id into a txt file
+   
+3. ``CellarSparqlQuery``
+A class which includes methods to extract extra data for each court case using a sparql query.
+      - ``get_endorsements`` - Fetches endorsements of the judgement
+      - ``get_subjects`` - Fetches subjects of the judgement
+      - ``get_parties`` - Fetches parties of the judgement
+      - ``get_keywords`` - Fetches keywords of the judgement
+      - ``get_citations`` - Fetches court cases cited by the source judgement
+      - ``get_grounds`` - Fetches grounds of the judgement
 
 ## What are the parameters?
 
