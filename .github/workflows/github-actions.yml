@@ -147,7 +147,7 @@ jobs:
           fi
 
       - name: Publish distribution to PyPI
-        if: ${{ steps.check-version.outputs.version_exists }} != 'true'
+        if: steps.check-version.outputs.version_exists != 'true'
         uses: pypa/gh-action-pypi-publish@release/v1
 
   github-release:
