@@ -139,7 +139,7 @@ def test_operative_part_csv():
         assert False, "Cannot extract operative text"
     
 def test_for_operative_part():
-    celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154"]
+    celex_store=["61983CJ0207","61988CJ0360","62005CJ0168","62008CJ0484","62010CJ0014","62005CJ0343","62000CJ0154","ECLI:EU:C:1998:356","ECLI:EU:C:1999:105"]
     celex:str
     choice=random.randint(0,len(celex_store)-1)
     celex=celex_store[choice]
