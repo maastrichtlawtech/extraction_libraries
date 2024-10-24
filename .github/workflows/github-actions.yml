@@ -8,6 +8,7 @@ on:
 
 jobs:
   test:
+    if: github.event_name == 'pull_request'
     name: Test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -44,7 +45,7 @@ jobs:
         shell: bash
 
   build:
-    needs: test
+    needs: ${{ github.event_name == 'pull_request' && 'test' || null }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -93,10 +94,9 @@ jobs:
           packages-dir: dist/
 
   pypi-publish:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/cellar'
     name: Publish to PyPI
-    needs:
-      - testpypi-publish
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -115,7 +115,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
 
   github-release:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/cellar'
     name: Sign the Python distribution with Sigstore and upload them to GitHub Releases
     needs:
       - pypi-publish
