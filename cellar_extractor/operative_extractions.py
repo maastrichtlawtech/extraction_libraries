@@ -3,28 +3,34 @@ import json
 import os
 import requests
 from bs4 import BeautifulSoup
-from SPARQLWrapper import JSON, SPARQLWrapper,POST
+from SPARQLWrapper import JSON, SPARQLWrapper, POST
 
 
-def get_celex(eclis, get_labels=True, force_readable_cols=True, force_readable_vals=False):
+def get_celex(eclis):
     """Gets cellar metadata
 
     :param eclis: The ECLIs for which to retrieve metadata
     :type eclis: list[str]
-    :param get_labels: Flag to get human-readable labels for the properties, defaults to True
+    :param get_labels: Flag to get human-readable labels for the properties,
+    defaults to True
     :type get_labels: bool, optional
-    :param force_readable_cols: Flag to remove any non-labelled properties from the resulting dict, defaults to True
+    :param force_readable_cols: Flag to remove any non-labelled properties
+    from the resulting dict, defaults to True
     :type force_readable_cols: bool, optional
-    :param force_readable_vals: Flag to remove any non-labelled values from the resulting dict, defaults to False
+    :param force_readable_vals: Flag to remove any non-labelled values from
+    the resulting dict, defaults to False
     :type force_readable_vals: bool, optional
-    :return: Dictionary containing metadata. Top-level keys are ECLIs, second level are property names
+    :return: Dictionary containing metadata. Top-level keys are ECLIs, second
+    level are property names
     :rtype: Dict[str, Dict[str, list[str]]]
     """
 
-    # Find every outgoing edge from an ECLI document and return it (essentially giving s -p> o)
-    # Also get labels for p/o (optionally) and then make sure to only return distinct triples
-    endpoint = 'https://publications.europa.eu/webapi/rdf/sparql'
-    query = '''
+    # Find every outgoing edge from an ECLI document and return it
+    # (essentially giving s -p> o)
+    # Also get labels for p/o (optionally) and then make sure to only return
+    # distinct triples
+    endpoint = "https://publications.europa.eu/webapi/rdf/sparql"
+    query = """
         prefix cdm: <http://publications.europa.eu/ontology/cdm#>
         prefix skos: <http://www.w3.org/2004/02/skos/core#>
         prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -42,7 +48,9 @@ def get_celex(eclis, get_labels=True, force_readable_cols=True, force_readable_v
                 FILTER(lang(?olabel) = "en") .
             }
         }
-    ''' % ("".join(eclis))
+    """ % (
+        "".join(eclis)
+    )
 
     sparql = SPARQLWrapper(endpoint)
 
@@ -51,10 +59,9 @@ def get_celex(eclis, get_labels=True, force_readable_cols=True, force_readable_v
     sparql.setQuery(query)
     results = sparql.query().convert()
     for result in results["results"]["bindings"]:
-        x=result["o"]["value"]
+        x = result["o"]["value"]
         if "celex:" in x.lower():
             return x[6:]
-
 
 
 class FetchOperativePart:
@@ -68,10 +75,9 @@ class FetchOperativePart:
     url: str = ""
 
     def __init__(self, celex):
-        self.celex=celex
+        self.celex = celex
         if not self.celex.startswith("6"):
-           
-            self.celex = get_celex(self.celex) 
+            self.celex = get_celex(self.celex)
         else:
             self.celex = celex
         self.url = f"https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX%3A{self.celex}&from=EN"
@@ -85,7 +91,7 @@ class FetchOperativePart:
         try:
             self.sparql.setReturnFormat(JSON)
             self.sparql.setQuery(
-            """
+                """
             PREFIX cdm: <http://publications.europa.eu/ontology/cdm#> 
             PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             SELECT ?operative
@@ -290,8 +296,7 @@ class FetchOperativePart:
                                         if _all is not None:
                                             # find operative part
                                             # within the span
-                                            span = _all.find_all("span",
-                                                                 class_="bold")
+                                            span = _all.find_all("span", class_="bold")
                                             for spans in span:
                                                 # Append it into a list and
                                                 # return the
@@ -321,8 +326,7 @@ class FetchOperativePart:
                         for paras in p:
                             if paras is not None:
                                 if "on those grounds" in paras.text.lower():
-                                    span = paras.find_all_next("span",
-                                                               class_="bold")
+                                    span = paras.find_all_next("span", class_="bold")
                                     for spans in span:
                                         if spans is not None:
                                             eight.append(spans.text)
