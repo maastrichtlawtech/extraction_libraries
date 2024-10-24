@@ -133,11 +133,11 @@ jobs:
         run: |
           if curl -s https://pypi.org/pypi/cellar-extractor/${{ env.RELEASE_VERSION }}/json; then
             echo "Version ${{ env.RELEASE_VERSION }} is already published on PyPI."
-            echo "::set-output name=version_exists::true"
+            echo "{version_exists}={true} >> $GITHUB_OUTPUT"
             exit 0
           else
             echo "Version ${{ env.RELEASE_VERSION }} is not published on PyPI."
-            echo "::set-output name=version_exists::false"
+            echo "{version_exists}={false} >> $GITHUB_OUTPUT"
           fi
 
       - name: Publish distribution to PyPI
