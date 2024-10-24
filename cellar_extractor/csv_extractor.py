@@ -6,14 +6,14 @@ from cellar_extractor.json_to_csv import read_csv
 
 def extract_rows(data, number):
     """
-    Method takes in a dataframe and returns a dataframe 
+    Method takes in a dataframe and returns a dataframe
     with only *number* of data rows.
     """
 
     try:
         output = data[1:number]
     except Exception:
-        logging.info(f"The file does not have {number} entries, 
+        logging.info(f"The file does not have {number} entries,\
                      returning entire file.")
         output = data
     return output
