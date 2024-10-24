@@ -30,7 +30,7 @@ class FetchOperativePart:
         try:
             self.sparql.setReturnFormat(JSON)
             self.sparql.setQuery(
-            """
+                """
             PREFIX cdm: <http://publications.europa.eu/ontology/cdm#> 
             PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             SELECT ?operative
