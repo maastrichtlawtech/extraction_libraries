@@ -1,17 +1,17 @@
-venv
+.venv
 .idea
 data
 rechtspraak/rechtspraak_extractor/tests/data
 dist
 build
-
+.vscode
 rechtspraak/build
 rechtspraak/dist
 rechtspraak/.pypirc
 rechtspraak/rechtspraak_extractor.egg-info
-
+junit
 temp
-
+tests/
 *.pyc
 __pycache__/
 test.py
@@ -28,3 +28,4 @@ junit
 tests
 .env
 *.egg-info
+.env

@@ -13,7 +13,7 @@ import time
 import requests
 
 from datetime import date, datetime
-from rechtspraak_extractor.rechtspraak_functions import *
+from rechtspraak_functions import *
 
 
 # Define base URL

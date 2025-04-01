@@ -6,12 +6,13 @@ import logging
 import pandas as pd
 import rdflib
 import requests
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from lxml import etree
 from requests.auth import HTTPBasicAuth
 from tqdm import tqdm
+import re
 
-load_dotenv()
+# load_dotenv()
 
 LIDO_ENDPOINT = "http://linkeddata.overheid.nl/service/get-links"
 
@@ -140,7 +141,7 @@ def citations_multithread_single(big_incoming, big_outgoing, big_legislations, e
 def add_column_frow_list(data, name, list):
     column = pd.Series([], dtype='string')
     for l in list:
-        column = column.append(l)
+        column = column._append(l)
     column.sort_index(inplace=True)
     data.insert(1, name, column)
 
@@ -153,6 +154,7 @@ def find_citations_for_cases_multithread(dataframe, username, password, threads)
     big_outgoing = []
     big_legislations = []
     threads = []
+    bwb_list = []
     bar = tqdm(total=length, colour="GREEN", position=0, leave=True, miniters=int(length / 100), maxinterval=10000)
 
     for i in range(0, length, at_once_threads):
@@ -167,6 +169,16 @@ def find_citations_for_cases_multithread(dataframe, username, password, threads)
     add_column_frow_list(dataframe, 'citations_incoming', big_incoming)
     add_column_frow_list(dataframe, 'citations_outgoing', big_outgoing)
     add_column_frow_list(dataframe, 'legislations_cited', big_legislations)
+    # Iterate over big_legislations and find bwb_ids using regular expressions
+    for leg_citations in big_legislations:
+        for leg_citation in leg_citations:
+            match = re.search(r"bwb/id/([^/]+)", leg_citation)
+            if match:
+                bwb_list.append(match.group(1))
+            else:
+                bwb_list.append(None)
+    dataframe['bwb_id'] = pd.Series(bwb_list)
+
     return dataframe
 
 
@@ -224,14 +236,13 @@ def find_citations_for_case(ecli, case_citations_fieldnames, legislation_citatio
 
     while not end_of_pages:
         added_sth_new = False
-        url = "{}?id={}&start={}&rows={}&output=xml".format(LIDO_ENDPOINT, get_lido_id(ecli), start_page, 100)
+        url = "{}?id={}&start={}&rows={}&output=xml".format(LIDO_ENDPOINT, get_lido_id(ecli), start_page, 10)
         start_page += 1
 
         xml_text = get_lido_response(url, username, password)
         xml_elements.append(etree.fromstring(xml_text.encode('utf8')))
 
         for el in xml_elements:
-
             for sub in list(el.iterchildren('subject')):
 
                 for the_citations in sub.iterchildren(outgoing):
@@ -275,7 +286,7 @@ def find_citations_for_case(ecli, case_citations_fieldnames, legislation_citatio
     case_law_results_incoming = extract_results_citations(case_law_citations_incoming, ecli, case_citations_fieldnames)
     legislation_results = extract_results_legislations(legislation_citations, ecli, legislation_citations_fieldnames,
                                                        username, password)
-
+    
     return case_law_results_incoming, case_law_result_outgoing, legislation_results
 
 
@@ -293,7 +304,6 @@ def extract_results_citations(list, ecli, fields):
 
 def extract_results_legislations(list, ecli, fields, username, password):
     list_of_all_results = []
-
     for leg_citation in list:
         legislation_result = {key: None for key in fields}
         legislation_result[fields[0]] = (leg_citation)  # Target article
