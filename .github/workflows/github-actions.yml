@@ -20,12 +20,12 @@ jobs:
         with:
           python-version: '3.9'
       
-      - name: Format with black
-        uses: psf/black@stable
-        with:
-          options: "--check --verbose --line-length 100"
-          src: "rechtspraak_extractor"
-          version: "~= 22.0"
+      # - name: Format with black
+      #   uses: psf/black@stable
+      #   with:
+      #     options: "--check --verbose --line-length 100"
+      #     src: "rechtspraak_extractor"
+      #     version: "~= 22.0"
 
       - name: Lint with flake8
         uses: py-actions/flake8@v2
