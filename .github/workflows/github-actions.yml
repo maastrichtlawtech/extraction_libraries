@@ -3,8 +3,6 @@ name: Build, Test, Lint & Upload to TestPyPI and PyPI for Rechtspraak Extractor
 on:
   push:
     branches: [ rechtspraak ]
-  pull_request:
-    branches: [ rechtspraak_github_workflows ]
 
 jobs:
   test:
