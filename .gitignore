@@ -25,7 +25,6 @@ echr_extractor.egg-info
 .vscode
 .venv
 junit
-tests
 .env
 *.egg-info
 .env
