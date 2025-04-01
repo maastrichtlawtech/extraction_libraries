@@ -11,5 +11,8 @@ if __name__ == '__main__':
     username = os.getenv('LIDO-USERNAME')
     password = os.getenv('LIDO-PASSWORD')
     print(username, password)
-    df = get_citations(data,username=username,password=password,threads=2)
-    df.to_csv('../../data/citations.csv',index=False)
+    df = get_citations(data,
+                       username=username,
+                       password=password,
+                       threads=2)
+    df.to_csv('../../data/citations.csv', index=False)
