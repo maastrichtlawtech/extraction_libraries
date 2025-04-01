@@ -29,10 +29,10 @@ def get_data_from_url(base_url, total_docs, start_date, end_date):
     max_ecli_per_page = 1000
     while True:
         url = (base_url +
-               'max=' + max_ecli_per_page +
-               '&from=' + from_index +
-               '&date=' + start_date +
-               '&date=' + end_date
+               'max=' + str(max_ecli_per_page) +
+               '&from=' + str(from_index) +
+               '&date=' + str(start_date) +
+               '&date=' + str(end_date)
                )
         res = requests.get(url)
         res.raw.decode_content = True
@@ -57,10 +57,10 @@ def get_data_from_url(base_url, total_docs, start_date, end_date):
 
 def _num_of_available_docs(url, start_date, end_date, amount, from_index=0):
     _url = (url +
-            'max=' + amount +
-            '&from=' + from_index +
-            '&date=' + start_date +
-            '&date=' + end_date
+            'max=' + str(amount) +
+            '&from=' + str(from_index) +
+            '&date=' + str(start_date) +
+            '&date=' + str(end_date)
             )
     response = requests.get(_url)
     response.raw.decode_content = True
@@ -127,7 +127,7 @@ def get_rechtspraak(max_ecli=1000, sd='1900-01-01', ed=None, save_file='y'):
     # Build the URL after getting all the arguments
     url = (RECHTSPRAAK_API_BASE_URL +
            'max=' + str(max_ecli) +
-           '&from=' +
+           '&from=0' +
            '&date=' + starting_date +
            '&date=' + ending_date)
 
