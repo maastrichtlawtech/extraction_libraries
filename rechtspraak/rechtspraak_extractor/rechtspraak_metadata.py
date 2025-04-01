@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 import logging
 import shutil
 from tqdm import tqdm
-from rechtspraak_extractor.rechtspraak_functions import *
+from rechtspraak_functions import *
 from functools import partial
 # Define base url
 RECHTSPRAAK_METADATA_API_BASE_URL = "http://data.rechtspraak.nl/uitspraken/content?id=" # old one = "https://uitspraken.rechtspraak.nl/#!/details?id="
