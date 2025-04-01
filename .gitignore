@@ -21,3 +21,4 @@ build.bat
 echr_extractor-whl.zip
 echr_extractor-whl
 echr_extractor.egg-info
+.env
