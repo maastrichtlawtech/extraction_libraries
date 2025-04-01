@@ -1,22 +1,43 @@
-import requests, glob, time, logging
-from pathlib import Path
-import pandas as pd
+import glob
+import logging
+import requests
+import time
 
 
-# Check whether the API is working or not and return with the response code
 def check_api(url):
+    """
+    Check whether the API is working or not and return the response code.
+
+    Args:
+        url (str): The URL of the API to check.
+
+    Returns:
+        int: The HTTP response status code from the API.
+    """
+
     response = requests.get(f"{url}")
 
     # Return with the response code
     return response.status_code
 
 
-# Reads all the CSV files in a folder and returns the list of files
-# It also has an optional parameter "exclude". By default, it's None. If you want to exclude files having a certain
-# word in the file name, you may give a value
-# It also only grabs data if it has rechtspraak in it
-# As that was causing issues with other csv data present
 def read_csv(dir_name, exclude=None):
+    """
+    Reads all the CSV files in a folder and returns a list of files.
+
+    Args:
+        dir_name (str): The directory path containing the CSV files.
+        exclude (str, optional): A word to exclude files containing it in
+        their name. Defaults to None.
+
+    Returns:
+        list: A list of file paths for CSV files that match the criteria.
+
+    Notes:
+        - Only files with "rechtspraak" in their name are included.
+        - If `exclude` is provided, files containing the `exclude` word in
+        their name are excluded.
+    """
     path = dir_name
     csv_files = glob.glob(path + "/*.csv")
     files = []
@@ -32,13 +53,24 @@ def read_csv(dir_name, exclude=None):
     return files
 
 
-# Get total execution time
 def get_exe_time(start_time):
+    """
+    Calculate and log the total execution time.
+
+    Args:
+        start_time (float): The start time in seconds since the epoch.
+
+    Logs:
+        str: The total execution time in the format "hours:minutes:seconds".
+    """
     end_time = time.time()
     sec = end_time - start_time
     mins = sec // 60
     sec = sec % 60
     hours = mins // 60
     mins = mins % 60
-    logging.info("Total execution time: {0}:{1}:{2}".format(int(hours), int(mins), round(sec, 2)))
+    logging.info(
+        "Total execution time: {0}:{1}:{2}".format(int(hours), int(mins),
+                                                   round(sec, 2))
+    )
     logging.info("\n")
