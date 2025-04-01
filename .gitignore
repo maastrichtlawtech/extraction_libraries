@@ -27,3 +27,4 @@ echr_extractor.egg-info
 junit
 tests
 .env
+*.egg-info
