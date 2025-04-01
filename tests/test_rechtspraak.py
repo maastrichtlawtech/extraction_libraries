@@ -1,4 +1,5 @@
-from rechtspraak_extractor import *
+from rechtspraak_extractor.rechtspraak import get_rechtspraak
+from rechtspraak_extractor.rechtspraak_metadata import get_rechtspraak_metadata
 
 
 def rechtspraak_n():
