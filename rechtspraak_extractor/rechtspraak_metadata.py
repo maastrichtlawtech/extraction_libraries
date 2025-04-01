@@ -18,7 +18,9 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from functools import partial
 from pathlib import Path
-from rechtspraak_functions import check_api, read_csv, get_exe_time
+from rechtspraak_extractor.rechtspraak_functions import (check_api,
+                                                         read_csv,
+                                                         get_exe_time)
 from tqdm import tqdm
 
 # Define base url

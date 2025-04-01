@@ -16,7 +16,7 @@ import pandas as pd
 
 from datetime import date, datetime
 from pathlib import Path
-from rechtspraak_functions import check_api, get_exe_time
+from rechtspraak_extractor.rechtspraak_functions import check_api, get_exe_time
 
 
 # Define base URL
