@@ -1,4 +1,4 @@
-# This file is used for getting the metadata of the ECLIs obtained using 
+# This file is used for getting the metadata of the ECLIs obtained using
 # rechspraak_api file. This file takes all the
 # CSV file created by rechspraak_api, picks up ECLIs and links column,
 # and using an API gets the metadata and saves it
