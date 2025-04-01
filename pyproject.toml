@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rechtspraak_extractor"
+readme = {file = "README.md", content-type = "text/markdown"}
+version = "1.2.0"
+requires-python = ">= 3.9"
+description = "Library for extracting rechtspraak data"
+authors = [
+    { name = "LawTech Lab", email = "law-techlab@maastrichtuniversity.nl" }
+]
+license = { file = "LICENSE" }
+keywords = ["rechtspraak", "extractor"]
+dependencies = [
+    "beautifulsoup4==4.13.3",
+    "bs4==0.0.2",
+    "certifi==2025.1.31",
+    "charset-normalizer==3.4.1",
+    "idna==3.10",
+    "numpy==2.2.4",
+    "pandas==2.2.3",
+    "python-dateutil==2.9.0.post0",
+    "pytz==2025.2",
+    "requests==2.32.3",
+    "six==1.17.0",
+    "soupsieve==2.6",
+    "tqdm==4.67.1",
+    "typing_extensions==4.13.0",
+    "tzdata==2025.2",
+    "urllib3==2.3.0",
+    "xmltodict==0.14.2"
+]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/maastrichtlawtech/extraction_libraries"
+"Build Source" = "https://github.com/maastrichtlawtech/extraction_libraries"
+
+[tool.setuptools.packages.find]
+include = ["rechtspraak_extractor"]
+namespaces = false
