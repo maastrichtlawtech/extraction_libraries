@@ -11,7 +11,10 @@ rechtspraak/.pypirc
 rechtspraak/rechtspraak_extractor.egg-info
 junit
 temp
-tests/
+csv/
+json/
+txt/
+.coverage
 *.pyc
 __pycache__/
 test.py
