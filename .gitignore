@@ -11,7 +11,10 @@ rechtspraak/.pypirc
 rechtspraak/rechtspraak_extractor.egg-info
 junit
 temp
-tests/
+csv/
+json/
+txt/
+.coverage
 *.pyc
 __pycache__/
 test.py
@@ -21,4 +24,10 @@ build.bat
 echr_extractor-whl.zip
 echr_extractor-whl
 echr_extractor.egg-info
+.pytest*
+.vscode
+.venv
+junit
+.env
+*.egg-info
 .env

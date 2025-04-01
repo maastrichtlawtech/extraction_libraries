@@ -1,0 +1,5 @@
+from rechtspraak_extractor import rechtspraak
+from rechtspraak_extractor import rechtspraak_metadata
+from rechtspraak_extractor import rechtspraak_functions
+import logging
+logging.basicConfig(level=logging.INFO)
