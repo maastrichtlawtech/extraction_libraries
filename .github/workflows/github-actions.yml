@@ -23,7 +23,7 @@ jobs:
       - name: Format with black
         uses: psf/black@stable
         with:
-          options: "--check --verbose --line-length 90"
+          options: "--check --verbose --line-length 100"
           src: "rechtspraak_extractor"
           version: "~= 22.0"
 
