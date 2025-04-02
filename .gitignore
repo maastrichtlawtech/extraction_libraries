@@ -1,23 +1,26 @@
-venv
+[.]venv
+[.]vscode
 .idea
 data
 rechtspraak/rechtspraak_extractor/tests/data
 dist
 build
 
-rechtspraak/build
-rechtspraak/dist
-rechtspraak/.pypirc
-rechtspraak/rechtspraak_extractor.egg-info
 
-temp
+*temp*
 
 *.pyc
 __pycache__/
-test.py
-echr.zip
-rechtspraak.zip
-build.bat
-echr_extractor-whl.zip
-echr_extractor-whl
-echr_extractor.egg-info
+
+
+*.zip
+*-whl.zip
+*-whl
+*egg-info
+csv/
+json/
+txt/
+.coverage
+*[.]pytest*
+junit/
+.env
