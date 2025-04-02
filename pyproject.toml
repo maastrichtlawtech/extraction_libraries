@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rechtspraak_extractor"
-readme = {file = "README.md", content-type = "text/markdown"}
-version = "1.2.1"
+readme = {file = "rechtspraak_extractor/README.md", content-type = "text/markdown"}
+version = "1.2.2"
 requires-python = ">= 3.9"
 description = "Library for extracting rechtspraak data"
 authors = [
@@ -23,7 +23,7 @@ dependencies = [
     "pandas==2.2.3",
     "python-dateutil==2.9.0.post0",
     "pytz==2025.2",
-    "requests==2.32.3",
+    "requests",
     "six==1.17.0",
     "soupsieve==2.6",
     "tqdm==4.67.1",
