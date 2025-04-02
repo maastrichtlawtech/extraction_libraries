@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ cellar ]
 env:
-  RELEASE_VERSION: 1.2.1
+  RELEASE_VERSION: 1.2.2
 
 jobs:
   lint:
