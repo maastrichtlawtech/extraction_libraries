@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cellar_extractor"
 readme = {file = "README.md", content-type = "text/markdown"}
-version = "1.2.1"
+version = "1.2.2"
 requires-python = ">= 3.9"
 description = "Library for extracting cellar data"
 authors = [
@@ -15,10 +15,10 @@ license = { file = "LICENSE" }
 keywords = ["cellar", "extractor"]
 dependencies = [
     "bs4",
-    "SPARQLWrapper==2.0.0",
-    "requests==2.26.0",
+    "SPARQLWrapper",
+    "requests",
     "pandas",
-    "xmltodict==0.13.0",
+    "xmltodict",
     "tqdm"
 ]
 
