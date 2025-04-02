@@ -2,7 +2,7 @@
 This library contains two functions to get rechtspraak data and metadata from the API.
 
 ## Version
-Python 3.9
+Python 3.9+
 
 ## Contributors
 
