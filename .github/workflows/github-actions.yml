@@ -4,7 +4,9 @@ on:
   push:
     branches: [ echr ]
   pull_request:
-    branches: [ echr_github_workflows ]
+    branches: [ echr ]
+env:
+  RELEASE_VERSION: 1.0.44
 
 jobs:
   test:
@@ -36,7 +38,7 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          pytest tests/tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=cellar --cov-report=xml --cov-report=html
+          pytest tests/test_echr.py --doctest-modules --junitxml=junit/test-results.xml --cov=echr --cov-report=xml --cov-report=html
 
       - name: Set release version
         run: echo "RELEASE_VERSION=$(python -c 'from echr_extractor import __version__; print(__version__)')" >> $GITHUB_ENV
@@ -127,7 +129,7 @@ jobs:
           path: dist/
 
       - name: Sign the Python distribution with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v2.1.1
+        uses: sigstore/gh-action-sigstore-python@v3.0.0
         with:
           inputs: >-
             ./dist/**/*.whl
@@ -138,7 +140,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: >-
           gh release create
-          'cellar-extractor-${{ env.RELEASE_VERSION }}'
+          'echr-extractor-${{ env.RELEASE_VERSION }}'
           --repo '${{ github.repository }}'
           --notes ""
 
@@ -147,5 +149,5 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: >-
           gh release upload
-          'cellar-extractor-${{ env.RELEASE_VERSION }}' ./dist/**/*
+          'echr-extractor-${{ env.RELEASE_VERSION }}' ./dist/**/*
           --repo '${{ github.repository }}'
