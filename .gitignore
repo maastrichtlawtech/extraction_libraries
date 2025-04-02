@@ -27,3 +27,5 @@ junit
 .vscode
 .pytest_cache
 tests/*/
+.env
+.coverage
