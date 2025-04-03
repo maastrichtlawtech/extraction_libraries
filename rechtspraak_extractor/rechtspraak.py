@@ -16,7 +16,9 @@ import pandas as pd
 
 from datetime import date, datetime
 from pathlib import Path
-from rechtspraak_extractor.rechtspraak_functions import check_api, get_exe_time
+from rechtspraak_extractor.rechtspraak_functions import (check_api,
+                                                         get_exe_time,
+                                                         _num_of_available_docs)
 
 
 # Define base URL
@@ -53,22 +55,6 @@ def get_data_from_url(base_url, total_docs, start_date, end_date):
         time.sleep(1)
 
     return all_results
-
-
-def _num_of_available_docs(url, start_date, end_date, amount, from_index=0):
-    _url = (url +
-            'max=' + str(amount) +
-            '&from=' + str(from_index) +
-            '&date=' + str(start_date) +
-            '&date=' + str(end_date)
-            )
-    response = requests.get(_url)
-    response.raw.decode_content = True
-    xpars = xmltodict.parse(response.text)
-    json_string = json.dumps(xpars)
-    json_object = json.loads(json_string)
-    return int(re.search(r'\d+',
-                         json_object['feed']['subtitle']['#text']).group())
 
 
 def save_csv(json_object, file_name, save_file):
@@ -142,13 +128,16 @@ def get_rechtspraak(max_ecli=1000, sd='1900-01-01', ed=None, save_file='y'):
                                             starting_date,
                                             ending_date,
                                             max_ecli)
-        if max_ecli != total_docs:
+        if total_docs < max_ecli:
             logging.info(f"Total available number of documents is {total_docs}\
-                         but will fetch only {max_ecli}")
+                         so cannot fetch {max_ecli} documents")
+        elif total_docs == 0:
+            logging.info("No documents available for the given date range")
+            return
+        else:
             total_docs = max_ecli
-        logging.info(f"Total number of documents for retrieval:{total_docs}")
-        logging.info("Getting " + str(max_ecli) + " documents from " +
-                     starting_date + " till " + ending_date)
+        logging.info(f"Total number of documents for retrieval:{total_docs}\
+                     from date range {starting_date} to {ending_date}")
         json_object = get_data_from_url(RECHTSPRAAK_API_BASE_URL, total_docs,
                                         starting_date, ending_date)
         logging.info(f"Found {len(json_object)} cases!")
