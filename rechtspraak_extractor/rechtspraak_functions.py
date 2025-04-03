@@ -2,6 +2,9 @@ import glob
 import logging
 import requests
 import time
+import xmltodict
+import json
+import re
 
 
 def check_api(url):
@@ -74,3 +77,19 @@ def get_exe_time(start_time):
                                                    round(sec, 2))
     )
     logging.info("\n")
+
+
+def _num_of_available_docs(url, start_date, end_date, amount, from_index=0):
+    _url = (url +
+            'max=' + str(amount) +
+            '&from=' + str(from_index) +
+            '&date=' + str(start_date) +
+            '&date=' + str(end_date)
+            )
+    response = requests.get(_url)
+    response.raw.decode_content = True
+    xpars = xmltodict.parse(response.text)
+    json_string = json.dumps(xpars)
+    json_object = json.loads(json_string)
+    return int(re.search(r'\d+',
+                         json_object['feed']['subtitle']['#text']).group())
