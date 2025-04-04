@@ -17,11 +17,12 @@ from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from functools import partial
+from fake_headers import Headers
 from pathlib import Path
 from rechtspraak_extractor.rechtspraak_functions import (
-    check_api,
     read_csv,
     get_exe_time,
+    # check_api
 )
 from tqdm import tqdm
 
@@ -52,15 +53,7 @@ temp_df = pd.DataFrame(columns=_columns)
 _failed_eclis = []
 threads = []
 max_workers = 0
-_headers = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML,like Gecko) Chrome/133.0.0.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-    "Accept-Encoding": "gzip,deflate,br,zstd",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Connection": "keep-alive",
-    "Host": "data.rechtspraak.nl",
-    "Upgrade-Insecure-Requests": "1",
-}
+fake_headers = False
 
 
 def get_cores():
@@ -98,10 +91,43 @@ def get_cores():
 
 
 def extract_data_from_xml(url):
-    _request = urllib.request.Request(url, headers=_headers)
-    with urllib.request.urlopen(_request) as response:
-        xml_file = response.read()
-        return xml_file
+    """
+    Fetches and returns the XML content from a given URL. The function attempts
+    to retrieve the XML file up to two times in case of errors.
+    Args:
+        url (str): The URL from which to fetch the XML content.
+    Returns:
+        bytes or None: The XML content as bytes if the request is successful,
+        or None if both attempts fail.
+    Raises:
+        Exception: Any exception encountered during the request is logged, but
+        not raised. The function will retry once before returning None.
+    """
+    global fake_headers
+    if fake_headers:
+        _headers = Headers(headers=True).generate()
+    for attempt in range(2):  # Retry up to 2 times
+        if attempt == 1:
+            logging.info(
+                f"Attempt {attempt + 1}: Getting the XML\
+                    for ECLI: {url}"
+            )
+        try:
+            if fake_headers:
+                _request = urllib.request.Request(url, headers=_headers)
+            else:
+                _request = urllib.request.Request(url)
+            with urllib.request.urlopen(_request) as response:
+                xml_file = response.read()
+                return xml_file
+        except Exception as e:
+            logging.warning(
+                f"Attempt {attempt + 1}: An error occurred while\
+                    getting the XML for ECLI: {e} with error: {e}\
+                          using url: {url}, will try again"
+            )
+            if attempt == 1:  # If it's the last attempt, return None
+                return None
 
 
 def check_if_df_empty(df):
@@ -111,11 +137,9 @@ def check_if_df_empty(df):
 
 
 def get_text_if_exists(el, ecli):
-    global _failed_eclis
     try:
         return el.text
     except Exception as e:
-        _failed_eclis.append(ecli)
         logging.log(
             logging.WARNING,
             f"An error occurred while getting\
@@ -129,75 +153,68 @@ def update_bar(bar, *args):
 
 
 def save_data_when_crashed(ecli):
-    global temp_df
+    global _failed_eclis
     # Append the dataframe temp_df with empty values
-    temp_df.loc[len(temp_df)] = [ecli] + [""] * (len(_columns) - 1)
+    # temp_df.loc[len(temp_df)] = [ecli] + [""] * (len(_columns) - 1)
+    _failed_eclis.append(ecli)
 
 
 def get_data_from_api(ecli_id):
     global temp_df
-    url = f"{RECHTSPRAAK_METADATA_API_BASE_URL}{ecli_id}&return=DOC"
+    url = f"{RECHTSPRAAK_METADATA_API_BASE_URL}{ecli_id}{return_type}"
+    # try:
+    #     response_code = check_api(url)
+    # except Exception as e:
+    #     logging.warning(
+    #         f"An exception occurred while checking the api\
+    #             for ECLI: {ecli_id} with error : {e}"
+    #     )
+    #     # save_data_when_crashed(ecli_id)
+    #     return
     try:
-        response_code = check_api(url)
-    except Exception as e:
-        logging.warning(
-            f"An exception occurred while getting\
-                the metadata of ECLI: {ecli_id} with error: {e}"
-        )
-        save_data_when_crashed(ecli_id)
-        return
-    try:
-        if response_code == 200:
-            try:
-                # Extract data from xml
-                xml_object = extract_data_from_xml(url)
-                soup = BeautifulSoup(xml_object, features="xml")
-                metadata_fields = {
-                    "creator": "dcterms:creator",
-                    "date_decision": "dcterms:date",
-                    "issued": "dcterms:issued",
-                    "zaaknummer": "psi:zaaknummer",
-                    "type": "dcterms:type",
-                    "subject": "dcterms:subject",
-                    "relations": "dcterms:relation",
-                    "references": "dcterms:references",
-                    "procedure": "psi:procedure",
-                    "inhoudsindicatie": "inhoudsindicatie",
-                    "hasVersion": "dcterms:hasVersion",
-                    "full_text": "uitspraak",
-                }
-                metadata_dict = {}
-                for field, tag in metadata_fields.items():
-                    if soup.find(tag) is not None:
-                        value = get_text_if_exists(soup.find(tag), ecli_id)
-                        if field == "relations" or field == "references":
-                            # Handle multiple values for relations
-                            # and references
-                            items = soup.find_all(tag)
-                            combined_value = ""
-                            for item in items:
-                                text = get_text_if_exists(item, ecli_id)
-                                if text:
-                                    combined_value += text + "\n"
-                            value = combined_value.strip()
-                        metadata_dict[field] = value
-                # Append the dataframe temp_df with the metadata
-                metadata_dict["ecli"] = ecli_id
-                temp_df.loc[len(temp_df)] = [
-                    metadata_dict.get(col, "") for col in _columns
-                ]
-                del metadata_dict
-
-                urllib.request.urlcleanup()
-
-            except Exception as e:
-                logging.warning(
-                    f"An error occurred while getting the metadata of ECLI:\
-                        {ecli_id} with error: {e}"
-                )
-                save_data_when_crashed(ecli_id)
-        else:
-            save_data_when_crashed(ecli_id)
+        # if response_code == 200:
+        # Extract data from xml
+        xml_object = extract_data_from_xml(url)
+        soup = BeautifulSoup(xml_object, features="xml")
+        metadata_fields = {
+            "creator": "dcterms:creator",
+            "date_decision": "dcterms:date",
+            "issued": "dcterms:issued",
+            "zaaknummer": "psi:zaaknummer",
+            "type": "dcterms:type",
+            "subject": "dcterms:subject",
+            "relations": "dcterms:relation",
+            "references": "dcterms:references",
+            "procedure": "psi:procedure",
+            "inhoudsindicatie": "inhoudsindicatie",
+            "hasVersion": "dcterms:hasVersion",
+            "full_text": "uitspraak",
+        }
+        metadata_dict = {}
+        for field, tag in metadata_fields.items():
+            if soup.find(tag) is not None:
+                value = get_text_if_exists(soup.find(tag), ecli_id)
+                if field == "relations" or field == "references":
+                    # Handle multiple values for relations
+                    # and references
+                    items = soup.find_all(tag)
+                    combined_value = ""
+                    for item in items:
+                        text = get_text_if_exists(item, ecli_id)
+                        if text:
+                            combined_value += text + "\n"
+                    value = combined_value.strip()
+                metadata_dict[field] = value
+        # Append the dataframe temp_df with the metadata
+        metadata_dict["ecli"] = ecli_id
+        temp_df.loc[len(temp_df)] = [metadata_dict.get(col, "")
+                                     for col in _columns]
+        del metadata_dict
+        urllib.request.urlcleanup()
+        # else:
+        #     logging.warning("Could not get HTTP 200 response for ECLI: "
+        #                     + ecli_id)
+        #     save_data_when_crashed(ecli_id)
     except Exception as e:
         logging.warning(
             f"An error occurred while getting the metadata of ECLI: {ecli_id}\
@@ -206,8 +223,60 @@ def get_data_from_api(ecli_id):
         save_data_when_crashed(ecli_id)
 
 
-def get_rechtspraak_metadata(save_file="n", dataframe=None, filename=None):
-    global temp_df, _failed_eclis
+def get_rechtspraak_metadata(
+    save_file="n", dataframe=None, filename=None, _fake_headers=False
+):
+    """
+    Extracts metadata from the Rechtspraak API for a given dataset or file and
+    optionally saves the results.
+    Parameters:
+        save_file (str, optional): Determines whether to save the metadata
+        to a file. Accepts "y" (yes) or "n" (no). Default is "n".
+        dataframe (pd.DataFrame, optional): A pandas DataFrame containing
+        the data to extract metadata from. Must include columns "id" and
+        "link".
+        filename (str, optional): The name of the CSV file (located in the
+        "data" folder) to extract metadata from. The file must include
+        columns "id" and "link".
+        _fake_headers (bool, optional): Internal flag to use fake headers
+        for API requests. Default is False. Please use this responsibly
+        as hammering a public domain resource is not nice/advisable.
+    Returns:
+        bool or pd.DataFrame:
+            - Returns False if there are errors or if metadata extraction
+            is not possible.
+            - Returns a pandas DataFrame containing the metadata if `save_file`
+            is "n" and metadata extraction is successful.
+            - Returns True if metadata is successfully extracted and saved
+            to a file.
+    Raises:
+        ValueError: If both `dataframe` and `filename` are provided,
+        or neither is provided when `save_file` is "n".
+    Notes:
+        - If `save_file` is "y" and no `dataframe` or `filename` is provided,
+        metadata will be extracted for all CSV files in the "data" folder.
+        - Metadata is saved as a CSV file in the "data" folder with the
+        suffix "_metadata.csv".
+        - Failed ECLIs (European Case Law Identifiers) are logged and saved
+        to a file with the suffix "_failed_eclis.txt".
+        - The function uses multithreading to fetch metadata from the API
+        for better performance.
+        - Temporary files and directories are created during execution and
+        cleaned up afterward.
+    Logging:
+        - Logs various stages of the metadata extraction process, including
+        warnings, errors, and progress updates.
+    Example Usage:
+        # Extract metadata from a DataFrame
+        result = get_rechtspraak_metadata(dataframe=my_dataframe,
+                                          save_file="n")
+        # Extract metadata from a file and save it
+        get_rechtspraak_metadata(filename="example.csv", save_file="y")
+        # Extract metadata for all files in the "data" folder and save them
+        get_rechtspraak_metadata(save_file="y")
+    """
+    global temp_df, fake_headers, _failed_eclis
+    fake_headers = _fake_headers
     if dataframe is not None and filename is not None:
         logging.warning(
             "Please provide either a dataframe or a filename,\
@@ -353,10 +422,10 @@ def get_rechtspraak_metadata(save_file="n", dataframe=None, filename=None):
                     }
                     for future in futures:
                         future.add_done_callback(partial(update_bar, bar))
-
                 # Delete temporary directory
                 shutil.rmtree("temp_rs_data")
                 # executor.shutdown()  # Shutdown the executor
+                global temp_df
                 rsm_df = temp_df
                 addition = rs_data[["id", "summary"]]
                 rsm_df = rsm_df.merge(
@@ -429,15 +498,16 @@ def get_rechtspraak_metadata(save_file="n", dataframe=None, filename=None):
         # Delete temporary directory
         shutil.rmtree("temp_rs_data")
         # to finish unfinished?
+        
         rsm_df = temp_df
         addition = rs_data[["id", "summary"]]
-        rsm_df = rsm_df.merge(addition, how="left", left_on="ecli", right_on="id").drop(
-            ["id"], axis=1
-        )
+        rsm_df = rsm_df.merge(addition, how="left", left_on="ecli",
+                              right_on="id").drop(["id"], axis=1)
         if save_file == "y":
             if filename is None or filename == "":
                 filename = (
-                    "custom_rechtspraak_" + datetime.now().strftime("%H-%M-%S") + ".csv"
+                    "custom_rechtspraak_" + datetime.now().strftime("%H-%M-%S")
+                    + ".csv"
                 )
             # Create directory if not exists
             Path("data").mkdir(parents=True, exist_ok=True)
@@ -469,7 +539,8 @@ def get_rechtspraak_metadata(save_file="n", dataframe=None, filename=None):
         # Check if any ECLI failed
         if len(_failed_eclis) > 0:
             logging.warning(
-                "The following ECLIs failed to get metadata: " + str(_failed_eclis)
+                "The following ECLIs failed to get metadata: " +
+                str(_failed_eclis)
             )
             # Store it in a file
             with open(
