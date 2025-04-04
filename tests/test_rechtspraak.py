@@ -3,13 +3,13 @@ from rechtspraak_extractor.rechtspraak_metadata import get_rechtspraak_metadata
 
 
 def rechtspraak_n():
-    df = get_rechtspraak(max_ecli=100, sd='2022-01-01', save_file='n')
-    get_rechtspraak_metadata(save_file='n', dataframe=df)
+    df = get_rechtspraak(max_ecli=100, sd='2025-04-01', save_file='n')
+    get_rechtspraak_metadata(save_file='n', dataframe=df, _fake_headers=True)
 
 
 def rechtspraak_y():
-    df = get_rechtspraak(max_ecli=100, sd='2022-01-01', save_file='y')
-    get_rechtspraak_metadata(save_file='y', dataframe=df)
+    df = get_rechtspraak(max_ecli=100, sd='2025-04-01', save_file='y')
+    get_rechtspraak_metadata(save_file='y', dataframe=df, _fake_headers=True)
 
 
 def test_rechtspraak_y():
