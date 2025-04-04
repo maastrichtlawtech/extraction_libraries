@@ -107,11 +107,6 @@ def extract_data_from_xml(url):
     if fake_headers:
         _headers = Headers(headers=True).generate()
     for attempt in range(2):  # Retry up to 2 times
-        if attempt == 1:
-            logging.info(
-                f"Attempt {attempt + 1}: Getting the XML\
-                    for ECLI: {url}"
-            )
         try:
             if fake_headers:
                 _request = urllib.request.Request(url, headers=_headers)
@@ -121,11 +116,7 @@ def extract_data_from_xml(url):
                 xml_file = response.read()
                 return xml_file
         except Exception as e:
-            logging.warning(
-                f"Attempt {attempt + 1}: An error occurred while\
-                    getting the XML for ECLI: {e} with error: {e}\
-                          using url: {url}, will try again"
-            )
+             # Ignore exception logging as they can be too much
             if attempt == 1:  # If it's the last attempt, return None
                 return None
 
@@ -457,6 +448,11 @@ def get_rechtspraak_metadata(
                     )
                 # Check if any ECLI failed
                 if len(_failed_eclis) > 0:
+                    if filename is None or filename == "":
+                        filename = (
+                            "custom_rechtspraak_" +
+                            datetime.now().strftime("%H-%M-%S")
+                        )
                     logging.warning(
                         "The following ECLIs failed to get metadata: "
                         + str(_failed_eclis)
@@ -543,6 +539,10 @@ def get_rechtspraak_metadata(
                 str(_failed_eclis)
             )
             # Store it in a file
+            if filename is None or filename == "":
+                filename = (
+                    "custom_rechtspraak_" + datetime.now().strftime("%H-%M-%S")
+                )
             with open(
                 "data/"
                 + filename.split("/")[-1][: len(filename.split("/")[-1]) - 4]
