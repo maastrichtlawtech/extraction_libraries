@@ -12,8 +12,10 @@ import pandas as pd
 import shutil
 import time
 import urllib
+import warnings
 
 from bs4 import BeautifulSoup
+from bs4 import XMLParsedAsHTMLWarning
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from functools import partial
@@ -26,6 +28,7 @@ from rechtspraak_extractor.rechtspraak_functions import (
 )
 from tqdm import tqdm
 
+warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 # Define base url
 RECHTSPRAAK_METADATA_API_BASE_URL = "https://data.rechtspraak.nl/uitspraken/content?id="
 # old one = "https://uitspraken.rechtspraak.nl/#!/details?id="
@@ -116,7 +119,7 @@ def extract_data_from_xml(url):
                 xml_file = response.read()
                 return xml_file
         except Exception as e:
-             # Ignore exception logging as they can be too much
+            # Ignore exception logging as they can be too much
             if attempt == 1:  # If it's the last attempt, return None
                 return None
 
@@ -151,7 +154,6 @@ def save_data_when_crashed(ecli):
 
 
 def get_data_from_api(ecli_id):
-    global temp_df
     url = f"{RECHTSPRAAK_METADATA_API_BASE_URL}{ecli_id}{return_type}"
     # try:
     #     response_code = check_api(url)
@@ -198,8 +200,15 @@ def get_data_from_api(ecli_id):
                 metadata_dict[field] = value
         # Append the dataframe temp_df with the metadata
         metadata_dict["ecli"] = ecli_id
-        temp_df.loc[len(temp_df)] = [metadata_dict.get(col, "")
-                                     for col in _columns]
+        metadata_dict = {col: metadata_dict.get(col, "") for col in _columns}
+        row_data = [metadata_dict[col] for col in _columns]
+        if len(row_data) != len(_columns):
+            logging.error(
+                f"Row data length ({len(row_data)}) does not match the number of columns ({len(_columns)})."
+            )
+        else:
+            global temp_df
+            temp_df.loc[len(temp_df)] = row_data
         del metadata_dict
         urllib.request.urlcleanup()
         # else:
@@ -416,7 +425,6 @@ def get_rechtspraak_metadata(
                 # Delete temporary directory
                 shutil.rmtree("temp_rs_data")
                 # executor.shutdown()  # Shutdown the executor
-                global temp_df
                 rsm_df = temp_df
                 addition = rs_data[["id", "summary"]]
                 rsm_df = rsm_df.merge(
@@ -449,9 +457,8 @@ def get_rechtspraak_metadata(
                 # Check if any ECLI failed
                 if len(_failed_eclis) > 0:
                     if filename is None or filename == "":
-                        filename = (
-                            "custom_rechtspraak_" +
-                            datetime.now().strftime("%H-%M-%S")
+                        filename = "custom_rechtspraak_" + datetime.now().strftime(
+                            "%H-%M-%S"
                         )
                     logging.warning(
                         "The following ECLIs failed to get metadata: "
@@ -494,16 +501,15 @@ def get_rechtspraak_metadata(
         # Delete temporary directory
         shutil.rmtree("temp_rs_data")
         # to finish unfinished?
-        
         rsm_df = temp_df
         addition = rs_data[["id", "summary"]]
-        rsm_df = rsm_df.merge(addition, how="left", left_on="ecli",
-                              right_on="id").drop(["id"], axis=1)
+        rsm_df = rsm_df.merge(addition, how="left", left_on="ecli", right_on="id").drop(
+            ["id"], axis=1
+        )
         if save_file == "y":
             if filename is None or filename == "":
                 filename = (
-                    "custom_rechtspraak_" + datetime.now().strftime("%H-%M-%S")
-                    + ".csv"
+                    "custom_rechtspraak_" + datetime.now().strftime("%H-%M-%S") + ".csv"
                 )
             # Create directory if not exists
             Path("data").mkdir(parents=True, exist_ok=True)
@@ -535,14 +541,11 @@ def get_rechtspraak_metadata(
         # Check if any ECLI failed
         if len(_failed_eclis) > 0:
             logging.warning(
-                "The following ECLIs failed to get metadata: " +
-                str(_failed_eclis)
+                "The following ECLIs failed to get metadata: " + str(_failed_eclis)
             )
             # Store it in a file
             if filename is None or filename == "":
-                filename = (
-                    "custom_rechtspraak_" + datetime.now().strftime("%H-%M-%S")
-                )
+                filename = "custom_rechtspraak_" + datetime.now().strftime("%H-%M-%S")
             with open(
                 "data/"
                 + filename.split("/")[-1][: len(filename.split("/")[-1]) - 4]
