@@ -501,6 +501,7 @@ def get_rechtspraak_metadata(
         # Delete temporary directory
         shutil.rmtree("temp_rs_data")
         # to finish unfinished?
+        global temp_df
         rsm_df = temp_df
         addition = rs_data[["id", "summary"]]
         rsm_df = rsm_df.merge(addition, how="left", left_on="ecli", right_on="id").drop(
