@@ -17,3 +17,4 @@ tzdata
 urllib3
 xmltodict
 fake-headers
+lxml
