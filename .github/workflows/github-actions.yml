@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ rechtspraak ]
 env:
-  RELEASE_VERSION: 1.3.0
+  RELEASE_VERSION: 1.3.1
 
 jobs:
   lint:
@@ -21,20 +21,14 @@ jobs:
         with:
           python-version: '3.9'
       
-      # - name: Format with black
-      #   uses: psf/black@stable
-      #   with:
-      #     options: "--check --verbose --line-length 100"
-      #     src: "rechtspraak_extractor"
-      #     version: "~= 22.0"
-
-      - name: Lint with flake8
-        uses: py-actions/flake8@v2
-        with:
-          ignore: E501,F401
-          path: "rechtspraak_extractor"
-          plugins: "flake8-bugbear==22.1.11 flake8-black"
-
+      - name: Lint with super linter
+        uses: github/super-linter@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: 'rechtspraak'
+          VALIDATE_PYTHON_BLACK: true
+          IGNORE_GITIGNORED_FILES: true
+          VALIDATE_ALL_CODEBASE: false
       
   test:
     if: github.event_name == 'pull_request'
@@ -70,6 +64,8 @@ jobs:
           pytest tests/test_rechtspraak.py --doctest-modules --junitxml=junit/test-results.xml --cov=rechtspraak_extractor --cov-report=xml --cov-report=html
 
   build:
+    name: Build Python package
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
