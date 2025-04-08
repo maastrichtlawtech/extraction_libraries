@@ -164,6 +164,7 @@ def get_data_from_api(ecli_id):
     #     )
     #     # save_data_when_crashed(ecli_id)
     #     return
+    global temp_df
     try:
         # if response_code == 200:
         # Extract data from xml
@@ -207,7 +208,6 @@ def get_data_from_api(ecli_id):
                 f"Row data length ({len(row_data)}) does not match the number of columns ({len(_columns)})."
             )
         else:
-            global temp_df
             temp_df.loc[len(temp_df)] = row_data
         del metadata_dict
         urllib.request.urlcleanup()
