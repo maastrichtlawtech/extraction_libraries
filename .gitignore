@@ -31,3 +31,4 @@ junit
 .env
 *.egg-info
 .env
+rechtspraak_extractor/testing_file.py
