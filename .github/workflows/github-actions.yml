@@ -66,7 +66,6 @@ jobs:
 
   build:
     name: Build Python package
-    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
