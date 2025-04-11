@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ rechtspraak ]
 env:
-  RELEASE_VERSION: 1.4.0
+  RELEASE_VERSION: 1.4.1
 
 jobs:
   lint:
@@ -31,6 +31,7 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
       
   test:
+    needs: lint
     if: github.event_name == 'pull_request'
     name: Test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -65,7 +66,7 @@ jobs:
 
   build:
     name: Build Python package
-    needs: lint
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
