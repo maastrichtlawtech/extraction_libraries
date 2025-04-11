@@ -15,7 +15,6 @@ import urllib
 import warnings
 
 from bs4 import BeautifulSoup
-from bs4 import XMLParsedAsHTMLWarning
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from functools import partial
@@ -29,7 +28,7 @@ from rechtspraak_extractor.rechtspraak_functions import (
 from threading import Lock
 from tqdm import tqdm
 
-warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
+
 # Define base url
 RECHTSPRAAK_METADATA_API_BASE_URL = "https://data.rechtspraak.nl/uitspraken/content?id="
 # old one = "https://uitspraken.rechtspraak.nl/#!/details?id="
