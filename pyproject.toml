@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "rechtspraak_extractor"
 readme = {file = "rechtspraak_extractor/README.md", content-type = "text/markdown"}
-version = "1.3.1"
+version = "1.4.0"
 requires-python = ">= 3.9"
 description = "Library for extracting rechtspraak data"
 authors = [
