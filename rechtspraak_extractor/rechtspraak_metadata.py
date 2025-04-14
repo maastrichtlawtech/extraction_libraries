@@ -144,26 +144,26 @@ def update_bar(bar, *args):
         bar.update(1)
 
 
-def save_data_when_crashed(ecli):
+def save_data_when_crashed(ecli, data_dir="data/"):
     # Store it in a file
     filename = (
         "custom_rechtspraak_" + datetime.now().strftime("%Y%m%d") + "_failed_eclis.txt"
     )
     with open(
-        "data/" + filename,
+        data_dir + filename,
         "a",
     ) as f:
         f.write(ecli + "\n")
 
 
-def get_data_from_api(ecli_id, _columns, fake_headers=False):
+def get_data_from_api(ecli_id, _columns, fake_headers=False, data_dir="data/"):
     url = f"{RECHTSPRAAK_METADATA_API_BASE_URL}{ecli_id}{return_type}"
     try:
         # Extract data from xml
         xml_object = extract_data_from_xml(url, fake_headers=fake_headers)
         if xml_object is None:
             logging.warning(f"Failed to fetch XML content for ECLI: {ecli_id}")
-            save_data_when_crashed(ecli_id)
+            save_data_when_crashed(ecli_id, data_dir)
             return None
         soup = BeautifulSoup(xml_object, features="xml")
         metadata_fields = {
@@ -212,7 +212,7 @@ def get_data_from_api(ecli_id, _columns, fake_headers=False):
             f"An error occurred while getting the metadata of ECLI: {ecli_id}\
                 with error: {e}"
         )
-        save_data_when_crashed(ecli_id)
+        save_data_when_crashed(ecli_id, data_dir)
         return None
 
 
@@ -222,6 +222,7 @@ def get_rechtspraak_metadata(
     filename=None,
     _fake_headers=False,
     multi_threading=True,
+    data_dir="data/",
 ):
     """
     Extracts metadata from the Rechtspraak API for a given dataset or file and
@@ -323,12 +324,12 @@ def get_rechtspraak_metadata(
     # Check if filename is provided and is correct
     if filename is not None:
         logging.info("Reading " + filename + " from data folder")
-        file_check = Path("data/" + filename)
+        file_check = Path(data_dir + filename)
         if file_check.is_file():
             logging.info("File found. Checking if metadata already exists")
             # Check if metadata already exists
             file_check = Path(
-                "data/"
+                data_dir
                 + filename.split("/")[-1][: len(filename.split("/")[-1]) - 4]
                 + "_metadata.csv"
             )
@@ -340,7 +341,7 @@ def get_rechtspraak_metadata(
                 )
                 return False
             else:
-                rs_data = pd.read_csv("data/" + filename)
+                rs_data = pd.read_csv(data_dir + filename)
                 if "id" in rs_data and "link" in rs_data:
                     no_of_rows = rs_data.shape[0]
                 else:
@@ -364,7 +365,7 @@ def get_rechtspraak_metadata(
         )
 
         logging.info("Reading all CSV files in the data folder...")
-        csv_files = read_csv("data", "metadata")
+        csv_files = read_csv(data_dir, "metadata")
 
         if len(csv_files) > 0 and save_file == "y":
             for f in csv_files:
@@ -373,7 +374,7 @@ def get_rechtspraak_metadata(
                 temp_file_name = os.path.basename(f).replace(".csv", "")
 
                 # Check if file already exists
-                file_check = Path("data/" + temp_file_name + "_metadata.csv")
+                file_check = Path(data_dir + temp_file_name + "_metadata.csv")
                 if file_check.is_file():
                     logging.info(
                         f"Metadata for {temp_file_name}.csv\
@@ -464,7 +465,7 @@ def get_rechtspraak_metadata(
                     addition, how="left", left_on="ecli", right_on="id"
                 ).drop(["id"], axis=1)
                 # Create directory if not exists
-                Path("data").mkdir(parents=True, exist_ok=True)
+                Path(data_dir).mkdir(parents=True, exist_ok=True)
 
                 if check_if_df_empty(rsm_df):
                     logging.warning(
@@ -478,7 +479,7 @@ def get_rechtspraak_metadata(
                     # Save CSV file
                     logging.info("Creating CSV file...")
                     rsm_df.to_csv(
-                        "data/" + temp_file_name + "_metadata.csv",
+                        data_dir + temp_file_name + "_metadata.csv",
                         index=False,
                         encoding="utf8",
                     )
@@ -493,8 +494,8 @@ def get_rechtspraak_metadata(
                     + datetime.now().strftime("%Y%m%d")
                     + "_failed_eclis.txt"
                 )
-                if check_file_in_directory("data/", failed_ecli_filename):
-                    with open("data/" + failed_ecli_filename, "r") as f:
+                if check_file_in_directory(data_dir, failed_ecli_filename):
+                    with open(data_dir + failed_ecli_filename, "r") as f:
                         failed_ecli_count = len(f.readlines())
                     logging.info(
                         f"Total {failed_ecli_count} ECLIs failed to fetch\
@@ -568,7 +569,7 @@ def get_rechtspraak_metadata(
                     "custom_rechtspraak_" + datetime.now().strftime("%H-%M-%S") + ".csv"
                 )
             # Create directory if not exists
-            Path("data").mkdir(parents=True, exist_ok=True)
+            Path(data_dir).mkdir(parents=True, exist_ok=True)
 
             if check_if_df_empty(rsm_df):
                 logging.warning(
@@ -582,7 +583,7 @@ def get_rechtspraak_metadata(
                 # Save CSV file
                 logging.info("Creating CSV file...")
                 rsm_df.to_csv(
-                    "data/"
+                    data_dir
                     + filename.split("/")[-1][: len(filename.split("/")[-1]) - 4]
                     + "_metadata.csv",
                     index=False,
@@ -600,8 +601,8 @@ def get_rechtspraak_metadata(
             + datetime.now().strftime("%Y%m%d")
             + "_failed_eclis.txt"
         )
-        if check_file_in_directory("data/", failed_ecli_filename):
-            with open("data/" + failed_ecli_filename, "r") as f:
+        if check_file_in_directory(data_dir, failed_ecli_filename):
+            with open(data_dir + failed_ecli_filename, "r") as f:
                 failed_ecli_count = len(f.readlines())
             logging.info(
                 f"Total {failed_ecli_count} ECLIs failed to fetch\
