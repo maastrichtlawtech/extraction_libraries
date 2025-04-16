@@ -16,9 +16,11 @@ import pandas as pd
 
 from datetime import date, datetime
 from pathlib import Path
-from rechtspraak_extractor.rechtspraak_functions import (check_api,
-                                                         get_exe_time,
-                                                         _num_of_available_docs)
+from rechtspraak_extractor.rechtspraak_functions import (
+    check_api,
+    get_exe_time,
+    _num_of_available_docs,
+)
 
 
 # Define base URL
@@ -30,12 +32,17 @@ def get_data_from_url(base_url, total_docs, start_date, end_date):
     from_index = 0
     max_ecli_per_page = 1000
     while True:
-        url = (base_url +
-               'max=' + str(max_ecli_per_page) +
-               '&from=' + str(from_index) +
-               '&date=' + str(start_date) +
-               '&date=' + str(end_date)
-               )
+        url = (
+            base_url
+            + "max="
+            + str(max_ecli_per_page)
+            + "&from="
+            + str(from_index)
+            + "&date="
+            + str(start_date)
+            + "&date="
+            + str(end_date)
+        )
         res = requests.get(url)
         res.raw.decode_content = True
         # Convert the XML data to JSON format
@@ -44,9 +51,11 @@ def get_data_from_url(base_url, total_docs, start_date, end_date):
         json_object = json.loads(json_string)
         # print(json_object['feed']['entry'])
         # Update the all_results object with the new data
-        all_results.extend(json_object['feed']['entry'])
-        logging.info(f"Retrieved {len(json_object['feed']['entry'])}\
-                     cases (total: {len(all_results)})")
+        all_results.extend(json_object["feed"]["entry"])
+        logging.info(
+            f"Retrieved {len(json_object['feed']['entry'])}\
+                     cases (total: {len(all_results)})"
+        )
 
         if len(all_results) >= total_docs:
             logging.info("Maximum number of ECLIs reached")
@@ -59,7 +68,7 @@ def get_data_from_url(base_url, total_docs, start_date, end_date):
 
 def save_csv(json_object, file_name, save_file):
     # Define the dataframe to enter the data
-    df = pd.DataFrame(columns=['id', 'title', 'summary', 'updated', 'link'])
+    df = pd.DataFrame(columns=["id", "title", "summary", "updated", "link"])
     ecli_id = []
     title = []
     summary = []
@@ -68,34 +77,37 @@ def save_csv(json_object, file_name, save_file):
 
     # Iterate over the object and fill the lists
     for i in json_object:
-        ecli_id.append(i['id'])
-        title.append(i['title']['#text'])
-        if '#text' in i['summary']:
-            summary.append(i['summary']['#text'])
-        else:
-            summary.append("No summary available")
-        updated.append(i['updated'])
-        link.append(i['link']['@href'])
-
+        try:
+            ecli_id.append(i["id"])
+            title.append(i["title"]["#text"])
+            if "#text" in i["summary"]:
+                summary.append(i["summary"]["#text"])
+            else:
+                summary.append("No summary available")
+            updated.append(i["updated"])
+            link.append(i["link"]["@href"])
+        except Exception as e:
+            logging.error(f"Error while parsing JSON object: {e}")
+            continue
     # Save the lists to dataframe
-    df['id'] = ecli_id
-    df['title'] = title
-    df['summary'] = summary
-    df['updated'] = updated
-    df['link'] = link
+    df["id"] = ecli_id
+    df["title"] = title
+    df["summary"] = summary
+    df["updated"] = updated
+    df["link"] = link
 
-    if save_file == 'y':
+    if save_file == "y":
         # Create directory if not exists
-        Path('data').mkdir(parents=True, exist_ok=True)
+        Path("data").mkdir(parents=True, exist_ok=True)
 
         # Save CSV file
         # file_path = os.path.join('data', file_name + '.csv')
-        df.to_csv('data/' + file_name + '.csv', index=False, encoding='utf8')
+        df.to_csv("data/" + file_name + ".csv", index=False, encoding="utf8")
         logging.info("Data saved to CSV file successfully.")
     return df
 
 
-def get_rechtspraak(max_ecli=1000, sd='1900-01-01', ed=None, save_file='y'):
+def get_rechtspraak(max_ecli=1000, sd="1900-01-01", ed=None, save_file="y"):
     logging.info("Rechtspraak dump downloader API")
     starting_date = sd
     save_file = save_file
@@ -111,11 +123,16 @@ def get_rechtspraak(max_ecli=1000, sd='1900-01-01', ed=None, save_file='y'):
     start_time = time.time()
 
     # Build the URL after getting all the arguments
-    url = (RECHTSPRAAK_API_BASE_URL +
-           'max=' + str(max_ecli) +
-           '&from=0' +
-           '&date=' + starting_date +
-           '&date=' + ending_date)
+    url = (
+        RECHTSPRAAK_API_BASE_URL
+        + "max="
+        + str(max_ecli)
+        + "&from=0"
+        + "&date="
+        + starting_date
+        + "&date="
+        + ending_date
+    )
 
     logging.info("Checking the API")
     # Check the working of API
@@ -124,33 +141,38 @@ def get_rechtspraak(max_ecli=1000, sd='1900-01-01', ed=None, save_file='y'):
         logging.info("API is working fine!")
         # Check the number of documents available for retrieval
         logging.info("Checking the number of documents available")
-        total_docs = _num_of_available_docs(RECHTSPRAAK_API_BASE_URL,
-                                            starting_date,
-                                            ending_date,
-                                            max_ecli)
+        total_docs = _num_of_available_docs(
+            RECHTSPRAAK_API_BASE_URL, starting_date, ending_date, max_ecli
+        )
         if total_docs < max_ecli:
-            logging.info(f"Total available number of documents is {total_docs}\
-                         so cannot fetch {max_ecli} documents")
+            logging.info(
+                f"Total available number of documents is {total_docs}\
+                         so cannot fetch {max_ecli} documents"
+            )
         elif total_docs == 0:
             logging.info("No documents available for the given date range")
             return
         else:
             total_docs = max_ecli
-        logging.info(f"Total number of documents for retrieval:{total_docs}\
-                     from date range {starting_date} to {ending_date}")
-        json_object = get_data_from_url(RECHTSPRAAK_API_BASE_URL, total_docs,
-                                        starting_date, ending_date)
+        logging.info(
+            f"Total number of documents for retrieval:{total_docs}\
+                     from date range {starting_date} to {ending_date}"
+        )
+        json_object = get_data_from_url(
+            RECHTSPRAAK_API_BASE_URL, total_docs, starting_date, ending_date
+        )
         logging.info(f"Found {len(json_object)} cases!")
         if json_object:
             # Get current time
             current_time = datetime.now().strftime("%H-%M-%S")
 
             # Build file name
-            file_name = 'rechtspraak_' + starting_date + '_' +\
-                ending_date + '_' + current_time
+            file_name = (
+                "rechtspraak_" + starting_date + "_" + ending_date + "_" + current_time
+            )
             get_exe_time(start_time)
 
-            if save_file == 'n':
+            if save_file == "n":
                 global_rs_df = save_csv(json_object, file_name, save_file)
                 return global_rs_df
             else:
