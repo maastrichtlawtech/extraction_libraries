@@ -367,7 +367,7 @@ def get_rechtspraak_metadata(
         logging.info("Reading all CSV files in the data folder...")
         csv_files = read_csv(data_dir, "metadata")
 
-        if len(csv_files) > 0 and save_file == "y":
+        if len(csv_files) > 0:
             for f in csv_files:
                 # Create empty dataframe
                 rsm_df = pd.DataFrame(columns=_columns)
@@ -518,7 +518,7 @@ def get_rechtspraak_metadata(
 
             return True
 
-    if rs_data is not None:
+    if rs_data is not None or rs_data != "":
         rsm_df = pd.DataFrame(columns=_columns)
 
         logging.info("Getting metadata of " + str(no_of_rows) + " ECLIs")
