@@ -144,7 +144,7 @@ def update_bar(bar, *args):
         bar.update(1)
 
 
-def save_data_when_crashed(ecli, data_dir="data/"):
+def save_data_when_crashed(ecli, data_dir="data/raw/"):
     # Store it in a file
     filename = (
         "custom_rechtspraak_" + datetime.now().strftime("%Y%m%d") + "_failed_eclis.txt"
@@ -156,7 +156,7 @@ def save_data_when_crashed(ecli, data_dir="data/"):
         f.write(ecli + "\n")
 
 
-def get_data_from_api(ecli_id, _columns, fake_headers=False, data_dir="data/"):
+def get_data_from_api(ecli_id, _columns, fake_headers=False, data_dir="data/raw/"):
     url = f"{RECHTSPRAAK_METADATA_API_BASE_URL}{ecli_id}{return_type}"
     try:
         # Extract data from xml
@@ -222,7 +222,7 @@ def get_rechtspraak_metadata(
     filename=None,
     _fake_headers=False,
     multi_threading=True,
-    data_dir="data/",
+    data_dir="data/raw/",
 ):
     """
     Extracts metadata from the Rechtspraak API for a given dataset or file and
@@ -419,7 +419,7 @@ def get_rechtspraak_metadata(
 
                 # Create a temporary directory to save files
                 time.sleep(1)
-                Path("temp_rs_data").mkdir(parents=True, exist_ok=True)
+                # Path("temp_rs_data").mkdir(parents=True, exist_ok=True)
                 thread_results = []
                 with ThreadPoolExecutor(max_workers=max_workers) as executor:
                     with tqdm(
@@ -436,6 +436,7 @@ def get_rechtspraak_metadata(
                                 ecli_id=ecli,
                                 _columns=_columns,
                                 fake_headers=_fake_headers,
+                                data_dir=data_dir,
                             ): ecli
                             for ecli in ecli_list
                         }
@@ -456,8 +457,16 @@ def get_rechtspraak_metadata(
                     temp_df = pd.concat(thread_results, ignore_index=True)
                 else:
                     temp_df = pd.DataFrame(columns=_columns)
-                # Delete temporary directory
-                shutil.rmtree("temp_rs_data")
+                # try:
+                #     # Delete temporary directory if it exists
+                #     if os.path.exists("temp_rs_data"):
+                #         shutil.rmtree("temp_rs_data")
+                # except Exception as e:
+                #     logging.info(
+                #         f"An error occurred while deleting temp directory: {e}"
+                #     )
+                #     # Nothing to do here
+
                 # executor.shutdown()  # Shutdown the executor
                 rsm_df = temp_df
                 addition = rs_data[["id", "summary"]]
@@ -518,7 +527,7 @@ def get_rechtspraak_metadata(
         ecli_list = list(rs_data.loc[:, "id"])
 
         # Create a temporary directory to save files
-        Path("temp_rs_data").mkdir(parents=True, exist_ok=True)
+        # Path("temp_rs_data").mkdir(parents=True, exist_ok=True)
         time.sleep(1)
         thread_results = []
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -554,10 +563,14 @@ def get_rechtspraak_metadata(
             temp_df = pd.concat(thread_results, ignore_index=True)
         else:
             temp_df = pd.DataFrame(columns=_columns)
-
-        # Delete temporary directory
-        shutil.rmtree("temp_rs_data")
-        # to finish unfinished?
+        # try:
+        #     # Delete temporary directory
+        #     if os.path.exists("temp_rs_data"):
+        #         shutil.rmtree("temp_rs_data")
+        #         # to finish unfinished?
+        # except Exception as e:
+        #     logging.info(f"An error occurred while deleting temp directory: {e}")
+        #     # Nothing to do here
         rsm_df = temp_df
         addition = rs_data[["id", "summary"]]
         rsm_df = rsm_df.merge(addition, how="left", left_on="ecli", right_on="id").drop(
