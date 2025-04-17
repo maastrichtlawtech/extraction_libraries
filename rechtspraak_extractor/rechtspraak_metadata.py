@@ -309,18 +309,6 @@ def get_rechtspraak_metadata(
     rs_data = ""
     csv_files = 0
 
-    # Check if dataframe is provided and is correct
-    if dataframe is not None:
-        if "id" in dataframe and "link" in dataframe:
-            rs_data = dataframe
-            no_of_rows = rs_data.shape[0]
-        else:
-            logging.info(
-                "Dataframe is corrupted or does not contain\
-                         necessary information to get the metadata."
-            )
-            return False
-
     # Check if filename is provided and is correct
     if filename is not None:
         logging.info("Reading " + filename + " from data folder")
@@ -518,9 +506,19 @@ def get_rechtspraak_metadata(
 
             return True
 
-    if rs_data is not None or rs_data != "":
+    else:
+        # Check if dataframe is provided and is correct
+        if dataframe is not None:
+            if "id" in dataframe and "link" in dataframe:
+                rs_data = dataframe
+                no_of_rows = rs_data.shape[0]
+            else:
+                logging.info(
+                    "Dataframe is corrupted or does not contain\
+                        necessary information to get the metadata."
+                )
+                return False
         rsm_df = pd.DataFrame(columns=_columns)
-
         logging.info("Getting metadata of " + str(no_of_rows) + " ECLIs")
         logging.info("Working. Please wait...")
         # Get all ECLIs in a list
